@@ -14,7 +14,7 @@
     </div>
 </div>
 
-<div class="flex py-2 px-10 h-[calc(100vh-160px)] w-full gap-5">
+<div class="flex py-2 px-4 h-[calc(100vh-160px)] w-full gap-5">
     <div class="bg-light-primary inset-shadow-sm/25 w-5/12 h-full rounded-2xl">
         <DocumentCard roundedTop={true}/>
         <DocumentCard/>
