@@ -1,3 +1,14 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@theme {
+    --light-primary: #F5F5F5;
+    --light-secondary: #1E6D79;
+    --light-active-primary: #F8851C;
+    --light-active-secondary: #103238;
+    --light-text-primary: #333333;
+    --light-navbar-primary: #03203F;
+    --light-button-primary: #01699B;
+    --light-button-content-primary: #FFFFFF;
+}
