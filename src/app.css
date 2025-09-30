@@ -3,12 +3,12 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-    --light-primary: #F5F5F5;
-    --light-secondary: #1E6D79;
-    --light-active-primary: #F8851C;
-    --light-active-secondary: #103238;
-    --light-text-primary: #333333;
-    --light-navbar-primary: #03203F;
-    --light-button-primary: #01699B;
-    --light-button-content-primary: #FFFFFF;
+    --color-light-primary: #F5F5F5;
+    --color-light-secondary: #1E6D79;
+    --color-light-active-primary: #F8851C;
+    --color-light-active-secondary: #103238;
+    --color-light-text-primary: #333333;
+    --color-light-navbar-primary: #03203F;
+    --color-light-button-primary: #01699B;
+    --color-light-button-content-primary: #FFFFFF;
 }
