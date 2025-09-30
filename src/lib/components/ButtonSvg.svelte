@@ -4,6 +4,8 @@
     import EditIcon from '$lib/assets/edit.svg';
     import TrashIcon from '$lib/assets/trashcan.svg';
     import MagnifyingGlassIcon from '$lib/assets/magnifying-glass.svg';
+    import FilterIcon from '$lib/assets/filter.svg';
+    import DropdownIcon from '$lib/assets/dropdown.svg';
 
     export let type = 'default';
     export let size = 8;
@@ -25,6 +27,12 @@
             break;
         case 'search':
             iconSrc = MagnifyingGlassIcon;
+            break;
+        case 'filter':
+            iconSrc = FilterIcon;
+            break;
+        case 'dropdown':
+            iconSrc = DropdownIcon;
             break;
         default:
             iconSrc = HomeIcon; // Fallback icon
