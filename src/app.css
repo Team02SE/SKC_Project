@@ -4,6 +4,7 @@
 
 @theme {
     --color-light-primary: #F5F5F5;
+    --color-light-hovered-primary: #E0E0E0;
     --color-light-secondary: #1E6D79;
     --color-light-active-primary: #F8851C;
     --color-light-active-secondary: #103238;
@@ -11,4 +12,10 @@
     --color-light-navbar-primary: #03203F;
     --color-light-button-primary: #01699B;
     --color-light-button-content-primary: #FFFFFF;
+}
+
+@layer base {
+    body {
+        @apply bg-light-primary text-light-text-primary;
+    }
 }
