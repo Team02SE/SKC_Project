@@ -6,6 +6,7 @@
 	import MagnifyingGlassIcon from '$lib/assets/magnifying-glass.svg';
 	import FilterIcon from '$lib/assets/filter.svg';
 	import DropdownIcon from '$lib/assets/dropdown.svg';
+    import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
 
 	export let type:
 		| 'default'
@@ -16,6 +17,7 @@
 		| 'search'
 		| 'filter'
 		| 'dropdown'
+		| 'cloudUpload'
 		= 'default';
 	export let size: number = 8;
 	export let customClass: string = '';
@@ -28,7 +30,8 @@
 		search: MagnifyingGlassIcon,
 		filter: FilterIcon,
 		dropdown: DropdownIcon,
-		default: HomeIcon
+		default: HomeIcon,
+		cloudUpload: CloudUploadIcon
 	};
 
 	const sizeMap: Record<number, string> = {
