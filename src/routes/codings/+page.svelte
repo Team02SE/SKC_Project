@@ -9,9 +9,8 @@
 	<ButtonSvg type="home" size={12} />
 </div>
 
-<div class="flex h-full w-full gap-5 px-4 py-2">
-	<!-- sidebar -->
-	<div class="sticky top-36 h-170 w-56 self-start bg-green-500"></div>
+<div class="flex w-full gap-5 px-4 py-2">
+	<div class="sticky top-40 h-[calc(100vh-160px)] w-56 self-start bg-green-500"></div>
 
 	<!-- middle content -->
 	<div class="h-full w-5/12 rounded-2xl bg-light-primary p-5 inset-shadow-sm/25">
@@ -22,7 +21,7 @@
 	</div>
 
 	<!-- right content -->
-	<div class="flex flex-1 items-center h-[calc(100vh-160px)] sticky top-24 justify-center rounded-2xl bg-light-primary inset-shadow-sm/25">
+	<div class="p-20 flex-1 sticky top-24 h-[calc(100vh-110px)] flex items-center justify-center rounded-2xl bg-light-primary inset-shadow-sm/25">
 		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
 	</div>
 </div>
