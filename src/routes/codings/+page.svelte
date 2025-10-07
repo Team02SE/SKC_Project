@@ -20,7 +20,7 @@
 	<div class="h-150 w-56 bg-green-500"></div>
 
 	<!-- Middle content -->
-	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-170px)] w-5/12 inset-shadow-sm/25">
+	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
 		<CodingsEssence />
 		<CodingsEssence />
 		<CodingsEssence />
@@ -28,7 +28,7 @@
 	</div>
 
 	<!-- Right content -->
-	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-170px)] inset-shadow-sm/25">
+	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-240px)] inset-shadow-sm/25">
 		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
 	</div>
 </div>
