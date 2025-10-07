@@ -5,27 +5,30 @@
 </script>
 
 <Header />
-<div class="flex h-18 w-full items-center p-4 sticky top-20">
-    <ButtonSvg type="home" size={12} />
-    <div class="w-px h-10 bg-light-text-primary mx-4"></div>
-    <div class="bg-light-navbar-primary h-full w-64 rounded-t-2xl flex justify-center items-center">
-		<p class="text-light-primary text-medium font-medium px-1">Editing - DOCUMENT_NAME</p>
+
+<!-- Top bar -->
+<div class="sticky top-20 flex items-center w-full p-4 h-18">
+	<ButtonSvg type="home" size={12} />
+	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
+	<div class="flex items-center justify-center h-full w-64 rounded-t-2xl bg-light-navbar-primary">
+		<p class="px-1 font-medium text-light-primary">Editing - DOCUMENT_NAME</p>
 	</div>
 </div>
 
 <div class="flex w-full gap-5 px-4 py-2">
-	<div class="sticky top-40 h-[calc(100vh-160px)] w-56 bg-green-500"></div>
+	<!-- Left sidebar -->
+	<div class="h-150 w-56 bg-green-500"></div>
 
-	<!-- middle content -->
-	<div class="h-full w-5/12 rounded-2xl bg-light-primary p-5 inset-shadow-sm/25">
+	<!-- Middle content -->
+	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-170px)] w-5/12 inset-shadow-sm/25">
 		<CodingsEssence />
 		<CodingsEssence />
 		<CodingsEssence />
 		<CodingsEssence />
 	</div>
 
-	<!-- right content -->
-	<div class="p-20 flex-1 sticky top-24 h-[calc(100vh-110px)] flex items-center justify-center rounded-2xl bg-light-primary inset-shadow-sm/25">
+	<!-- Right content -->
+	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-170px)] inset-shadow-sm/25">
 		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
 	</div>
 </div>
