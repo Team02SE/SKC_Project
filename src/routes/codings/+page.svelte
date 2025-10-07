@@ -2,6 +2,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
+	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
 </script>
 
 <Header />
@@ -22,9 +23,7 @@
 	<!-- Middle content -->
 	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
 		<CodingsEssence />
-		<CodingsEssence />
-		<CodingsEssence />
-		<CodingsEssence />
+		<CodingsActivities />
 	</div>
 
 	<!-- Right content -->
