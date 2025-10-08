@@ -3,6 +3,7 @@
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
 	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
+	import CodingsEffects from '$lib/components/CodingsEffects.svelte';
 </script>
 
 <Header />
@@ -24,6 +25,7 @@
 	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
 		<CodingsEssence />
 		<CodingsActivities />
+		<CodingsEffects />
 	</div>
 
 	<!-- Right content -->

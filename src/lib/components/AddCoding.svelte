@@ -9,7 +9,7 @@
 
 <div class={`flex flex-col gap-2 ${customClass}`}>
 	<div class="flex h-10 w-auto items-center rounded-2xl shadow-md/25 {customClass}">
-		<p class="flex-1 pl-2 font-medium text-light-text-primary">Select...</p>
+		<p class="flex-1 pl-2 font-medium text-light-text-primary/50">Select...</p>
 		<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" onClick={buttonOnClick} />
 	</div>
 	<div class="flex justify-end">
