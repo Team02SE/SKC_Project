@@ -2,6 +2,7 @@
   import { page } from '$app/stores';
 </script>
 
+<!--This component is the navbar located within the header of each page-->
 <nav class="bg-white px-6 py-3 flex items-center shadow-md">
   <!-- Left section: nav links -->
   <ul class="ml-24 flex gap-6">
