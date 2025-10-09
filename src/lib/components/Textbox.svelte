@@ -14,7 +14,7 @@
     </div>
     <textarea
         bind:value={content}
-        placeholder="Search..."
+        placeholder="Enter content..."
         class="min-h-[120px] w-full resize-none rounded-2xl border-0 bg-transparent px-5 py-3 text-lg text-light-text-primary placeholder-light-text-primary/50 shadow-md/25 outline-none"
     ></textarea>
 </div>
