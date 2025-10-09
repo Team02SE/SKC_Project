@@ -5,6 +5,7 @@
     import SearchBar from '$lib/components/SearchBar.svelte';
     import FilterBar from '$lib/components/FilterBar.svelte';
     import UploadComplete from '$lib/components/UploadComplete.svelte';
+    import DocumentInfo from '$lib/components/DocumentInfo.svelte';
 </script>
 
 <Header/>
@@ -17,7 +18,7 @@
     </div>
 </div>
 
-<div class="flex py-2 px-4 h-[calc(100vh-160px)] w-full gap-5">
+<div class="flex py-2 px-4 h-[calc(100vh)] w-full gap-5">
     <div class="bg-light-primary inset-shadow-sm/25 w-5/12 h-full rounded-2xl">
         <DocumentCard roundedTop={true}/>
         <DocumentCard/>
@@ -25,7 +26,7 @@
         <DocumentCard/>
         <DocumentCard/>
     </div>
-    <div class="bg-light-primary inset-shadow-sm/25 flex-1 rounded-2xl flex justify-center items-center">
-        <p class="text-light-text-primary opacity-25 text-4xl">Select a document to see its preview</p>
+    <div class="bg-light-primary inset-shadow-sm/25 flex-1 rounded-2xl flex justify-center items-stretch">
+        <DocumentInfo/>
     </div>
 </div>
