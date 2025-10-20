@@ -2,6 +2,8 @@
 	import HomeIcon from '$lib/assets/home.svg';
 	import EyeIcon from '$lib/assets/eye.svg';
 	import EditIcon from '$lib/assets/edit.svg';
+	import NodeIcon from '$lib/assets/node-editor.svg';
+	import SaveIcon from '$lib/assets/save.svg';
 	import TrashIcon from '$lib/assets/trashcan.svg';
 	import MagnifyingGlassIcon from '$lib/assets/magnifying-glass.svg';
 	import FilterIcon from '$lib/assets/filter.svg';
@@ -18,6 +20,8 @@
 
 	const iconMap: Record<string, string> = {
 		home: HomeIcon,
+		node: NodeIcon,
+		save: SaveIcon,
 		eye: EyeIcon,
 		edit: EditIcon,
 		trash: TrashIcon,
