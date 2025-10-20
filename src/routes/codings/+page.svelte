@@ -2,6 +2,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
+	import SidenNav from '$lib/components/SidenNav.svelte';
 </script>
 
 <Header />
@@ -17,7 +18,7 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<!-- Left sidebar -->
-	<div class="h-150 w-56 bg-green-500"></div>
+	 <SidenNav />
 
 	<!-- Middle content -->
 	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
