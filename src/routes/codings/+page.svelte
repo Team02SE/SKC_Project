@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Header from '$lib/components/Header.svelte';
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
@@ -8,6 +8,13 @@
 	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
 	import CodingsOS from '$lib/components/CodingsOS.svelte';
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
+
+	let essenceRef: HTMLDivElement | null = null;
+	let activitiesRef: HTMLDivElement | null = null;
+	let effectsRef: HTMLDivElement | null = null;
+	let destepRef: HTMLDivElement | null = null;
+	let osRef: HTMLDivElement | null = null;
+	let svRef: HTMLDivElement | null = null;
 </script>
 
 <Header />
@@ -23,16 +30,26 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<!-- Left sidebar -->
-	 <SidenNav />
+	 <SidenNav on:selectSection={(e: CustomEvent<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities">) => {
+		const map: Record<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities", HTMLDivElement | null> = {
+			essence: essenceRef,
+			activities: activitiesRef,
+			effects: effectsRef,
+			destep: destepRef,
+			opportunity: osRef,
+			vulnerabilities: svRef
+		};
+		map[e.detail]?.scrollIntoView({ behavior: "smooth" });
+	}} />
 
 	<!-- Middle content -->
 	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
-		<CodingsEssence />
-		<CodingsActivities />
-		<CodingsEffects />
-		<CodingsDESTEP />
-		<CodingsOS />
-		<CodingsSV />
+		<div bind:this={essenceRef}><CodingsEssence /></div>
+		<div bind:this={activitiesRef}><CodingsActivities /></div>
+		<div bind:this={effectsRef}><CodingsEffects /></div>
+		<div bind:this={destepRef}><CodingsDESTEP /></div>
+		<div bind:this={osRef}><CodingsOS /></div>
+		<div bind:this={svRef}><CodingsSV /></div>
 	</div>
 
 	<!-- Right content -->

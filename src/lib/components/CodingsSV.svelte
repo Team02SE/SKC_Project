@@ -27,16 +27,18 @@
     };
 </script>
 
-<h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities - Clustering</h1>
-<div class="flex h-full w-full gap-30">
-    <div class="h-full w-1/2">
-        <TreeCodings data={svData} />
+<div>
+    <h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities - Clustering</h1>
+    <div class="flex h-full w-full gap-30">
+        <div class="h-full w-1/2">
+            <TreeCodings data={svData} />
+        </div>
+
+        <div class="h-full w-1/2">
+            <AddCoding />
+        </div>
     </div>
 
-    <div class="h-full w-1/2">
-        <AddCoding />
-    </div>
+    <h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities</h1>
+    <Textbox />
 </div>
-
-<h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities</h1>
-<Textbox />
