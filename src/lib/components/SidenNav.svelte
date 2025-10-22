@@ -42,10 +42,10 @@
 			{/if}
 		</div>
 	{/each}
-	<div class="rounded-xl bg-light-secondary">
+	<div class="rounded-xl bg-light-secondary hover:brightness-125 transition-colors duration-200">
 		<ButtonSvg type="node" size={12} customClass="p-2" />
 	</div>
-	<div class="rounded-xl bg-light-active-primary">
+	<div class="rounded-xl bg-light-active-primary hover:brightness-125 transition-colors duration-200">
 		<ButtonSvg type="save" size={12} customClass="p-2" />
 	</div>
 </div>
