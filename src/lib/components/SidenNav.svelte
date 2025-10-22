@@ -4,8 +4,8 @@
 	import { flip } from 'svelte/animate';
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
+	export let selectedId: string | null = null;
 	let hoveredId: string | null = null;
-	let selectedId: string | null = null;
 	const navItems = [
 		{ id: 'essence', initial: 'E', label: 'Essence' },
 		{ id: 'activities', initial: 'A', label: 'Activities' },
@@ -29,10 +29,11 @@
 				on:focus={() => (hoveredId = item.id)}
 				on:blur={() => (hoveredId = null)}
 				on:click={() => {
-					selectedId = selectedId === item.id ? null : item.id;
 					dispatch('selectSection', item.id);
 				}}
-				class="flex h-15 w-15 transform items-center justify-center rounded-full bg-light-secondary transition-all duration-200 hover:scale-110 hover:bg-light-active-primary focus:scale-110 focus:bg-light-active-primary"
+				class={`flex h-15 w-15 transform items-center justify-center rounded-full transition-all duration-200
+					${selectedId === item.id ? 'bg-light-active-primary' : 'bg-light-secondary'}
+					hover:scale-110 focus:scale-110`}
 			>
 				<span class="pointer-events-none">{item.initial}</span>
 			</button>

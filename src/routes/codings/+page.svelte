@@ -15,6 +15,34 @@
 	let destepRef: HTMLDivElement | null = null;
 	let osRef: HTMLDivElement | null = null;
 	let svRef: HTMLDivElement | null = null;
+
+	let selectedId: string | null = null;
+
+	function handleScroll(e: Event) {
+		const sections = [
+			{ id: 'essence', ref: essenceRef },
+			{ id: 'activities', ref: activitiesRef },
+			{ id: 'effects', ref: effectsRef },
+			{ id: 'destep', ref: destepRef },
+			{ id: 'opportunity', ref: osRef },
+			{ id: 'vulnerabilities', ref: svRef }
+		];
+		const container = e.target as HTMLElement;
+		const containerTop = container.getBoundingClientRect().top;
+		let minDiff = Infinity;
+		let found = 'essence';
+		for (const section of sections) {
+			if (section.ref) {
+				const rect = section.ref.getBoundingClientRect();
+				const diff = Math.abs(rect.top - containerTop);
+				if (diff < minDiff) {
+					minDiff = diff;
+					found = section.id;
+				}
+			}
+		}
+		selectedId = found;
+	}
 </script>
 
 <Header />
@@ -30,20 +58,24 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<!-- Left sidebar -->
-	 <SidenNav on:selectSection={(e: CustomEvent<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities">) => {
-		const map: Record<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities", HTMLDivElement | null> = {
-			essence: essenceRef,
-			activities: activitiesRef,
-			effects: effectsRef,
-			destep: destepRef,
-			opportunity: osRef,
-			vulnerabilities: svRef
-		};
-		map[e.detail]?.scrollIntoView({ behavior: "smooth" });
-	}} />
+	 <SidenNav
+		{selectedId}
+		on:selectSection={(e: CustomEvent<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities">) => {
+			const map: Record<"essence" | "activities" | "effects" | "destep" | "opportunity" | "vulnerabilities", HTMLDivElement | null> = {
+				essence: essenceRef,
+				activities: activitiesRef,
+				effects: effectsRef,
+				destep: destepRef,
+				opportunity: osRef,
+				vulnerabilities: svRef
+			};
+			map[e.detail]?.scrollIntoView({ behavior: "smooth" });
+			selectedId = e.detail;
+		}}
+	 />
 
 	<!-- Middle content -->
-	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
+	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25" on:scroll={handleScroll}>
 		<div bind:this={essenceRef}><CodingsEssence /></div>
 		<div bind:this={activitiesRef}><CodingsActivities /></div>
 		<div bind:this={effectsRef}><CodingsEffects /></div>
