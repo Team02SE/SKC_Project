@@ -1,13 +1,19 @@
-<script>
-	import Header from '$lib/components/Header.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
-	import SidenNav from '$lib/components/SidenNav.svelte';
-	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
-	import CodingsEffects from '$lib/components/CodingsEffects.svelte';
-	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
-	import CodingsOS from '$lib/components/CodingsOS.svelte';
-	import CodingsSV from '$lib/components/CodingsSV.svelte';
+<script lang="ts">
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+
+	console.log(data)
+
 </script>
 
 
+
+
+<sectiom class="flex w-full h-full">
+	<div>
+		{#each data.effects as coding }
+			<p class="p-2 bg-red-200">{coding.name}</p>
+		{/each}
+	</div>
+</sectiom>	
