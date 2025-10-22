@@ -8,10 +8,14 @@
 	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
 	import CodingsOS from '$lib/components/CodingsOS.svelte';
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
+	import NavBar from '$lib/components/NavBar.svelte';
+	import Sidebar from '$lib/components/Sidebar.svelte';
 </script>
+
+<!--<NavBar/>-->
     
 <!-- Top bar -->
-<div class="sticky top-20 flex items-center w-full p-4 h-18">
+<div class="sticky mt-4 flex items-center w-full p-4 h-18">
 	<ButtonSvg type="home" size={12} />
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
 	<div class="flex items-center justify-center h-full w-64 rounded-t-2xl bg-light-navbar-primary">
@@ -21,7 +25,7 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<!-- Left sidebar -->
-	 <SidenNav />
+	<SidenNav/>
 
 	<!-- Middle content -->
 	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
