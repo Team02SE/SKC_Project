@@ -1,6 +1,7 @@
 <script>
   import skcLogo from '$lib/assets/SKC-logo.png';
   import profile from '$lib/assets/profile.svg';
+  import NavBar from './NavBar.svelte';
 </script>
 
 <!-- change color of bg to predefined colors -->
