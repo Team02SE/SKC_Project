@@ -3,7 +3,10 @@
     import ButtonSvg from '$lib/components/ButtonSvg.svelte';
     import SearchBar from '$lib/components/SearchBar.svelte';
     import FilterBar from '$lib/components/FilterBar.svelte';
+	import NavBar from '$lib/components/NavBar.svelte';
 </script>
+
+<NavBar/>
 
 <!-- <UploadComplete/> -->
 <div class="h-18 w-full p-4 flex justify-between items-center">

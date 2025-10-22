@@ -6,9 +6,12 @@
     import FilterBar from '$lib/components/FilterBar.svelte';
     import UploadComplete from '$lib/components/UploadComplete.svelte';
     import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+	import NavBar from '$lib/components/NavBar.svelte';
 
     const workflows = [1,2,3,4,5,6,7,8,9,10, 11, 22,33]
 </script>
+
+<NavBar/>
 
 <!-- <UploadComplete/> -->
 <div class="h-18 w-full p-4 flex justify-between items-center">
