@@ -123,9 +123,10 @@
 	}
 </script>
 
-<Header />
-
 <main class="ml-20 min-h-screen">
+	<div class="flex flex-1 justify-start m-4 bg">
+		<a class="bg-orange-500 rounded-2xl text-white p-2 text-sm" href="/">← Go back to the home page</a>
+	</div>
 	<div class="max-w-4xl mx-auto p-8">
 		<div class="mb-8">
 			<h1 class="text-4xl font-bold mb-2" style="color: var(--color-light-text-primary);">Profile Settings</h1>

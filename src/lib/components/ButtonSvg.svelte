@@ -11,12 +11,15 @@
     import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
 	import MoreOptions from '$lib/assets/three-dots-circle.svg';
 	import CloseIcon from '$lib/assets/x.svg';
+	import { goto } from '$app/navigation';
 
 	export let type: string = 'default';
 	export let size: number = 8;
 	export let customClass: string = '';
 
-	export let onClick = () => {};
+	export let onClick = () => {
+		goto('/')
+	};
 
 	const iconMap: Record<string, string> = {
 		home: HomeIcon,
@@ -46,6 +49,6 @@
 	const sizeClass = sizeMap[size] || 'h-8 w-8';
 </script>
 
-<button type="button" class="p-0 border-none bg-transparent {customClass}" on:click={onClick} aria-label={type}>
+<button type="button" class="p-0 border-none bg-transparent cursor-pointer {customClass}" on:click={onClick} aria-label={type}>
 	<img src={iconSrc} alt={type} class={sizeClass} />
 </button>
