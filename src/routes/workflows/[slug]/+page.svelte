@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Header from '$lib/components/Header.svelte';
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
@@ -8,6 +8,65 @@
 	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
 	import CodingsOS from '$lib/components/CodingsOS.svelte';
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
+
+	let containerRef: HTMLDivElement | null = null;
+	let essenceRef: HTMLDivElement | null = null;
+	let activitiesRef: HTMLDivElement | null = null;
+	let effectsRef: HTMLDivElement | null = null;
+	let destepRef: HTMLDivElement | null = null;
+	let osRef: HTMLDivElement | null = null;
+	let svRef: HTMLDivElement | null = null;
+
+	let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null = null;
+
+	function onContainerScroll() {
+		if (!containerRef) return;
+		const containerTop = containerRef.getBoundingClientRect().top;
+		const sections = [
+			{ id: 'essence', ref: essenceRef },
+			{ id: 'activities', ref: activitiesRef },
+			{ id: 'effects', ref: effectsRef },
+			{ id: 'destep', ref: destepRef },
+			{ id: 'opportunity', ref: osRef },
+			{ id: 'vulnerabilities', ref: svRef }
+		];
+
+		let minDiff = Infinity;
+		let nearest: typeof selectedId = null;
+		for (const s of sections) {
+			if (!s.ref) continue;
+			const rect = s.ref.getBoundingClientRect();
+			const diff = Math.abs(rect.top - containerTop);
+			if (diff < minDiff) {
+				minDiff = diff;
+				nearest = s.id as any;
+			}
+		}
+		selectedId = nearest;
+	}
+
+	function scrollToSection(id: string) {
+		const map: Record<string, HTMLDivElement | null> = {
+			essence: essenceRef,
+			activities: activitiesRef,
+			effects: effectsRef,
+			destep: destepRef,
+			opportunity: osRef,
+			vulnerabilities: svRef
+		};
+
+		const target = map[id];
+		if (!target || !containerRef) return;
+
+		// compute offset of target relative to container's content
+		const containerRect = containerRef.getBoundingClientRect();
+		const targetRect = target.getBoundingClientRect();
+		const offsetTop = targetRect.top - containerRect.top + containerRef.scrollTop;
+
+		// small offset so the section isn't flush to the container top
+		const topPadding = 8;
+		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
+	}
 </script>
     
 <!-- Top bar -->
@@ -21,16 +80,18 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<!-- Left sidebar -->
-	 <SidenNav />
+	 <SidenNav {selectedId} on:selectSection={(e) => scrollToSection(e.detail)} />
 
 	<!-- Middle content -->
-	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
-		<CodingsEssence />
-		<CodingsActivities />
-		<CodingsEffects />
-		<CodingsDESTEP />
-		<CodingsOS />
-		<CodingsSV />
+	 <div bind:this={containerRef}
+		 on:scroll={onContainerScroll}
+		 class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
+		<div bind:this={essenceRef}><CodingsEssence /></div>
+		<div bind:this={activitiesRef}><CodingsActivities /></div>
+		<div bind:this={effectsRef}><CodingsEffects /></div>
+		<div bind:this={destepRef}><CodingsDESTEP /></div>
+		<div bind:this={osRef}><CodingsOS /></div>
+		<div bind:this={svRef}><CodingsSV /></div>
 	</div>
 
 	<!-- Right content -->
