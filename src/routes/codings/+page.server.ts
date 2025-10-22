@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
+import type { Coding } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
@@ -11,42 +12,57 @@ export const load: PageServerLoad = async ({ params }) => {
 			'X-Custom-Header': 'custom-value'
 		}
 	};
-
-	const activities = await fetch(`${apiBase}/activities`, header);
-	const effects = await fetch(`${apiBase}/effects`, header);
-	const dsteps = await fetch(`${apiBase}/activities`, header);
-	const opportunity_structures = await fetch(`${apiBase}/opportunity-structures`, header);
-	const system_vulnerabilities = await fetch(`${apiBase}/system-vulnerabilities`, header);
+	const [activitiesRes, effectsRes, dstepsRes, opportunityStructuresRes, systemVulnerabilitiesRes] =
+		await Promise.all([
+			fetch(`${apiBase}/activities`, header),
+			fetch(`${apiBase}/effects`, header),
+			fetch(`${apiBase}/activities`, header), // Note: This seems to be the same as activities endpoint?
+			fetch(`${apiBase}/opportunity-structures`, header),
+			fetch(`${apiBase}/system-vulnerabilities`, header)
+		]);
 
 	// Check all responses
-	if (!activities.ok) {
-		console.error(`Failed to fetch activities: ${activities.statusText}`);
-	}
-	if (!effects.ok) {
-		console.error(`Failed to fetch effects: ${effects.statusText}`);
-	}
-	if (!dsteps.ok) {
-		console.error(`Failed to fetch DESTEP: ${dsteps.statusText}`);
-	}
-	if (!opportunity_structures.ok) {
-		console.error(`Failed to fetch opportunity structures: ${opportunity_structures.statusText}`);
-	}
-	if (!system_vulnerabilities.ok) {
-		console.error(`Failed to fetch system vulnerabilities: ${system_vulnerabilities.statusText}`);
-	}
+	const responses = [
+		activitiesRes,
+		effectsRes,
+		dstepsRes,
+		opportunityStructuresRes,
+		systemVulnerabilitiesRes
+	];
 
-	// Parse all responses
-	const activitiesData = await activities.json();
-	const effectsData = await effects.json();
-	const dstepsData = await dsteps.json();
-	const opportunityStructuresData = await opportunity_structures.json();
-	const systemVulnerabilitiesData = await system_vulnerabilities.json();
+	const endpoints = [
+		'activities',
+		'effects',
+		'dsteps',
+		'opportunity-structures',
+		'system-vulnerabilities'
+	];
+
+	responses.forEach((res, index) => {
+		if (!res.ok) {
+			throw new Error(`Failed to fetch ${endpoints[index]}: ${res.statusText}`);
+		}
+	});
+
+	const [
+		activitiesData,
+		effectsData,
+		dstepsData,
+		opportunityStructuresData,
+		systemVulnerabilitiesData
+	] = await Promise.all([
+		activitiesRes.json(),
+		effectsRes.json(),
+		dstepsRes.json(),
+		opportunityStructuresRes.json(),
+		systemVulnerabilitiesRes.json()
+	]);
 
 	return {
-		activities: activitiesData,
-		effects: effectsData,
-		dsteps: dstepsData,
-		opportunityStructures: opportunityStructuresData,
-		systemVulnerabilities: systemVulnerabilitiesData
+		activities: activitiesData as Coding[],
+		effects: effectsData as Coding[],
+		dsteps: dstepsData as Coding[],
+		opportunityStructures: opportunityStructuresData as Coding[],
+		systemVulnerabilities: systemVulnerabilitiesData as Coding[]
 	};
 };
