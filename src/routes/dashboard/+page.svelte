@@ -5,7 +5,6 @@
     import FilterBar from '$lib/components/FilterBar.svelte';
 </script>
 
-<Header/>
 <!-- <UploadComplete/> -->
 <div class="h-18 w-full p-4 flex justify-between items-center">
     <ButtonSvg type="home" size={12}/>
