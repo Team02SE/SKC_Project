@@ -68,9 +68,11 @@
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 </script>
+
+<!--<NavBar/>-->
     
 <!-- Top bar -->
-<div class="sticky top-20 flex items-center w-full p-4 h-18">
+<div class="sticky mt-4 flex items-center w-full p-4 h-18">
 	<ButtonSvg type="home" size={12} />
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
 	<div class="flex items-center justify-center h-full w-64 rounded-t-2xl bg-light-navbar-primary">
