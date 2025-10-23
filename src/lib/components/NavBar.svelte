@@ -11,14 +11,14 @@
         Workflows
       </a>
     </li>
-    <li class={$page.url.pathname.startsWith('/codings') ? 'border-b-3 border-orange-500' : ''}>
-      <a href="/codings" class="text-gray-700 text-2xl font-semibold {$page.url.pathname.startsWith('/codings') ? 'text-orange-500' : ''}">
-        Codings
-      </a>
-    </li>
     <li class={$page.url.pathname.startsWith('/dashboard') ? 'border-b-3 border-orange-500' : ''}>
       <a href="/dashboard" class="text-gray-700 text-2xl font-semibold {$page.url.pathname.startsWith('/dashboard') ? 'text-orange-500' : ''}">
         Dashboard
+      </a>
+    </li>
+    <li class={$page.url.pathname.startsWith('/codings') ? 'border-b-3 border-orange-500' : ''}>
+      <a href="/codings" class="text-gray-700 text-2xl font-semibold {$page.url.pathname.startsWith('/codings') ? 'text-orange-500' : ''}">
+        Codings
       </a>
     </li>
   </ul>

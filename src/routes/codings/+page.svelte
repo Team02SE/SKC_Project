@@ -1,5 +1,8 @@
 <script lang="ts">
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
+
+	import NavBar from '$lib/components/NavBar.svelte';
+	import CodingTabs from '$lib/components/CodingTabs.svelte';
+  import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
 	import TreeView from '$lib/components/TreeView/TreeView.svelte';
@@ -15,13 +18,8 @@
 	}
 </script>
 
-<!-- <UploadComplete/> -->
-<div class="h-18 w-full p-4 flex justify-between items-center">
-	<ButtonSvg type="home" size={12}/>
-	<div class="flex flex-1 justify-end h-full gap-2">
-		<SearchBar/>
-		<FilterBar/>
-	</div>
+<div class="flex-1 p-4">
+	<CodingTabs/>
 </div>
 
 <!-- Example usage -->
