@@ -22,13 +22,17 @@
 	{#each rootNodes as node}
 		<div class="ml-4">
 			{#if node.children && node.children.length > 0}
-				<button class="w-full border-2 border-amber-950 p-2 text-start font-bold">
+				<button
+					onclick={() => (node.expanded = !node.expanded)}
+					class="w-full border-2 border-amber-950 p-2 text-start font-bold"
+				>
 					{node.name}
 				</button>
-
-				{#each node.children as child}
-					<TreeViewEntry rootNodes={[child]} />
-				{/each}
+				{#if node.expanded}
+					{#each node.children as child}
+						<TreeViewEntry rootNodes={[child]} />
+					{/each}
+				{/if}
 			{:else}
 				<LeafNode coding={node} />
 			{/if}
