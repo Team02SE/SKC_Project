@@ -49,6 +49,11 @@
 	const sizeClass = sizeMap[size] || 'h-8 w-8';
 </script>
 
-<button type="button" class="p-0 border-none bg-transparent cursor-pointer {customClass}" on:click={onClick} aria-label={type}>
+<button
+	type="button"
+	class={`p-0 border-none bg-transparent cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
+	on:click={onClick}
+	aria-label={type}
+>
 	<img src={iconSrc} alt={type} class={sizeClass} />
 </button>
