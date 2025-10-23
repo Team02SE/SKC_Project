@@ -5,6 +5,10 @@
 	let { data }: PageProps = $props();
 
 	let codings = $state(data);
+
+	export function GetCodings() {
+		return codings;
+	}
 </script>
 
 <sectiom class="h-full w-full flex-col">

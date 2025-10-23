@@ -13,4 +13,6 @@
 	{label}
 </div>
 
-<TreeViewEntires {rootNodes} />
+<div class="h-full w-full overflow-auto">
+	<TreeViewEntires {rootNodes} />
+</div>
