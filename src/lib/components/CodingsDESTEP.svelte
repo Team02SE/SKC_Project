@@ -35,27 +35,29 @@
 	};
 </script>
 
-<h1 class="text-4xl font-bold text-light-text-primary">DESTEP</h1>
-<div class="flex h-full w-full gap-30">
-	<div class="h-full w-1/2">
-        {#each data["DESTEP"] as item}
+<div class="mb-50">
+    <h1 class="text-4xl font-bold text-light-text-primary">DESTEP</h1>
+    <div class="flex h-full w-full gap-30">
+        <div class="h-full w-1/2">
+            {#each data["DESTEP"] as item}
             <CardCodings title={item.title} label={item.label} />
-        {/each}
-	</div>
-	<div class="h-full w-1/2">
-		<AddCoding />
-	</div>
-</div>
-
-<h1 class="text-4xl font-bold text-light-text-primary">Major influence</h1>
-<div class="flex h-full w-full gap-30">
-	<div class="h-full w-1/2">
-        {#each data["Major influence"] as item}
+            {/each}
+        </div>
+        <div class="h-full w-1/2">
+            <AddCoding />
+        </div>
+    </div>
+        
+    <h1 class="text-4xl font-bold text-light-text-primary">Major influence</h1>
+    <div class="flex h-full w-full gap-30">
+        <div class="h-full w-1/2">
+            {#each data["Major influence"] as item}
             <CardCodings title={item.title} label={item.label} />
-        {/each}
-	</div>
-	<div class="h-full w-1/2">
-		<AddCoding />
-	</div>
+            {/each}
+        </div>
+        <div class="h-full w-1/2">
+            <AddCoding />
+        </div>
+    </div>
 </div>
 
