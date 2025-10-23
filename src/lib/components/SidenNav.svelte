@@ -2,9 +2,12 @@
 	import ButtonSvg from './ButtonSvg.svelte';
 	import { slide, fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
+	// selectedId comes from parent so scroll position can control the active item
+	export let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null = null;
 	let hoveredId: string | null = null;
-	let selectedId: string | null = null;
 
 
 	const navItems = [
@@ -29,9 +32,8 @@
 				on:mouseleave={() => (hoveredId = null)}
 				on:focus={() => (hoveredId = item.id)}
 				on:blur={() => (hoveredId = null)}
-				on:click={() => (selectedId = selectedId === item.id ? null : item.id)}
-				class="flex h-15 w-15 transform items-center justify-center rounded-full bg-light-secondary transition-all duration-200
-                    hover:scale-110 hover:bg-light-active-primary focus:scale-110 focus:bg-light-active-primary"
+				on:click={() => dispatch('selectSection', item.id)}
+				class={`flex h-15 w-15 transform items-center justify-center rounded-full transition-all duration-200 hover:scale-110 focus:scale-110 ${selectedId === item.id ? 'bg-light-active-primary' : 'bg-light-secondary'}`}
 			>
 				<span class="pointer-events-none">{item.initial}</span>
 			</button>
