@@ -1,14 +1,16 @@
 <script lang="ts">
-
 	import NavBar from '$lib/components/NavBar.svelte';
 	import CodingTabs from '$lib/components/CodingTabs.svelte';
-  import ButtonSvg from '$lib/components/ButtonSvg.svelte';
+	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
 	import TreeView from '$lib/components/TreeView/TreeView.svelte';
 	import type { PageProps } from './$types';
+	import type { Coding } from '$lib/types';
+	import { fade } from 'svelte/transition';
+	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
 
-  // TODO: use teh data to create codings
+	// TODO: use teh data to create codings
 	let { data }: PageProps = $props();
 
 	let codings = $state(data);
@@ -16,13 +18,63 @@
 	export function GetCodings() {
 		return codings;
 	}
+
+	let selectedCoding = $state(codings.activities);
+	let selectedCodingTytle = $state('Activities');
+	let codingToEdit = $state({});
+
+	function SelectCorrectCodingsData(tab: string): Coding[] {
+		switch (tab) {
+			case 'activities':
+				selectedCodingTytle = 'Activities';
+				return codings.activities;
+			case 'effects':
+				selectedCodingTytle = 'Effects';
+				return codings.effects;
+			case 'opportunity-structures':
+				selectedCodingTytle = 'Opportunity structures';
+				return codings.opportunityStructures;
+			case 'system-vulnerabilities':
+				selectedCodingTytle = 'System vulnerabilities';
+				return codings.systemVulnerabilities;
+			case 'dsteps':
+				selectedCodingTytle = 'Dsteps';
+				return codings.dsteps;
+			default:
+				return [];
+		}
+	}
+
+	function OnTabChange(tab: string) {
+		console.log(tab);
+		selectedCoding = SelectCorrectCodingsData(tab);
+	}
+
+	function OnCodingSelected(coding: Coding) {
+		codingToEdit = coding;
+	}
 </script>
 
-<div class="flex-1 p-4">
-	<CodingTabs/>
+<!-- <UploadComplete/> -->
+<div class="flex h-18 w-full items-center justify-between p-4">
+	<CodingTabs onTabChange={OnTabChange} />
+
+	<div class="flex h-full flex-1 justify-end gap-2">
+		<SearchBar />
+		<FilterBar />
+	</div>
 </div>
 
 <!-- Example usage -->
-<!-- <section class="h-full w-full flex-col">
-	<TreeView label="Activities" rootNodes={codings.activities} />
-</section> -->
+<section class="flex h-full w-full gap-2">
+	<div class="h-full w-1/2">
+		<TreeView
+			onCodingSelected={OnCodingSelected}
+			label={selectedCodingTytle}
+			rootNodes={selectedCoding}
+		/>
+	</div>
+	<div class="mt-4 mr-4 h-[100vh] w-1/2 rounded-2xl bg-amber-500">
+		<CodingsEdit coding={codingToEdit} />
+	</div>
+</section>
