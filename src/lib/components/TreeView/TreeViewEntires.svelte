@@ -31,12 +31,10 @@
 				<div
 					class="flex w-full items-center gap-1 rounded-2xl border-1 border-black bg-white text-start font-bold"
 				>
-					<button>
+					<button type="button" onclick={() => (node.expanded = !node.expanded)} aria-expanded={node.expanded} class="p-0 bg-transparent border-0">
 						<img
-							onclick={() => (node.expanded = !node.expanded)}
-							class="{node.expanded
-								? ''
-								: 'rotate-180'} hover: h-16 w-16 opacity-45 duration-100 hover:opacity-70"
+							class="h-16 w-16 opacity-45 duration-100 hover:opacity-70"
+							class:rotate-180={!node.expanded}
 							src={dropdown}
 							alt="tree-view-expansion"
 						/>
