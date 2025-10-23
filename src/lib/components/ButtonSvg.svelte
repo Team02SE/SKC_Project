@@ -11,15 +11,12 @@
     import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
 	import MoreOptions from '$lib/assets/three-dots-circle.svg';
 	import CloseIcon from '$lib/assets/x.svg';
-	import { goto } from '$app/navigation';
 
 	export let type: string = 'default';
 	export let size: number = 8;
 	export let customClass: string = '';
 
-	export let onClick = () => {
-		goto('/')
-	};
+	export let onClick = () => {};
 
 	const iconMap: Record<string, string> = {
 		home: HomeIcon,
@@ -34,6 +31,7 @@
 		default: HomeIcon,
 		cloudUpload: CloudUploadIcon,
 		moreOptions: MoreOptions,
+		threeDots: MoreOptions,
 		close: CloseIcon
 	};
 
