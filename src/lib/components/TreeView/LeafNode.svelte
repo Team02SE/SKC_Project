@@ -19,7 +19,7 @@
 				onCodingSelected(coding);
 			}}
 		>
-			<h2 class="text-2xl font-normal">{coding.name}</h2>
+			<h2 class="text-2xl font-normal"><b>{coding.number}</b> {coding.name}</h2>
 			<div class="flex-3 flex-col gap-0 text-xs font-normal opacity-55">
 				<p class="m-0 leading-tight">Last edited:</p>
 				<p class="m-0 leading-tight">Description:</p>

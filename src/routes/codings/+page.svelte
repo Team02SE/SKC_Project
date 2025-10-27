@@ -21,7 +21,7 @@
 
 	let selectedCoding = $state(codings.activities);
 	let selectedCodingTytle = $state('Activities');
-	let codingToEdit = $state({});
+	let codingToEdit = $state(undefined);
 
 	function SelectCorrectCodingsData(tab: string): Coding[] {
 		switch (tab) {
@@ -74,7 +74,9 @@
 			rootNodes={selectedCoding}
 		/>
 	</div>
-	<div class="mt-4 mr-4 h-[100vh] w-1/2 rounded-2xl bg-amber-500">
+	<div
+		class="mt-4 mr-4 flex h-[100vh] w-1/2 flex-col items-center rounded-2xl bg-white shadow inset-shadow-sm/25"
+	>
 		<CodingsEdit coding={codingToEdit} />
 	</div>
 </section>

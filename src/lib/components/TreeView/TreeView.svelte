@@ -15,5 +15,7 @@
 	<div class="ml-4 text-4xl">
 		{label}
 	</div>
-	<TreeViewEntires {onCodingSelected} {rootNodes} />
+	<div class="flex h-[40rem] w-full flex-col overflow-y-scroll">
+		<TreeViewEntires {onCodingSelected} {rootNodes} />
+	</div>
 </div>

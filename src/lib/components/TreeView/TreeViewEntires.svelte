@@ -48,7 +48,7 @@
 						/>
 					</button>
 					<div class="flex w-full flex-row items-center" onclick={() => onCodingSelected(node)}>
-						<h2 class="text-2xl font-normal">{node.name}</h2>
+						<h2 class="text-2xl font-normal"><b>{node.number}</b> {node.name}</h2>
 						<div class="ml-10 flex-3 flex-col gap-0 text-xs font-normal opacity-55">
 							<p class="m-0 leading-tight">Last edited:</p>
 							<p class="m-0 leading-tight">Description:</p>

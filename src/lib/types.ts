@@ -1,5 +1,5 @@
 export type Coding = {
-	id: number;
+	id: number; // number in databse
 	name: string;
 	number: number;
 	type: string;
