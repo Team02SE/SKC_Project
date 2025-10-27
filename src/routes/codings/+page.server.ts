@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ params }) => {
 		await Promise.all([
 			fetch(`${apiBase}/activities`, header),
 			fetch(`${apiBase}/effects`, header),
-			fetch(`${apiBase}/activities`, header), // Note: This seems to be the same as activities endpoint?
+			fetch(`${apiBase}/dsteps`, header), // Note: This seems to be the same as activities endpoint?
 			fetch(`${apiBase}/opportunity-structures`, header),
 			fetch(`${apiBase}/system-vulnerabilities`, header)
 		]);
@@ -33,13 +33,14 @@ export const load: PageServerLoad = async ({ params }) => {
 	const endpoints = [
 		'activities',
 		'effects',
-		'dsteps',
 		'opportunity-structures',
+		'dsteps',
 		'system-vulnerabilities'
 	];
 
 	responses.forEach((res, index) => {
 		if (!res.ok) {
+			console.error('Failed to fetch' + endpoints[index] + ':' + res.statusText);
 			throw new Error(`Failed to fetch ${endpoints[index]}: ${res.statusText}`);
 		}
 	});

@@ -1,39 +1,39 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
-    interface Tab {
-        id: string;
-        label: string;
-    }
+	interface Tab {
+		id: string;
+		label: string;
+	}
 
-    export let activeTab: string = 'activities';
+	let activeTab: string = $state('activities');
 
-    const dispatch = createEventDispatcher();
+	let { onTabChange } = $props();
 
-    const tabs: Tab[] = [
-        { id: 'activities', label: 'Activities' },
-        { id: 'effects', label: 'Effects' },
-        { id: 'opportunity-structures', label: 'Opportunity Structures' },
-        { id: 'system-vulnerabilities', label: 'System Vulnerabilities' },
-        { id: 'dsteps', label: 'Dsteps' }
-    ];
+	const tabs: Tab[] = [
+		{ id: 'activities', label: 'Activities' },
+		{ id: 'effects', label: 'Effects' },
+		{ id: 'opportunity-structures', label: 'Opportunity Structures' },
+		{ id: 'system-vulnerabilities', label: 'System Vulnerabilities' },
+		{ id: 'dsteps', label: 'Dsteps' }
+	];
 
-    function selectTab(tabId: string) {
-        activeTab = tabId;
-        dispatch('tabChange', { tab: tabId });
-    }
+	function selectTab(tabId: string) {
+		activeTab = tabId;
+		onTabChange(tabId);
+	}
 </script>
 
-<div class="flex gap-1 mb-6">
-    {#each tabs as tab}
-        <button
-            on:click={() => selectTab(tab.id)}
-            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                {activeTab === tab.id 
-                    ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-500' 
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'}"
-        >
-            {tab.label}
-        </button>
-    {/each}
+<div class="mt-2 mb-6 flex gap-1">
+	{#each tabs as tab}
+		<button
+			onclick={() => selectTab(tab.id)}
+			class="my-10 rounded-lg px-2 py-2 text-lg font-medium transition-colors hover:cursor-pointer
+                {activeTab === tab.id
+				? 'border-b-2 border-blue-500 bg-blue-100 text-blue-700'
+				: 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'}"
+		>
+			{tab.label}
+		</button>
+	{/each}
 </div>
