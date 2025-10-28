@@ -106,12 +106,12 @@
 				<div class="mt-4">
 					<ButtonText text="Submit" />
 				</div>
-				<!-- Temp delete button -->
-				<button type="button" onclick={deleteCoding} class="mt-4 text-sm text-gray-500">
-					<ButtonText text="Delete" customClass="bg-red-500"/>
-				</button>
 			</div>
 		</form>
+		<!-- Temp delete button -->
+		<button type="button" onclick={deleteCoding} class="absolute bottom-4">
+			<ButtonText text="Delete" customClass="bg-red-500"/>
+		</button>
 	{:else}
 		<h1>Select activity</h1>
 	{/if}
