@@ -46,7 +46,6 @@
 	}
 
 	function OnTabChange(tab: string) {
-		console.log(tab);
 		selectedCoding = SelectCorrectCodingsData(tab);
 	}
 

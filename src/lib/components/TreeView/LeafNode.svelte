@@ -10,7 +10,7 @@
 </script>
 
 <div
-	class="flex w-full flex-row items-center gap-1 rounded-2xl border-1 border-black bg-white text-start font-bold"
+	class="flex w-full flex-row items-center gap-1 rounded-2xl bg-white text-start font-bold shadow-md"
 >
 	<div class="ml-4 w-full flex-col items-start p-1">
 		<button

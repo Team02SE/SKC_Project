@@ -20,8 +20,6 @@
 		_expandedState.push(rootNode.expanded);
 	});
 
-	console.log(rootNodes);
-
 	let options = { duration: 200 };
 </script>
 
@@ -32,7 +30,7 @@
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<div
-					class="shadow-s flex w-full items-center gap-1 rounded-2xl border-1 border-zinc-500 bg-white text-start font-bold"
+					class="flex w-full items-center gap-1 rounded-2xl bg-white text-start font-bold shadow-md"
 				>
 					<button
 						type="button"

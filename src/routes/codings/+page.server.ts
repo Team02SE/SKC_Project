@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import type { Coding } from '$lib/types';
+import type { Actions } from './$types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
@@ -67,3 +68,10 @@ export const load: PageServerLoad = async ({ params }) => {
 		systemVulnerabilities: systemVulnerabilitiesData as Coding[]
 	};
 };
+
+export const actions = {
+	default: async ({ request }) => {
+		const data = await request.formData();
+		console.log(data);
+	}
+} satisfies Actions;
