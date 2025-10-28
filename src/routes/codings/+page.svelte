@@ -20,25 +20,26 @@
 	}
 
 	let selectedCoding = $state(codings.activities);
-	let selectedCodingTytle = $state('Activities');
+	let selectedCodingTitle = $state('Activities');
 	let codingToEdit = $state(undefined);
 
+	// console.warn(codings);
 	function SelectCorrectCodingsData(tab: string): Coding[] {
 		switch (tab) {
 			case 'activities':
-				selectedCodingTytle = 'Activities';
+				selectedCodingTitle = 'Activities';
 				return codings.activities;
 			case 'effects':
-				selectedCodingTytle = 'Effects';
+				selectedCodingTitle = 'Effects';
 				return codings.effects;
 			case 'opportunity-structures':
-				selectedCodingTytle = 'Opportunity structures';
+				selectedCodingTitle = 'Opportunity structures';
 				return codings.opportunityStructures;
 			case 'system-vulnerabilities':
-				selectedCodingTytle = 'System vulnerabilities';
+				selectedCodingTitle = 'System vulnerabilities';
 				return codings.systemVulnerabilities;
 			case 'dsteps':
-				selectedCodingTytle = 'Dsteps';
+				selectedCodingTitle = 'Dsteps';
 				return codings.dsteps;
 			default:
 				return [];
@@ -69,13 +70,13 @@
 	<div class="h-full w-1/2">
 		<TreeView
 			onCodingSelected={OnCodingSelected}
-			label={selectedCodingTytle}
+			label={selectedCodingTitle}
 			rootNodes={selectedCoding}
 		/>
 	</div>
 	<div
 		class="mt-4 mr-4 flex h-[100vh] w-1/2 flex-col items-center rounded-2xl bg-white shadow inset-shadow-sm/25"
 	>
-		<CodingsEdit coding={codingToEdit} />
+		<CodingsEdit coding={codingToEdit} type={selectedCodingTitle} />
 	</div>
 </section>
