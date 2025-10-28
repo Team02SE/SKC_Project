@@ -4,6 +4,7 @@
 	import edit_pencil from '$lib/assets/edit-pencil.svg';
 	import { slide } from 'svelte/transition';
 	import ButtonText from '../ButtonText.svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	interface Props {
 		coding: Coding | undefined;
@@ -12,6 +13,8 @@
 	let { coding, type }: Props = $props();
 
 	let codingCopy = $derived(coding);
+
+	const dispatch = createEventDispatcher();
 
 	async function updateCoding(event: SubmitEvent) {
 		event.preventDefault();
@@ -29,6 +32,22 @@
 
 		if (!response.ok) console.error('Update failed');
 		else console.log('Update successful');
+	}
+
+	async function deleteCoding() {
+		const ok = window.confirm('Are you sure you want to delete this coding?');
+		if (!ok) return;
+
+		const response = await fetch(`/codings/${codingCopy.id}`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ type })
+		});
+
+		if (!response.ok) console.warn('Delete failed');
+		else console.log('Delete successful');
+		
+		dispatch('deleted', { id: codingCopy?.id });
 	}
 </script>
 
@@ -83,8 +102,14 @@
 					</div>
 				</div>
 			</div>
-			<div class="mt-10">
-				<ButtonText text="Submit" />
+			<div class="flex items-center align-center gap-4">
+				<div class="mt-4">
+					<ButtonText text="Submit" />
+				</div>
+				<!-- Temp delete button -->
+				<button type="button" onclick={deleteCoding} class="mt-4 text-sm text-gray-500">
+					<ButtonText text="Delete" customClass="bg-red-500"/>
+				</button>
 			</div>
 		</form>
 	{:else}
