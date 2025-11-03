@@ -14,12 +14,6 @@
 	}
 	let { rootNodes, onCodingSelected }: Props = $props();
 
-	let _expandedState = $state<boolean[]>([]);
-
-	rootNodes.forEach((rootNode) => {
-		_expandedState.push(rootNode.expanded);
-	});
-
 	let options = { duration: 200 };
 </script>
 

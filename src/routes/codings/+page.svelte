@@ -53,6 +53,10 @@
 	function OnCodingSelected(coding: Coding) {
 		codingToEdit = coding;
 	}
+
+	function OnCodingDeleted(coding: Coding) {
+		console.log(coding);
+	}
 </script>
 
 <!-- <UploadComplete/> -->
@@ -77,6 +81,10 @@
 	<div
 		class="mt-4 mr-4 flex h-[100vh] w-1/2 flex-col items-center rounded-2xl bg-white shadow inset-shadow-sm/25"
 	>
-		<CodingsEdit coding={codingToEdit} type={selectedCodingTitle} />
+		<CodingsEdit
+			onCodingDelete={OnCodingDeleted}
+			coding={codingToEdit}
+			type={selectedCodingTitle}
+		/>
 	</div>
 </section>
