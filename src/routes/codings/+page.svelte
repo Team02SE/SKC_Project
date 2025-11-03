@@ -55,7 +55,14 @@
 	}
 
 	function OnCodingDeleted(coding: Coding) {
-		console.log(coding);
+		console.log('deleting from local store');
+		// Keep all codings EXCEPT the one we want to delete
+		selectedCoding = selectedCoding.filter((c) => c.id !== coding.id);
+
+		// Clear the editing form if we just deleted the coding being edited
+		if (codingToEdit?.id === coding.id) {
+			codingToEdit = undefined;
+		}
 	}
 </script>
 

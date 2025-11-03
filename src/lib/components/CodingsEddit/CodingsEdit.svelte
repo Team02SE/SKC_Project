@@ -9,7 +9,7 @@
 	interface Props {
 		coding: Coding | undefined;
 		type: string;
-		onCodingDelete: any;
+		onCodingDelete: Function;
 	}
 	let { coding, type, onCodingDelete }: Props = $props();
 
