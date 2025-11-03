@@ -21,6 +21,23 @@
 	});
 
 	let options = { duration: 200 };
+
+	let openOptions = $state<string | null>(null);
+
+	function toggleOptions(node: Coding) {
+		const id = String(node.number);
+		openOptions = openOptions === id ? null : id;
+	}
+
+	function addNode(node: Coding) {
+		console.log("Add", node);
+		openOptions = null;
+	}
+
+	function deleteNode(node: Coding) {
+		console.log("Delete", node);
+		openOptions = null;
+	}
 </script>
 
 <div class="w-full flex-col items-start py-2">
@@ -52,9 +69,22 @@
 							<p class="m-0 leading-tight">Description:</p>
 						</div>
 					</div>
-					<span class="mr-10 duration-100 hover:scale-110">
-						<img src={more} alt="more" class="h-10 w-10" />
-					</span>
+						<div class="relative mr-10">
+							<button onclick={() => toggleOptions(node)} class="hover:scale-110">
+								<img src={more} alt="more" class="h-10 w-10" />
+							</button>
+						
+							{#if openOptions === String(node.number)}
+								<div class="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-md z-50" transition:slide>
+									<button class="block w-full text-left px-4 py-2 hover:bg-gray-100" onclick={() => addNode(node)}>
+										Add
+									</button>
+									<button class="text-red-600 block w-full text-left px-4 py-2 hover:bg-gray-100" onclick={() => deleteNode(node)}>
+										Delete
+									</button>
+								</div>
+							{/if}
+						</div>
 				</div>
 				{#if node.expanded}
 					<div transition:slide={options}>
