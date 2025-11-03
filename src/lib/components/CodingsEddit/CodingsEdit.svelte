@@ -4,18 +4,16 @@
 	import edit_pencil from '$lib/assets/edit-pencil.svg';
 	import { slide } from 'svelte/transition';
 	import ButtonText from '../ButtonText.svelte';
-	import { createEventDispatcher } from 'svelte';
 	import PopUp from '../PopUps/PopUp.svelte';
 
 	interface Props {
 		coding: Coding | undefined;
 		type: string;
+		onCodingDelete: any;
 	}
-	let { coding, type }: Props = $props();
+	let { coding, type, onCodingDelete }: Props = $props();
 
 	let codingCopy = $derived(coding);
-
-	const dispatch = createEventDispatcher();
 
 	async function updateCoding(event: SubmitEvent) {
 		event.preventDefault();
@@ -38,9 +36,7 @@
 	let popUpOpen = $state(false);
 
 	async function deleteCoding() {
-		const ok = window.confirm('Are you sure you want to delete this coding?');
-		if (!ok) return;
-
+		popUpOpen = false;
 		const response = await fetch(`/codings/${codingCopy.id}`, {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
@@ -48,9 +44,10 @@
 		});
 
 		if (!response.ok) console.warn('Delete failed');
-		else console.log('Delete successful');
-
-		dispatch('deleted', { id: codingCopy?.id });
+		else {
+			onCodingDelete(codingCopy);
+			console.log('Delete successful');
+		}
 	}
 </script>
 
@@ -60,9 +57,7 @@
 			heading="Are you sure you want to delete this coding"
 			question="This coding will be delted perenamently, do you want to delete it ? "
 			onClose={() => (popUpOpen = false)}
-			onYes={() => {
-				deleteCoding;
-			}}
+			onYes={deleteCoding}
 		/>
 	{:else if coding != undefined}
 		<form transition:slide class="flex h-full w-full flex-col items-center" onsubmit={updateCoding}>
