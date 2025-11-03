@@ -7,4 +7,5 @@ export type Coding = {
 	parent_id?: number;
 	children: Coding[];
 	expanded: boolean;
+	category: string;
 };

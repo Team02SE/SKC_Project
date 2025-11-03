@@ -61,11 +61,11 @@ export const load: PageServerLoad = async ({ params }) => {
 	]);
 
 	return {
-		activities: activitiesData as Coding[],
-		effects: effectsData as Coding[],
-		dsteps: dstepsData as Coding[],
-		opportunityStructures: opportunityStructuresData as Coding[],
-		systemVulnerabilities: systemVulnerabilitiesData as Coding[]
+		activities: activitiesData.map((c: Coding) => ({ ...c, expanded: false, category: "activities" })) as Coding[],
+		effects: effectsData.map((c: Coding) => ({ ...c, expanded: false, category: "effects" })) as Coding[],
+		dsteps: dstepsData.map((c: Coding) => ({ ...c, expanded: false, category: "dsteps" })) as Coding[],
+		opportunityStructures: opportunityStructuresData.map((c: Coding) => ({ ...c, expanded: false, category: "opportunity-structures" })) as Coding[],
+		systemVulnerabilities: systemVulnerabilitiesData.map((c: Coding) => ({ ...c, expanded: false, category: "system-vulnerabilities" })) as Coding[],
 	};
 };
 

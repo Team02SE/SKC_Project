@@ -7,6 +7,7 @@
 	import dropdown from '$lib/assets/dropdown.svg';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
+	import { PUBLIC_API_URL, PUBLIC_API_KEY } from '$env/static/public';
 
 	interface Props {
 		rootNodes: Coding[];
@@ -29,14 +30,43 @@
 		openOptions = openOptions === id ? null : id;
 	}
 
-	function addNode(node: Coding) {
-		console.log("Add", node);
+	async function addNode(node: Coding) {
 		openOptions = null;
+
+		const body = {
+			name: "",
+			number: 0,
+			description: "",
+			parent_id: node.id
+		};
+
+		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: PUBLIC_API_KEY
+			},
+			body: JSON.stringify(body)
+		});
+
+		location.reload();
 	}
 
-	function deleteNode(node: Coding) {
-		console.log("Delete", node);
+	async function deleteNode(node: Coding) {
 		openOptions = null;
+	
+		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}/${node.id}`, {
+			method: "DELETE",
+			headers: {
+				Authorization: PUBLIC_API_KEY
+			}
+		});
+	
+		location.reload();
+	}
+
+	function getEndpoint(node: Coding) {
+		return `/${node.category}`;
 	}
 </script>
 
