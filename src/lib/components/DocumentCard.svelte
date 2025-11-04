@@ -15,7 +15,7 @@
 	}
 
 	function handleEdit() {
-		goto(`/workflows/` + id);
+		goto(`/workflows/` + workflowDocument.id);
 	}
 
 	function IntToStatusColour(doc_status: number): string {
@@ -43,10 +43,12 @@
 	class={`flex w-full items-end justify-between bg-light-primary p-5 inset-shadow-sm/25 ${roundedTop ? 'rounded-t-2xl' : ''}`}
 >
 	<div class="flex flex-col items-start">
-		<h2 class="text-3xl font-semibold">{workflowDocument.Title}</h2>
+		<div class="flex items-center">
+			<h2 class="text-3xl font-semibold">{workflowDocument.Title}</h2>
+			<div class="{IntToStatusColour(workflowDocument.Status)} ml-4 rounded-full p-1"></div>
+		</div>
 		<div class="flex flex-row items-center">
 			<p>Status: {IntToStatusString(workflowDocument.Status)}</p>
-			<div class="{IntToStatusColour(workflowDocument.Status)} ml-10 h-2 w-2 rounded-full"></div>
 		</div>
 		<p>Last modified: {workflowDocument.UpdatedAt}</p>
 	</div>
