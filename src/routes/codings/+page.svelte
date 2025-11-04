@@ -19,7 +19,20 @@
 		return codings;
 	}
 
-	let selectedCoding = $state(codings.activities);
+	function deleteRecursively(codings: Coding[], codingToDelete: Coding): Coding[] {
+		return codings.filter((coding) => {
+			if (coding.id === codingToDelete.id) {
+				return false;
+			}
+			if (coding.children && coding.children.length > 0) {
+				coding.children = deleteRecursively(coding.children, codingToDelete);
+			}
+
+			return true;
+		});
+	}
+
+	let selectedCoding = $derived(codings.activities);
 	let selectedCodingTitle = $state('Activities');
 	let codingToEdit = $state(undefined);
 
@@ -55,7 +68,30 @@
 	}
 
 	function OnCodingDeleted(coding: Coding) {
-		console.log(coding);
+		console.log('deleting from local store');
+		// Keep all codings EXCEPT the one we want to delete
+		switch (coding.type) {
+			case 'activities':
+				codings.activities = deleteRecursively(codings.activities, coding);
+				break;
+			case 'effects':
+				codings.effects = deleteRecursively(codings.effects, coding);
+				break;
+			case 'opportunity-structures':
+				codings.opportunityStructures = deleteRecursively(codings.opportunityStructures, coding);
+				break;
+			case 'system-vulnerabilities':
+				codings.systemVulnerabilities = deleteRecursively(codings.systemVulnerabilities, coding);
+				break;
+			case 'dsteps':
+				codings.dsteps = deleteRecursively(codings.dsteps, coding);
+				break;
+		}
+
+		// Clear the editing form if we just deleted the coding being edited
+		if (codingToEdit.id == coding.id) {
+			codingToEdit = undefined;
+		}
 	}
 </script>
 
