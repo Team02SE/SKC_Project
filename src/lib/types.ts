@@ -8,3 +8,13 @@ export type Coding = {
 	children: Coding[];
 	expanded: boolean;
 };
+
+export type WorkflowDocument = {
+	id: number;
+	Title: string;
+	Source: string;
+	Essence: string;
+	Conclusion: string;
+	Status: number;
+	UpdatedAt: string;
+};
