@@ -18,7 +18,7 @@
 </script>
 
 <div class="w-full flex-col items-start py-2">
-	{#each rootNodes as node}
+	{#each rootNodes as node (node.id)}
 		<div class="mt-2 ml-4">
 			{#if node.children && node.children.length > 0}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -52,7 +52,7 @@
 				</div>
 				{#if node.expanded}
 					<div transition:slide={options}>
-						{#each node.children as child}
+						{#each node.children as child (child.id)}
 							<TreeViewEntry {onCodingSelected} rootNodes={[child]} />
 						{/each}
 					</div>
