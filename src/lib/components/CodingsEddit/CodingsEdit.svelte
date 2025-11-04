@@ -5,6 +5,8 @@
 	import { slide } from 'svelte/transition';
 	import ButtonText from '../ButtonText.svelte';
 	import PopUp from '../PopUps/PopUp.svelte';
+	import { invalidateAll, refreshAll } from '$app/navigation';
+	import { page } from '$app/state';
 
 	interface Props {
 		coding: Coding | undefined;
@@ -43,9 +45,9 @@
 			body: JSON.stringify({ type })
 		});
 
-		if (!response.ok) console.warn('Delete failed');
+		if (!response.ok) console.error('Delete failed');
 		else {
-			onCodingDelete(codingCopy);
+			onCodingDelete(coding);
 			console.log('Delete successful');
 		}
 	}
