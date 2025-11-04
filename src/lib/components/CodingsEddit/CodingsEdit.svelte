@@ -11,9 +11,9 @@
 	interface Props {
 		coding: Coding | undefined;
 		type: string;
-		onCodingDelete: Function;
+		onCodingDeleted: Function;
 	}
-	let { coding, type, onCodingDelete }: Props = $props();
+	let { coding, type, onCodingDeleted }: Props = $props();
 
 	let codingCopy = $derived(coding);
 
@@ -47,7 +47,7 @@
 
 		if (!response.ok) console.error('Delete failed');
 		else {
-			onCodingDelete(coding);
+			onCodingDeleted(coding);
 			console.log('Delete successful');
 		}
 	}
