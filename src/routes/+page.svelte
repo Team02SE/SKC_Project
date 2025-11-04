@@ -7,7 +7,7 @@
 	import UploadComplete from '$lib/components/UploadComplete.svelte';
 	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
 
-	const workflows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 22, 33];
+	let { data } = $props();
 </script>
 
 <!-- <UploadComplete/> -->
@@ -20,8 +20,8 @@
 
 <div class="flex w-full gap-5 px-4 py-2">
 	<div class="h-full w-5/12 overflow-y-visible rounded-2xl bg-light-primary inset-shadow-sm/25">
-		{#each workflows as i, index}
-			<DocumentCard id={i} roundedTop={index == 0} />
+		{#each data.documetns as workflowDocument, index}
+			<DocumentCard {workflowDocument} roundedTop={index == 0} />
 		{/each}
 	</div>
 	<div
