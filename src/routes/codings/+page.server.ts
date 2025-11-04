@@ -60,13 +60,27 @@ export const load: PageServerLoad = async ({ params }) => {
 		systemVulnerabilitiesRes.json()
 	]);
 
+	function setCategoryRecursive(nodes: Coding[], category: string): Coding[] {
+		for (const n of nodes) {
+			n.category = category;
+			n.expanded = false;
+			n.children ||= [];
+
+			if (n.children.length > 0) {
+				setCategoryRecursive(n.children, category);
+			}
+		}
+		return nodes;
+	}
+
 	return {
-		activities: activitiesData.map((c: Coding) => ({ ...c, expanded: false, category: "activities" })) as Coding[],
-		effects: effectsData.map((c: Coding) => ({ ...c, expanded: false, category: "effects" })) as Coding[],
-		dsteps: dstepsData.map((c: Coding) => ({ ...c, expanded: false, category: "dsteps" })) as Coding[],
-		opportunityStructures: opportunityStructuresData.map((c: Coding) => ({ ...c, expanded: false, category: "opportunity-structures" })) as Coding[],
-		systemVulnerabilities: systemVulnerabilitiesData.map((c: Coding) => ({ ...c, expanded: false, category: "system-vulnerabilities" })) as Coding[],
+		activities: setCategoryRecursive(activitiesData, "activities"),
+		effects: setCategoryRecursive(effectsData, "effects"),
+		dsteps: setCategoryRecursive(dstepsData, "dsteps"),
+		opportunityStructures: setCategoryRecursive(opportunityStructuresData, "opportunity-structures"),
+		systemVulnerabilities: setCategoryRecursive(systemVulnerabilitiesData, "system-vulnerabilities"),
 	};
+
 };
 
 export const actions = {

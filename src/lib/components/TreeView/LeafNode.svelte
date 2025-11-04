@@ -2,13 +2,15 @@
 	import type { Coding } from '$lib/types';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
-	import { PUBLIC_API_URL, PUBLIC_API_KEY } from '$env/static/public';
+	import type { API_URL, API_KEY } from '$env/static/private';
 
 	interface Props {
 		coding: Coding;
 		onCodingSelected: any;
+		onAdd?: (parent: Coding, newNode: Coding) => void;
+		onDelete?: (id: number) => void;
 	}
-	let { coding, onCodingSelected }: Props = $props();
+	let { coding, onCodingSelected, onAdd, onDelete }: Props = $props();
 
 	let openOptions = $state<string | null>(null);
 
@@ -24,36 +26,45 @@
 			name: "",
 			number: 0,
 			description: "",
-			parent_id: node.id
+			parent_id: node.id,
+			type: node.category
 		};
 
-		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}`, {
+		const res = await fetch(`/codings`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: PUBLIC_API_KEY
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(body)
 		});
 
-		location.reload();
+		if (!res.ok) {
+			alert("Add failed");
+			return;
+		}
+
+		const created: Coding = await res.json();
+
+		onAdd?.(node, {
+			...created,
+			category: node.category,
+			children: []
+		});
 	}
 
 	async function deleteNode(node: Coding) {
 		openOptions = null;
 	
-		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}/${node.id}`, {
+		const res = await fetch(`/codings/${node.id}`, {
 			method: "DELETE",
-			headers: {
-				Authorization: PUBLIC_API_KEY
-			}
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ type: node.category })
 		});
 	
-		location.reload();
-	}
-
-	function getEndpoint(node: Coding) {
-		return `/${node.category}`;
+		if (!res.ok) {
+			alert("Delete failed");
+			return;
+		}
+	
+		onDelete?.(node.id);
 	}
 </script>
 

@@ -22,3 +22,22 @@ export const PUT: RequestHandler = async ({ request, params }) => {
 
     return new Response(await res.text(), { status: res.status });
 };
+
+export const DELETE: RequestHandler = async ({ params, request }) => {
+	const { slug } = params;
+	const data = await request.json();
+    console.log("Incoming DELETE data:", data);
+
+	if (!data?.type) {
+		return new Response("Missing type in request body", { status: 400 });
+	}
+
+	const type = data.type.replace(/\s+/, '-').toLowerCase();
+
+	const res = await fetch(`${API_URL}/${type}/${slug}`, {
+		method: 'DELETE',
+		headers: { Authorization: API_KEY }
+	});
+
+	return new Response(await res.text(), { status: res.status });
+};

@@ -7,13 +7,15 @@
 	import dropdown from '$lib/assets/dropdown.svg';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
-	import { PUBLIC_API_URL, PUBLIC_API_KEY } from '$env/static/public';
+	import type { API_URL, API_KEY } from '$env/static/private';
 
 	interface Props {
 		rootNodes: Coding[];
 		onCodingSelected: any;
+		onAdd?: (parent: Coding, newNode: Coding) => void;
+		onDelete?: (id: number) => void;
 	}
-	let { rootNodes, onCodingSelected }: Props = $props();
+	let { rootNodes, onCodingSelected, onAdd, onDelete }: Props = $props();
 
 	let _expandedState = $state<boolean[]>([]);
 
@@ -37,36 +39,45 @@
 			name: "",
 			number: 0,
 			description: "",
-			parent_id: node.id
+			parent_id: node.id,
+			type: node.category
 		};
 
-		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}`, {
+		const res = await fetch(`/codings`, {
 			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: PUBLIC_API_KEY
-			},
+			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(body)
 		});
 
-		location.reload();
+		if (!res.ok) {
+			alert("Add failed");
+			return;
+		}
+
+		const created: Coding = await res.json();
+
+		onAdd?.(node, {
+			...created,
+			category: node.category,
+			children: []
+		});
 	}
 
 	async function deleteNode(node: Coding) {
 		openOptions = null;
-	
-		const res = await fetch(`${PUBLIC_API_URL}${getEndpoint(node)}/${node.id}`, {
-			method: "DELETE",
-			headers: {
-				Authorization: PUBLIC_API_KEY
-			}
-		});
-	
-		location.reload();
-	}
 
-	function getEndpoint(node: Coding) {
-		return `/${node.category}`;
+		const res = await fetch(`/codings/${node.id}`, {
+			method: "DELETE",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ type: node.category })
+		});
+
+		if (!res.ok) {
+			alert("Delete failed");
+			return;
+		}
+
+		onDelete?.(node.id);
 	}
 </script>
 
@@ -119,12 +130,22 @@
 				{#if node.expanded}
 					<div transition:slide={options}>
 						{#each node.children as child}
-							<TreeViewEntry {onCodingSelected} rootNodes={[child]} />
+								<TreeViewEntry
+									{onCodingSelected}
+									rootNodes={[child]}
+									onAdd={onAdd}
+									onDelete={onDelete}
+								/>
 						{/each}
 					</div>
 				{/if}
 			{:else}
-				<LeafNode {onCodingSelected} coding={node} />
+				<LeafNode
+					{onCodingSelected}
+					coding={node}
+					onAdd={onAdd}
+					onDelete={onDelete}
+				/>
 			{/if}
 		</div>
 	{/each}
