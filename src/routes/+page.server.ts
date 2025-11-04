@@ -2,6 +2,7 @@ import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import type { Coding, WorkflowDocument } from '$lib/types';
 import type { Actions } from './$types';
+import { json } from 'stream/consumers';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
@@ -13,17 +14,32 @@ export const load: PageServerLoad = async ({ params }) => {
 			'X-Custom-Header': 'custom-value'
 		}
 	};
-	const documentsRes = await fetch(`${apiBase}/documents`, header);
 
-	if (!documentsRes.ok) {
-		documentsRes.json();
-		console.error('Failed to fetch documents :' + documentsRes.statusText);
-		throw new Error('Failed to fetch documents :' + documentsRes.statusText);
+	try {
+		const documentsRes = await fetch(`${apiBase}/documents`, header);
+
+		console.log('Fetching documents from:', `${apiBase}/documents`);
+		console.log('Response status:', documentsRes.status, documentsRes.statusText);
+
+		if (!documentsRes.ok) {
+			const errorText = await documentsRes.text();
+			console.error('Failed to fetch documents:', documentsRes.status, errorText);
+			
+			return {
+				documents: [] as WorkflowDocument[]
+			};
+		}
+
+		const documentData = await documentsRes.json();
+		console.log('Documents fetched successfully:', documentData.length);
+
+		return {
+			documents: documentData as WorkflowDocument[]
+		};
+	} catch (error) {
+		console.error('Error fetching documents:', error);
+		return {
+			documents: [] as WorkflowDocument[]
+		};
 	}
-
-	let documentData = await documentsRes.json();
-
-	return {
-		documetns: documentData as WorkflowDocument[]
-	};
 };
