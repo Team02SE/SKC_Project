@@ -39,7 +39,7 @@
 
 	async function deleteCoding() {
 		popUpOpen = false;
-		const response = await fetch(`/codings/${codingCopy.id}`, {
+		const response = await fetch(`/codings/${codingCopy?.id}`, {
 			method: 'DELETE',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ type })
