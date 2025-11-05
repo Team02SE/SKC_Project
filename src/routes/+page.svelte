@@ -18,14 +18,14 @@
 	</div>
 </div>
 
-<div class="flex w-full gap-5 px-4 py-2">
-	<div class="h-full w-5/12 overflow-y-visible rounded-2xl bg-light-primary inset-shadow-sm/25">
+<div class="flex w-full gap-5 px-4 py-2" style="height: calc(100vh - 12rem);">
+	<div class="h-full w-5/12 overflow-y-auto rounded-2xl bg-light-primary inset-shadow-sm/25">
 		{#each data.documents as workflowDocument, index}
 			<DocumentCard {workflowDocument} roundedTop={index == 0} />
 		{/each}
 	</div>
 	<div
-		class="flex flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25"
+		class="flex flex-1 h-full items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25"
 	>
 		<DocumentInfo />
 	</div>
