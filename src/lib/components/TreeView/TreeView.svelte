@@ -9,6 +9,36 @@
 		onCodingSelected: any;
 	}
 	let { rootNodes, label, onCodingSelected }: Props = $props();
+
+	function insertChild(nodes: Coding[], parent: Coding, newNode: Coding): boolean {
+		for (const node of nodes) {
+			if (node.id === parent.id) {
+				node.children ||= [];
+				node.children.push(newNode);
+				node.expanded = true;
+				return true;
+			}
+			
+			if (node.children && insertChild(node.children, parent, newNode)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function removeNode(nodes: Coding[], id: number): boolean {
+		for (let i = 0; i < nodes.length; i++) {
+			if (nodes[i].id === id) {
+				nodes.splice(i, 1);
+				return true;
+			}
+
+			if (nodes[i].children && removeNode(nodes[i].children, id)) {
+				return true;
+			}
+		}
+		return false;
+	}
 </script>
 
 <div class="flex h-full w-full flex-col overflow-auto">
@@ -19,46 +49,15 @@
 		<TreeViewEntires 
 			{onCodingSelected} 
 			{rootNodes}
-			onAdd={(parent, newNode) => {
-				function insert(nodes: Coding[]): boolean {
-					for (const n of nodes) {
-						if (n.id === parent.id) {
-							n.children ||= [];
-							n.children.push(newNode);
-							n.expanded = true;
-							return true;
-						}
-						if (n.children && insert(n.children)) return true;
-					}
-					return false;
-				}
 			
-				insert(rootNodes);
+			onAdd={(parent,newNode) => {
+				insertChild(rootNodes, parent, newNode);
+				rootNodes = [...rootNodes];
 			}}
-			
+
 			onDelete={(id) => {
-				function remove(nodes: Coding[]): boolean {
-					for (let i = 0; i < nodes.length; i++) {
-						if (nodes[i].id === id) {
-							nodes.splice(i, 1);
-							return true;
-						}
-					
-						// recurse into children
-						if (nodes[i].children && nodes[i].children.length > 0) {
-							const deleted = remove(nodes[i].children);
-							if (deleted) {
-								if (nodes[i].children.length === 0) {
-									nodes[i].children = [];
-								}
-								return true;
-							}
-						}
-					}
-					return false;
-				}
-			
-				remove(rootNodes);
+				removeNode(rootNodes, id);
+				rootNodes = [...rootNodes];
 			}}
 		/>
 	</div>

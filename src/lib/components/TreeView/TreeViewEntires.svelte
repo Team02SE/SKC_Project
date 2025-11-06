@@ -7,7 +7,6 @@
 	import dropdown from '$lib/assets/dropdown.svg';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
-	import type { API_URL, API_KEY } from '$env/static/private';
 
 	interface Props {
 		rootNodes: Coding[];
@@ -32,35 +31,56 @@
 		openOptions = openOptions === id ? null : id;
 	}
 
-	async function addNode(node: Coding) {
+	function removeById(nodes: Coding[], id: number): boolean {
+		for (let i = 0; i < nodes.length; i++) {
+			if (nodes[i].id === id) {
+				nodes.splice(i, 1);
+				return true;
+			}
+			if (nodes[i].children && nodes[i].children.length) {
+				if (removeById(nodes[i].children, id)) return true;
+			}
+		}
+		return false;
+	}
+
+	async function addNode(parent: Coding) {
 		openOptions = null;
 
-		const body = {
-			name: "",
+		const tempId = -Date.now();
+		const newNode: Coding = {
+			id: tempId,
+			name: '',
 			number: 0,
-			description: "",
-			parent_id: node.id,
-			type: node.category
+			type: parent.type,
+			description: '',
+			category: parent.category,
+			children: [],
+			expanded: false
 		};
 
+		onAdd?.(parent, newNode);
+
 		const res = await fetch(`/codings`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(body)
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: newNode.name,
+				number: newNode.number,
+				description: newNode.description,
+				parent_id: parent.id,
+				type: parent.category
+			})
 		});
 
 		if (!res.ok) {
-			alert("Add failed");
+			removeById(rootNodes, tempId);
+			alert('Add failed');
 			return;
 		}
 
-		const created: Coding = await res.json();
-
-		onAdd?.(node, {
-			...created,
-			category: node.category,
-			children: []
-		});
+		const created = await res.json();
+		newNode.id = created.id;
 	}
 
 	async function deleteNode(node: Coding) {

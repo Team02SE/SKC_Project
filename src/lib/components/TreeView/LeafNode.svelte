@@ -2,7 +2,6 @@
 	import type { Coding } from '$lib/types';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
-	import type { API_URL, API_KEY } from '$env/static/private';
 
 	interface Props {
 		coding: Coding;
@@ -19,35 +18,36 @@
 		openOptions = openOptions === id ? null : id;
 	}
 
-	async function addNode(node: Coding) {
-		openOptions = null;
-
-		const body = {
-			name: "",
-			number: 0,
-			description: "",
-			parent_id: node.id,
-			type: node.category
-		};
-
-		const res = await fetch(`/codings`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(body)
-		});
-
-		if (!res.ok) {
-			alert("Add failed");
-			return;
-		}
-
-		const created: Coding = await res.json();
-
-		onAdd?.(node, {
-			...created,
-			category: node.category,
-			children: []
-		});
+	async function addNode(parent: Coding) {
+	    openOptions = null;
+	
+	    const res = await fetch(`/codings`, {
+	        method: "POST",
+	        headers: { "Content-Type": "application/json" },
+	        body: JSON.stringify({
+	            name: "",
+	            number: 0,
+	            description: "",
+	            parent_id: parent.id,
+	            type: parent.category
+	        })
+	    });
+	
+	    if (!res.ok) {
+	        alert("Add failed");
+	        return;
+	    }
+	
+	    const backendCreated: Coding = await res.json();
+	
+	    const newNode: Coding = {
+	        ...backendCreated,
+	        category: parent.category,
+	        children: [],
+	        expanded: false
+	    };
+	
+	    onAdd?.(parent, newNode);
 	}
 
 	async function deleteNode(node: Coding) {

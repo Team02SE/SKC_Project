@@ -21,7 +21,6 @@ export const POST: RequestHandler = async ({ request }) => {
 			name: data.name,
 			number: data.number,
 			description: data.description,
-			parent_id: data.parent_id
 		})
 	});
 
