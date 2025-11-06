@@ -1,47 +1,11 @@
 <script lang="ts">
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
+    import type { Activity } from "$lib/types";
 
-    // THIS IS TEST DATA UNTIL REAL DATA IS IMPLEMENTED
-    const activitiesData = [
-        {
-            title: 'Activity Title',
-            label: '1',
-            children: [
-                {
-                    title: 'Sub-activity 1',
-                    label: '1.1',
-                    buttonIcon: 'close'
-                },
-                {
-                    title: 'Sub-activity 2',
-                    label: '1.2',
-                    buttonIcon: 'close'
-                },
-                {
-                    title: 'Sub-activity 3',
-                    label: '1.3',
-                    buttonIcon: 'close'
-                }
-            ],
-        },
-        {
-            title: 'Activity Title',
-            label: '2',
-            children: [
-                {
-                    title: 'Sub-activity 1',
-                    label: '2.1',
-                    buttonIcon: 'close'
-                },
-                {
-                    title: 'Sub-activity 2',
-                    label: '2.2',
-                    buttonIcon: 'close'
-                }
-            ],
-        }
-    ];
+    let { data }: { data: Activity[] } = $props();
+    
+    let n1Activities = $derived(data.filter(activity => !activity.parent_id));
 </script>
 
 <div class="mb-50">
@@ -49,8 +13,16 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             <h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
-            {#each activitiesData as activity}
-            <TreeCodings data={activity} />
+            {#each n1Activities as activity}
+                <TreeCodings data={{
+                    title: activity.name,
+                    label: activity.number.toString(),
+                    children: activity.children.map(child => ({
+                        title: child.name,
+                        label: child.number.toString(),
+                        buttonIcon: 'close'
+                    }))
+                }} />
             {/each}
         </div>
         

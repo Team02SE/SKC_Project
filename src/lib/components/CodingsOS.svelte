@@ -1,50 +1,30 @@
 <script lang="ts">
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
+    import type { OpportunityStructure } from "$lib/types";
 
-    // THIS IS TEST DATA UNTIL REAL DATA IS IMPLEMENTED
-    const sectorData = {
-        title: "Sector",
-        label: "1",
-        children: [
-            {
-                title: "Sub-sector 1",
-                label: "1.1",
-                buttonIcon: "close"
-            },
-            {
-                title: "Sub-sector 2",
-                label: "1.2",
-                buttonIcon: "close"
-            },
-            {
-                title: "Sub-sector 3",
-                label: "1.3",
-                buttonIcon: "close"
-            }
-        ]
-    };
+    let { data }: { data: OpportunityStructure[] } = $props();
 
-    const structures = [
-        "Railroads",
-        "Police",
-        "Buildings",
-        "Roads",
-        "Bridges",
-        "Airports",
-        "Banks",
-        "Schools",
-        "Hospitals",
-        "Water Systems",
-        "Electric Grid"
-    ]
+    let sectors = $derived(data.filter(item => !item.parent_id));
+    
+    // let structures = $derived(data.map(item => item.name));
 </script>
 
 <div class="mb-50">
     <h1 class="text-4xl font-bold text-light-text-primary">Opportunity Structures</h1>
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
-            <TreeCodings data={sectorData} />
+            {#each sectors as sector}
+            <TreeCodings data={{
+                title: sector.name,
+                label: sector.number.toString(),
+                children: sector.children.map(child => ({
+                    title: child.name,
+                    label: child.number.toString(),
+                    buttonIcon: "close"
+                }))
+            }} />
+            {/each}
         </div>
         <div class="h-full w-1/2">
             <AddCoding />
@@ -55,8 +35,8 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             <div class="grid grid-cols-2 gap-4">
-                <!-- SPLITS THE LIST INTO TWO COLUMNS -->
-                <ul class="list-disc pl-6 text-light-text-primary">
+                <!-- Ignoring structures for now -->
+                <!-- <ul class="list-disc pl-6 text-light-text-primary">
                 {#each structures.slice(0, Math.ceil(structures.length / 2)) as structure}
                     <li class="py-1">{structure}</li>
                 {/each}
@@ -65,7 +45,7 @@
                 {#each structures.slice(Math.ceil(structures.length / 2)) as structure}
                     <li class="py-1">{structure}</li>
                 {/each}
-                </ul>
+                </ul> -->
             </div>
         </div>
         <div class="h-full w-1/2">
