@@ -18,6 +18,8 @@
 		return codings;
 	}
 
+	let searchQuery = $state('');
+
 	function deleteRecursively(codings: Coding[], codingToDelete: Coding): Coding[] {
 		return codings.filter((coding) => {
 			if (coding.id === codingToDelete.id) {
@@ -45,14 +47,48 @@
 	let selectedTab = $state<TabKey>('activities');
 	let codingToEdit = $state<Coding | undefined>(undefined);
 
-	// Automatically derive the title and data array based on the selected tab
+	// Automatically derive the title based on the selected tab
 	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
-	let selectedCoding = $derived(codings[tabConfig[selectedTab].key] || []);
 
 	function OnTabChange(tab: string) {
 		if (tab in tabConfig) {
 			selectedTab = tab as TabKey;
 		}
+	}
+
+	function handleSearch(event: CustomEvent<string>) {
+		searchQuery = event.detail;
+	}
+
+	function getSelectedCodings(): Coding[] {
+		const key = tabConfig[selectedTab].key;
+		return codings[key] || [];
+	}
+
+	function filterCodingTree(nodes: Coding[], query: string): Coding[] {
+		if (!query) {
+			return nodes;
+		}
+
+		const loweredQuery = query.toLowerCase();
+
+		return nodes.reduce<Coding[]>((acc, node) => {
+			const children = Array.isArray(node.children) ? filterCodingTree(node.children, query) : [];
+			const matchesNode = node.name?.toLowerCase().includes(loweredQuery);
+
+			if (matchesNode || children.length > 0) {
+				acc.push({
+					...node,
+					children
+				});
+			}
+
+			return acc;
+		}, []);
+	}
+
+	function getFilteredCodings(): Coding[] {
+		return filterCodingTree(getSelectedCodings(), searchQuery.trim());
 	}
 
 	function OnCodingSelected(coding: Coding) {
@@ -77,7 +113,7 @@
 	<CodingTabs onTabChange={OnTabChange} />
 
 	<div class="flex h-full flex-1 justify-end gap-2">
-		<SearchBar />
+		<SearchBar on:search={handleSearch} />
 		<FilterBar />
 	</div>
 </div>
@@ -88,7 +124,7 @@
 		<TreeView
 			onCodingSelected={OnCodingSelected}
 			label={selectedCodingTitle}
-			rootNodes={selectedCoding}
+			rootNodes={getFilteredCodings()}
 		/>
 	</div>
 	<div
