@@ -10,9 +10,9 @@
   let showDocument = true; // true = Document, false = Metadata
 </script>
 
-<div class="w-full bg-light-primary rounded-t-2xl shadow-md border border-gray-200 inset-shadow-sm/25">
+<div class="w-full h-full bg-light-primary rounded-t-2xl shadow-md border border-gray-200 inset-shadow-sm/25 flex flex-col">
   <!-- Header Section -->
-  <div class="relative flex justify-center items-center px-6 py-4">
+  <div class="relative flex justify-center items-center px-6 py-4 flex-shrink-0">
   
     <!-- Left: Big title -->
     <div class="absolute left-10 text-4xl font-bold text-gray-800">
@@ -37,8 +37,8 @@
 
 
   <!-- Bottom Section -->
-  <div class="flex-1 flex flex-col p-10 pt-5 pr-20">
-    <div class="flex-1 w-full h-full bg-gray-200 border border-gray-200 rounded-2xl p-4">
+  <div class="flex-1 flex flex-col p-10 pt-5 pr-20 overflow-hidden">
+    <div class="flex-1 w-full bg-gray-200 border border-gray-200 rounded-2xl p-4 overflow-hidden">
       {#if showDocument}
         <PDFView />
       {:else}
