@@ -15,7 +15,8 @@
 	}
 
 	function handleEdit() {
-		goto(`/workflows/` + workflowDocument.id);
+		let url = `/workflows/` + workflowDocument.id;
+		goto(url);
 	}
 
 	function IntToStatusColour(doc_status: number): string {
