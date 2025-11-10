@@ -10,6 +10,7 @@
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
 	import type { PageProps } from './$types';
 	import type { EssenceData } from '$lib/types';
+	import PDFView from '$lib/components/PDFView.svelte';
 
 	let { data }: PageProps = $props();
 	
@@ -31,7 +32,7 @@
 	let osRef: HTMLDivElement | null = null;
 	let svRef: HTMLDivElement | null = null;
 
-	let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null = null;
+	let selectedId = $state<'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null>(null);
 
 	function onContainerScroll() {
 		if (!containerRef) return;
@@ -109,7 +110,7 @@
 	</div>
 
 	<!-- Right content -->
-	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-240px)] inset-shadow-sm/25">
-		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
+	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] inset-shadow-sm/25">
+		<PDFView />
 	</div>
-</div>
+</div>	

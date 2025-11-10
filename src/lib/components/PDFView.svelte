@@ -120,6 +120,9 @@
 
 	function zoomIn() {
 		scale += 0.25;
+		if (scale > 1.5) {
+			scale = 1.5;
+		}
 	}
 
 	function zoomOut() {
