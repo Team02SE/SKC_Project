@@ -9,3 +9,13 @@ export type Coding = {
 	expanded: boolean;
 	category: string;
 };
+
+export type WorkflowDocument = {
+	id: number;
+	Title: string;
+	Source: string;
+	Essence: string;
+	Conclusion: string;
+	Status: number;
+	UpdatedAt: string;
+};

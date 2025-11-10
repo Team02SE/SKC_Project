@@ -10,7 +10,6 @@
 	import { fade } from 'svelte/transition';
 	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
 
-	// TODO: use teh data to create codings
 	let { data }: PageProps = $props();
 
 	let codings = $state(data);
@@ -19,39 +18,57 @@
 		return codings;
 	}
 
-	let selectedCoding = $state(codings.activities);
-	let selectedCodingTitle = $state('Activities');
-	let codingToEdit = $state(undefined);
+	function deleteRecursively(codings: Coding[], codingToDelete: Coding): Coding[] {
+		return codings.filter((coding) => {
+			if (coding.id === codingToDelete.id) {
+				return false;
+			}
+			if (coding.children && coding.children.length > 0) {
+				coding.children = deleteRecursively(coding.children, codingToDelete);
+			}
 
-	// console.warn(codings);
-	function SelectCorrectCodingsData(tab: string): Coding[] {
-		switch (tab) {
-			case 'activities':
-				selectedCodingTitle = 'Activities';
-				return codings.activities;
-			case 'effects':
-				selectedCodingTitle = 'Effects';
-				return codings.effects;
-			case 'opportunity-structures':
-				selectedCodingTitle = 'Opportunity structures';
-				return codings.opportunityStructures;
-			case 'system-vulnerabilities':
-				selectedCodingTitle = 'System vulnerabilities';
-				return codings.systemVulnerabilities;
-			case 'dsteps':
-				selectedCodingTitle = 'Dsteps';
-				return codings.dsteps;
-			default:
-				return [];
-		}
+			return true;
+		});
 	}
 
+	// Maps tab IDs to their display titles and corresponding data keys in the codings object
+	const tabConfig = {
+		activities: { title: 'Activities', key: 'activities' as const },
+		effects: { title: 'Effects', key: 'effects' as const },
+		'opportunity-structures': { title: 'Opportunity structures', key: 'opportunityStructures' as const },
+		'system-vulnerabilities': { title: 'System vulnerabilities', key: 'systemVulnerabilities' as const },
+		dsteps: { title: 'Dsteps', key: 'dsteps' as const }
+	};
+
+	type TabKey = keyof typeof tabConfig;
+
+	let selectedTab = $state<TabKey>('activities');
+	let codingToEdit = $state<Coding | undefined>(undefined);
+
+	// Automatically derive the title and data array based on the selected tab
+	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
+	let selectedCoding = $derived(codings[tabConfig[selectedTab].key] || []);
+
 	function OnTabChange(tab: string) {
-		selectedCoding = SelectCorrectCodingsData(tab);
+		if (tab in tabConfig) {
+			selectedTab = tab as TabKey;
+		}
 	}
 
 	function OnCodingSelected(coding: Coding) {
 		codingToEdit = coding;
+	}
+
+	function OnCodingDeleted(coding: Coding) {
+		const key = tabConfig[selectedTab].key;
+		codings = {
+			...codings,
+			[key]: deleteRecursively(codings[key], coding)
+		};
+
+		if (codingToEdit?.id === coding.id) {
+			codingToEdit = undefined;
+		}
 	}
 </script>
 
@@ -77,6 +94,10 @@
 	<div
 		class="mt-4 mr-4 flex h-[100vh] w-1/2 flex-col items-center rounded-2xl bg-white shadow inset-shadow-sm/25"
 	>
-		<CodingsEdit coding={codingToEdit} type={selectedCodingTitle} />
+		<CodingsEdit
+			onCodingDeleted={OnCodingDeleted}
+			coding={codingToEdit}
+			type={selectedCodingTitle}
+		/>
 	</div>
 </section>

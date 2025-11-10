@@ -16,12 +16,6 @@
 	}
 	let { rootNodes, onCodingSelected, onAdd, onDelete }: Props = $props();
 
-	let _expandedState = $state<boolean[]>([]);
-
-	rootNodes.forEach((rootNode) => {
-		_expandedState.push(rootNode.expanded);
-	});
-
 	let options = { duration: 200 };
 
 	let openOptions = $state<string | null>(null);
@@ -102,7 +96,7 @@
 </script>
 
 <div class="w-full flex-col items-start py-2">
-	{#each rootNodes as node}
+	{#each rootNodes as node (node.id)}
 		<div class="mt-2 ml-4">
 			{#if node.children && node.children.length > 0}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
