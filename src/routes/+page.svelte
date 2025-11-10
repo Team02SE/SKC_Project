@@ -10,18 +10,33 @@
 	let { data } = $props();
 
 	let searchQuery = $state('');
+	let statusFilter = $state<number[]>([]);
 
 	function getFilteredDocuments() {
-		const normalizedQuery = searchQuery.toLowerCase();
-		return normalizedQuery.length === 0
-			? data.documents
-			: data.documents.filter((document) =>
+		let filtered = data.documents;
+
+		// Apply search filter
+		if (searchQuery.length > 0) {
+			const normalizedQuery = searchQuery.toLowerCase();
+			filtered = filtered.filter((document) =>
 				document.Title?.toLowerCase().includes(normalizedQuery)
 			);
+		}
+
+		// Apply status filter
+		if (statusFilter.length > 0) {
+			filtered = filtered.filter((document) => statusFilter.includes(document.Status));
+		}
+
+		return filtered;
 	}
 
 	function handleSearch(event: CustomEvent<string>) {
 		searchQuery = event.detail;
+	}
+
+	function handleFilter(event: CustomEvent<number[]>) {
+		statusFilter = event.detail;
 	}
 </script>
 
@@ -29,7 +44,7 @@
 <div class="flex h-18 w-full items-center justify-between p-4">
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-		<FilterBar />
+		<FilterBar on:filter={handleFilter} />
 	</div>
 </div>
 
