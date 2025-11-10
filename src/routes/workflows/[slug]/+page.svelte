@@ -8,6 +8,21 @@
 	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
 	import CodingsOS from '$lib/components/CodingsOS.svelte';
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
+	import type { PageProps } from './$types';
+	import type { EssenceData } from '$lib/types';
+	import PDFView from '$lib/components/PDFView.svelte';
+
+	let { data }: PageProps = $props();
+	
+	let document = $state(data.document);
+	
+	let essenceContent = $derived<EssenceData>({
+		essence: data.document.Essence,
+		summary: data.document.Source,
+		conclusion: data.document.Conclusion
+	});
+	
+	let { activities, effects, dsteps, opportunityStructures, systemVulnerabilities } = $derived(data.codings);
 
 	let containerRef: HTMLDivElement | null = null;
 	let essenceRef: HTMLDivElement | null = null;
@@ -17,7 +32,7 @@
 	let osRef: HTMLDivElement | null = null;
 	let svRef: HTMLDivElement | null = null;
 
-	let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null = null;
+	let selectedId = $state<'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null>(null);
 
 	function onContainerScroll() {
 		if (!containerRef) return;
@@ -74,7 +89,7 @@
 	<ButtonSvg type="home" size={12} />
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
 	<div class="flex items-center justify-center h-full w-64 rounded-t-2xl bg-light-navbar-primary">
-		<p class="px-1 font-medium text-light-primary">Editing - DOCUMENT_NAME</p>
+		<p class="px-1 font-medium text-light-primary">Editing - {document.Title}</p>
 	</div>
 </div>
 
@@ -84,18 +99,18 @@
 
 	<!-- Middle content -->
 	 <div bind:this={containerRef}
-		 on:scroll={onContainerScroll}
+		 onscroll={onContainerScroll}
 		 class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
-		<div bind:this={essenceRef}><CodingsEssence /></div>
-		<div bind:this={activitiesRef}><CodingsActivities /></div>
-		<div bind:this={effectsRef}><CodingsEffects /></div>
-		<div bind:this={destepRef}><CodingsDESTEP /></div>
-		<div bind:this={osRef}><CodingsOS /></div>
-		<div bind:this={svRef}><CodingsSV /></div>
+		<div bind:this={essenceRef}><CodingsEssence data={essenceContent} /></div>
+		<div bind:this={activitiesRef}><CodingsActivities data={activities} /></div>
+		<div bind:this={effectsRef}><CodingsEffects data={effects} /></div>
+		<div bind:this={destepRef}><CodingsDESTEP data={dsteps} /></div>
+		<div bind:this={osRef}><CodingsOS data={opportunityStructures} /></div>
+		<div bind:this={svRef}><CodingsSV data={systemVulnerabilities} /></div>
 	</div>
 
 	<!-- Right content -->
-	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-240px)] inset-shadow-sm/25">
-		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
+	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] inset-shadow-sm/25">
+		<PDFView />
 	</div>
-</div>
+</div>	

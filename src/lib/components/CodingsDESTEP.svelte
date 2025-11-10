@@ -1,46 +1,27 @@
 <script lang="ts">
-	import CardCodings from './CardCodings.svelte';
+    import TreeCodings from './TreeCodings.svelte';
 	import AddCoding from './AddCoding.svelte';
+	import type { DStep } from "$lib/types";
 
-	// THIS IS TEST DATA UNTIL REAL DATA IS IMPLEMENTED
-	const data = {
-		"DESTEP": [
-            {
-                title: 'DESTEP Title',
-                label: '1',
-            },
-            {
-                title: 'DESTEP Title',
-                label: '2',
-            },
-            {
-                title: 'DESTEP Title',
-                label: '3',
-            }
-        ],
-        "Major influence": [
-            {
-                title: 'Major influence Title',
-                label: '1',
-            },
-            {
-                title: 'Major influence Title',
-                label: '2',
-            },
-            {
-                title: 'Major influence Title',
-                label: '3',
-            }   
-        ]
-	};
+	let { data }: { data: DStep[] } = $props();
+
+    let n1Dstep = $derived(data.filter(dstep => !dstep.parent_id));
 </script>
 
 <div class="mb-50">
     <h1 class="text-4xl font-bold text-light-text-primary">DESTEP</h1>
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
-            {#each data["DESTEP"] as item}
-            <CardCodings title={item.title} label={item.label} />
+            {#each n1Dstep as dstep}
+                <TreeCodings data={{
+                    title: dstep.name,
+                    label: dstep.number.toString(),
+                    children: dstep.children.map(child => ({
+                        title: child.name,
+                        label: child.number.toString(),
+                        buttonIcon: 'close'
+                    }))
+                }} />
             {/each}
         </div>
         <div class="h-full w-1/2">
@@ -51,9 +32,10 @@
     <h1 class="text-4xl font-bold text-light-text-primary">Major influence</h1>
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
-            {#each data["Major influence"] as item}
-            <CardCodings title={item.title} label={item.label} />
-            {/each}
+            <!-- Ignoring this for now for later discussion -->
+            <!-- {#each majorInfluenceItems as item}
+                <CardCodings title={item.name} label={item.number.toString()} />
+            {/each} -->
         </div>
         <div class="h-full w-1/2">
             <AddCoding />

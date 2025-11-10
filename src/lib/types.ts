@@ -1,3 +1,4 @@
+// Base type for all codings
 export type Coding = {
 	id: number; // number in databse
 	name: string;
@@ -6,8 +7,20 @@ export type Coding = {
 	description: string;
 	parent_id?: number;
 	children: Coding[];
+	created_at: string;
+	updated_at: string;
 	expanded: boolean;
 };
+
+export type Activity = Coding;
+
+export type Effect = Coding;
+
+export type OpportunityStructure = Coding;
+
+export type SystemVulnerability = Coding;
+
+export type DStep = Coding;
 
 export type WorkflowDocument = {
 	id: number;
@@ -17,4 +30,10 @@ export type WorkflowDocument = {
 	Conclusion: string;
 	Status: number;
 	UpdatedAt: string;
+};
+
+export type EssenceData = {
+	essence: string;
+	summary: string;
+	conclusion: string;
 };
