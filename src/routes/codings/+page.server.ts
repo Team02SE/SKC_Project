@@ -74,14 +74,35 @@ export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
 
-		const parent_id = data.get(`parent_id`);
 		const name = data.get(`name`);
-		const descrpition = data.get(`description`);
+		const description = data.get(`description`);
+		const type = (data.get(`type`) as string || '').toLowerCase().trim();
+		const parent_id = data.get(`parent_id`);
 
-		// const res = await fetch()
-		console.log(data.get(`parent_id`));
-		console.log(data.get(`name`));
-				console.log(data.get(`description`));
-		console.log(data);
+		if (!type) {
+			throw new Error('Missing type parameter');
+		}
+
+		const url = `${env.API_URL}/${type}`;
+
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: env.API_KEY
+			},
+			body: JSON.stringify({
+				name,
+				description,
+				parent_id: parent_id ? Number(parent_id) : null
+			})
+		});
+
+		if (!res.ok) {
+			const errorBody = await res.text();
+			console.error(`API Error [${res.status}]:`, errorBody);
+			throw new Error(`Failed to create coding: ${res.status} ${res.statusText}`);
+		}
+		return { success: true };
 	}
 } satisfies Actions;
