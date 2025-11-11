@@ -92,6 +92,7 @@
 	}
 
 	function OnCodingSelected(coding: Coding) {
+		isCreateForm = false;
 		codingToEdit = coding;
 	}
 
@@ -105,6 +106,18 @@
 		if (codingToEdit?.id === coding.id) {
 			codingToEdit = undefined;
 		}
+	}
+
+	let isCreateForm = $state(false)
+
+	function handleAddOption(parent_id: number) {
+		isCreateForm = true;
+		codingToEdit = {} as Coding
+		codingToEdit.parent_id = parent_id;
+		codingToEdit.name = ""
+		codingToEdit.description = ""
+		codingToEdit.number = 0;
+		codingToEdit.id = -1;
 	}
 </script>
 
@@ -125,6 +138,7 @@
 			onCodingSelected={OnCodingSelected}
 			label={selectedCodingTitle}
 			rootNodes={getFilteredCodings()}
+			onCodingNodeAdded={handleAddOption}
 		/>
 	</div>
 	<div
@@ -134,6 +148,7 @@
 			onCodingDeleted={OnCodingDeleted}
 			coding={codingToEdit}
 			type={selectedCodingTitle}
+			isCreateForm = {isCreateForm}
 		/>
 	</div>
 </section>

@@ -73,6 +73,15 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
+
+		const parent_id = data.get(`parent_id`);
+		const name = data.get(`name`);
+		const descrpition = data.get(`description`);
+
+		// const res = await fetch()
+		console.log(data.get(`parent_id`));
+		console.log(data.get(`name`));
+				console.log(data.get(`description`));
 		console.log(data);
 	}
 } satisfies Actions;
