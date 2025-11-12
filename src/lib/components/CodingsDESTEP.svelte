@@ -14,7 +14,7 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each n1Dstep as dstep}
-                <TreeCodings data={codingToCodingData(dstep, 'close')} type='dsteps'/>
+                <TreeCodings data={codingToCodingData(dstep)} type='dsteps'/>
             {/each}
         </div>
         <div class="h-full w-1/2">

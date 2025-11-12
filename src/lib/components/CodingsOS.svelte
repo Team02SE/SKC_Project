@@ -16,7 +16,7 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each sectors as sector}
-            <TreeCodings data={codingToCodingData(sector, 'close')} type='opportunity-structures'/>
+            <TreeCodings data={codingToCodingData(sector)} type='opportunity-structures'/>
             {/each}
         </div>
         <div class="h-full w-1/2">

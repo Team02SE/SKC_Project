@@ -15,7 +15,7 @@
         <div class="h-full w-1/2">
             <h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
             {#each n1Effects as effect}
-                <TreeCodings data={codingToCodingData(effect, 'close')} type='effects'/>
+                <TreeCodings data={codingToCodingData(effect)} type='effects'/>
             {/each}
         </div>
         <div class="h-full w-1/2">

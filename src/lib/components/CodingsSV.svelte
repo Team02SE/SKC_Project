@@ -16,7 +16,7 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each topLevelVulnerabilities as vulnerability}
-            <TreeCodings data={codingToCodingData(vulnerability, 'close')} type='system-vulnerabilities' />
+            <TreeCodings data={codingToCodingData(vulnerability)} type='system-vulnerabilities' />
             {/each}
         </div>
 

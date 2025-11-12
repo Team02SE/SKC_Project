@@ -3,14 +3,15 @@
 import type { Coding } from './types';
 import type { CodingData } from './components/TreeCodings.svelte';
 
-//Adds buttonIcon only to leaf nodes
-export function codingToCodingData(coding: Coding, buttonIcon?: string): CodingData {
-	const hasChildren = coding.children && coding.children.length > 0;
-	
+/**
+ * Converts a Coding object to CodingData format for TreeCodings component.
+ * @param coding - The Coding object to convert.
+ * @returns The corresponding CodingData object.
+ */
+export function codingToCodingData(coding: Coding): CodingData {
 	return {
 		title: coding.name,
 		label: coding.number.toString(),
-		buttonIcon: hasChildren ? undefined : buttonIcon,
-		children: coding.children?.map(child => codingToCodingData(child, buttonIcon))
+		children: coding.children?.map(child => codingToCodingData(child))
 	};
 }
