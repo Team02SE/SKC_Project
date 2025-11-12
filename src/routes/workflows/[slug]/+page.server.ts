@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import type {
-	WorkflowDocument,
+	Document,
 	Activity,
 	Effect,
 	OpportunityStructure,
@@ -38,12 +38,11 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		console.log(`Workflow ${workflowId} loaded correcty `);
 
-		console.log(workflowData as Workflow);
 		return {
-			document: workflowData as Workflow
+			workflowData: workflowData as Workflow
 		};
 	} catch (err) {
-		console.error('Error loading workflow:', err);
+		console.log('Error loading workflow:', err);
 
 		if (err && typeof err === 'object' && 'status' in err) {
 			throw err;

@@ -11,24 +11,24 @@
 	import type { PageProps } from './$types';
 	import type { EssenceData } from '$lib/types';
 	import PDFView from '$lib/components/PDFView.svelte';
-	import { error } from 'console';
 
 	let { data }: PageProps = $props();
 
-	let workflow = $state(data);
-	console.log(data);
+	let workflow = $state(data.workflowData);
 
+	console.log(workflow);
 	let essenceContent = $derived<EssenceData>({
 		essence: '',
 		summary: '',
 		conclusion: ''
 	});
 
-	let activities = $derived(workflow.activities);
-	let effects = $derived(workflow.effects);
-	let dsteps = $derived(workflow.dstep);
-	let opportunityStructures = $derived(workflow.os);
-	let systemVulnerabilities = $derived(workflow.sv);
+	let document = $derived(workflow.Document);
+	let activities = $derived(workflow.Activities);
+	let effects = $derived(workflow.Effects);
+	let dsteps = $derived(workflow.Dstep);
+	let opportunityStructures = $derived(workflow.Os);
+	let systemVulnerabilities = $derived(workflow.Sv);
 
 	let containerRef: HTMLDivElement | null = null;
 	let essenceRef: HTMLDivElement | null = null;
@@ -96,16 +96,17 @@
 <div class="sticky top-20 flex h-18 w-full items-center p-4">
 	<ButtonSvg type="home" size={12} />
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
-	<div class="flex h-full w-64 items-center justify-center rounded-t-2xl bg-light-navbar-primary">
-		<p class="px-1 font-medium text-light-primary">Editing - {workflow.document.id}</p>
-	</div>
+	<div
+		class="flex h-full w-64 items-center justify-center rounded-t-2xl bg-light-navbar-primary"
+	></div>
 </div>
 
 <div class="flex w-full gap-5 px-4 py-2">
-	<!-- Left sidebar -->
-	<SidenNav {selectedId} on:selectSection={(e) => scrollToSection(e.detail)} />
+	<!-- Left sidebar-->
 
-	<!-- Middle content -->
+	<SidenNav {selectedId} on:selectSection={(e) => scrollToSection(e.detail)} />
+	<!--	
+	Middle content
 	<div
 		bind:this={containerRef}
 		onscroll={onContainerScroll}
@@ -117,7 +118,7 @@
 		<div bind:this={destepRef}><CodingsDESTEP data={dsteps} /></div>
 		<div bind:this={osRef}><CodingsOS data={opportunityStructures} /></div>
 		<div bind:this={svRef}><CodingsSV data={systemVulnerabilities} /></div>
-	</div>
+	</div> -->
 
 	<!-- Right content -->
 	<div

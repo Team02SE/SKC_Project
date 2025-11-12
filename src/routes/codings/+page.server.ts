@@ -42,7 +42,7 @@ export const load: PageServerLoad = async ({ params }) => {
 	responses.forEach((res, index) => {
 		if (!res.ok) {
 			res.json();
-			console.error('Failed to fetch' + endpoints[index] + ':' + res.statusText);
+			console.log('Failed to fetch' + endpoints[index] + ':' + res.statusText);
 			throw new Error(`Failed to fetch ${endpoints[index]}: ${res.statusText}`);
 		}
 	});

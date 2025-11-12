@@ -1,18 +1,16 @@
 <script lang="ts">
 	import ButtonSvg from './ButtonSvg.svelte';
 	import { goto } from '$app/navigation';
-	import type { WorkflowDocument } from '$lib/types';
+	import type { Document } from '$lib/types';
 
 	interface Props {
 		roundedTop: boolean;
-		workflowDocument: WorkflowDocument;
+		workflowDocument: Document;
 	}
 
 	let { roundedTop = false, workflowDocument }: Props = $props();
 
-	function handleDelete() {
-		console.error('not implemented');
-	}
+	function handleDelete() {}
 
 	function handleEdit() {
 		goto(`/workflows/` + workflowDocument.id);
