@@ -20,7 +20,7 @@
 	async function updateCoding(event: SubmitEvent) {
 		event.preventDefault();
 		if (!codingCopy?.id) {
-			console.error('No ID available for update');
+			console.log('No ID available for update');
 			return;
 		}
 
@@ -31,7 +31,7 @@
 			body: JSON.stringify(codingCopy)
 		});
 
-		if (!response.ok) console.error('Update failed');
+		if (!response.ok) console.log('Update failed');
 		else console.log('Update successful');
 	}
 
@@ -45,7 +45,7 @@
 			body: JSON.stringify({ type })
 		});
 
-		if (!response.ok) console.error('Delete failed');
+		if (!response.ok) console.log('Delete failed');
 		else {
 			onCodingDeleted(coding);
 			console.log('Delete successful');

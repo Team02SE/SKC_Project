@@ -3,13 +3,16 @@
 	import { browser } from '$app/environment';
 
 	const props = $props<{ pdfUrl?: string; scale?: number; useProxy?: boolean }>();
-	
-	const originalPdfUrl = $derived(props.pdfUrl ?? 'https://hz.nl/uploads/documents/1.4-Over-de-HZ/1.4.3.-Regelingen-en-documenten/OERS/2023-2024/Juli/TWE/IR-B-HBO-ICT-full-time-2023-2024-DEF.pdf');
+
+	const originalPdfUrl = $derived(
+		props.pdfUrl ??
+			'https://hz.nl/uploads/documents/1.4-Over-de-HZ/1.4.3.-Regelingen-en-documenten/OERS/2023-2024/Juli/TWE/IR-B-HBO-ICT-full-time-2023-2024-DEF.pdf'
+	);
 	const useProxy = $derived(props.useProxy ?? true);
 	const pdfUrl = $derived(
 		useProxy ? `/api/pdf?url=${encodeURIComponent(originalPdfUrl)}` : originalPdfUrl
 	);
-	
+
 	let scale: number = $state(props.scale ?? 1.25);
 	let canvasContainer: HTMLDivElement | undefined = $state();
 	let currentPage = $state(1);
@@ -27,7 +30,6 @@
 				pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker.default;
 				await loadPDF();
 			} catch (err) {
-				console.error('Error loading PDF.js:', err);
 				error = 'Failed to load PDF library';
 				isLoading = false;
 			}
@@ -65,7 +67,6 @@
 
 			isLoading = false;
 		} catch (err: any) {
-			console.error('Error loading PDF:', err);
 			error = err.message || 'Failed to load PDF';
 			isLoading = false;
 		}
@@ -84,7 +85,6 @@
 			const context = canvas.getContext('2d');
 
 			if (!context) {
-				console.error('Could not get 2d context');
 				return;
 			}
 
@@ -101,7 +101,7 @@
 
 			await page.render(renderContext).promise;
 		} catch (err) {
-			console.error('Error rendering page:', err);
+			console.log('Error rendering page:', err);
 			error = 'Failed to render page';
 		}
 	}
