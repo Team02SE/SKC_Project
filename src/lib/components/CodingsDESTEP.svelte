@@ -2,6 +2,7 @@
     import TreeCodings from './TreeCodings.svelte';
 	import AddCoding from './AddCoding.svelte';
 	import type { DStep } from "$lib/types";
+	import { codingToCodingData } from '$lib';
 
 	let { data }: { data: DStep[] } = $props();
 
@@ -13,15 +14,7 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each n1Dstep as dstep}
-                <TreeCodings data={{
-                    title: dstep.name,
-                    label: dstep.number.toString(),
-                    children: dstep.children.map(child => ({
-                        title: child.name,
-                        label: child.number.toString(),
-                        buttonIcon: 'close'
-                    }))
-                }} />
+                <TreeCodings data={codingToCodingData(dstep, 'close')} type='dsteps'/>
             {/each}
         </div>
         <div class="h-full w-1/2">
