@@ -37,3 +37,12 @@ export type EssenceData = {
 	summary: string;
 	conclusion: string;
 };
+
+export type Workflow = {
+	document: WorkflowDocument;
+	activities: Activity[];
+	effects: Effect[];
+	os: OpportunityStructure[];
+	sv: SystemVulnerability[];
+	dstep: DStep[];
+};
