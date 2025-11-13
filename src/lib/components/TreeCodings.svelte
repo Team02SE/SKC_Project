@@ -12,7 +12,6 @@
 
     export let data: CodingData;
     export let type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
-    console.warn(data);
 </script>
 
 <div class="flex h-auto w-full flex-col gap-3 mb-5">

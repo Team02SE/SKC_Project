@@ -15,8 +15,6 @@
 	let { data }: PageProps = $props();
 
 	let workflow = $state(data.workflowData);
-
-	console.log(workflow);
 	
 	// Helper function to normalize codings data (replace null children with empty arrays)
 	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
