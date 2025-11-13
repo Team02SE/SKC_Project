@@ -11,11 +11,11 @@
 
 	let searchQuery = $state('');
 	let statusFilter = $state<number[]>([]);
+	let sortOption: 'lastModified-asc' | 'lastModified-desc' | null = $state('lastModified-desc');
 
 	function getFilteredDocuments() {
 		let filtered = data.documents;
 
-		// Apply search filter
 		if (searchQuery.length > 0) {
 			const normalizedQuery = searchQuery.toLowerCase();
 			filtered = filtered.filter((document) =>
@@ -23,9 +23,22 @@
 			);
 		}
 
-		// Apply status filter
 		if (statusFilter.length > 0) {
 			filtered = filtered.filter((document) => statusFilter.includes(document.Status));
+		}
+
+		if (sortOption) {
+			filtered = [...filtered].sort((a, b) => {
+				const dateA = new Date(a.UpdatedAt).getTime();
+				const dateB = new Date(b.UpdatedAt).getTime();
+
+				if (sortOption === 'lastModified-desc') {
+					return dateB - dateA;
+				} else if (sortOption === 'lastModified-asc') {
+					return dateA - dateB;
+				}
+				return 0;
+			});
 		}
 
 		return filtered;
@@ -38,13 +51,17 @@
 	function handleFilter(event: CustomEvent<number[]>) {
 		statusFilter = event.detail;
 	}
+
+	function handleSort(event: CustomEvent<'lastModified-asc' | 'lastModified-desc' | null>) {
+		sortOption = event.detail;
+	}
 </script>
 
 <!-- <UploadComplete/> -->
 <div class="flex h-18 w-full items-center justify-between p-4">
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-		<FilterBar on:filter={handleFilter} />
+		<FilterBar on:filter={handleFilter} on:sort={handleSort} />
 	</div>
 </div>
 
