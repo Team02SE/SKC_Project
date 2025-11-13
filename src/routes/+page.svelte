@@ -10,18 +10,50 @@
 	let { data } = $props();
 
 	let searchQuery = $state('');
+	let statusFilter = $state<number[]>([]);
+	let sortOption: 'lastModified-asc' | 'lastModified-desc' | null = $state('lastModified-desc');
 
 	function getFilteredDocuments() {
-		const normalizedQuery = searchQuery.toLowerCase();
-		return normalizedQuery.length === 0
-			? data.documents
-			: data.documents.filter((document) =>
+		let filtered = data.documents;
+
+		if (searchQuery.length > 0) {
+			const normalizedQuery = searchQuery.toLowerCase();
+			filtered = filtered.filter((document) =>
 				document.Title?.toLowerCase().includes(normalizedQuery)
 			);
+		}
+
+		if (statusFilter.length > 0) {
+			filtered = filtered.filter((document) => statusFilter.includes(document.Status));
+		}
+
+		if (sortOption) {
+			filtered = [...filtered].sort((a, b) => {
+				const dateA = new Date(a.UpdatedAt).getTime();
+				const dateB = new Date(b.UpdatedAt).getTime();
+
+				if (sortOption === 'lastModified-desc') {
+					return dateB - dateA;
+				} else if (sortOption === 'lastModified-asc') {
+					return dateA - dateB;
+				}
+				return 0;
+			});
+		}
+
+		return filtered;
 	}
 
 	function handleSearch(event: CustomEvent<string>) {
 		searchQuery = event.detail;
+	}
+
+	function handleFilter(event: CustomEvent<number[]>) {
+		statusFilter = event.detail;
+	}
+
+	function handleSort(event: CustomEvent<'lastModified-asc' | 'lastModified-desc' | null>) {
+		sortOption = event.detail;
 	}
 </script>
 
@@ -29,7 +61,7 @@
 <div class="flex h-18 w-full items-center justify-between p-4">
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-		<FilterBar />
+		<FilterBar on:filter={handleFilter} on:sort={handleSort} />
 	</div>
 </div>
 

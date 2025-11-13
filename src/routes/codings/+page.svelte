@@ -114,7 +114,7 @@
 
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-		<FilterBar />
+<!--		<FilterBar />-->
 	</div>
 </div>
 
