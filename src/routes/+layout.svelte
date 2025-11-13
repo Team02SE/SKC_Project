@@ -28,8 +28,6 @@
 	<Header />
 	<NavBar />
 {/if}
-<!--<Header />-->
-<!--<NavBar />-->
 
 {@render children?.()}
 
