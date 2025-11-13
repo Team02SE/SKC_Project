@@ -1,5 +1,6 @@
 <script lang="ts">
 	import '../app.css';
+	import { page } from '$app/stores';
 	import favicon from '$lib/assets/favicon.svg';
 	import Header from '$lib/components/Header.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
@@ -23,8 +24,12 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<Header />
-<NavBar />
+{#if $page.status < 400}
+	<Header />
+	<NavBar />
+{/if}
+<!--<Header />-->
+<!--<NavBar />-->
 
 {@render children?.()}
 
