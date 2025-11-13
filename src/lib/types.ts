@@ -22,7 +22,7 @@ export type SystemVulnerability = Coding;
 
 export type DStep = Coding;
 
-export type WorkflowDocument = {
+export type Document = {
 	id: number;
 	Title: string;
 	Source: string;
@@ -36,4 +36,13 @@ export type EssenceData = {
 	essence: string;
 	summary: string;
 	conclusion: string;
+};
+
+export type Workflow = {
+	Document: Document;
+	Activities: Activity[];
+	Effects: Effect[];
+	Os: OpportunityStructure[];
+	Sv: SystemVulnerability[];
+	Dstep: DStep[];
 };

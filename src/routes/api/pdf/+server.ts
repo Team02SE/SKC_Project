@@ -31,7 +31,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 			}
 		});
 	} catch (err: any) {
-		console.error('Error proxying PDF:', err);
+		console.log('Error proxying PDF:', err);
 		throw error(500, err.message || 'Failed to load PDF');
 	}
 };

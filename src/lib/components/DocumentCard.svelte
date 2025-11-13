@@ -2,13 +2,13 @@
 	import ButtonSvg from './ButtonSvg.svelte';
 	import { goto } from '$app/navigation';
 	import { invalidateAll } from '$app/navigation';
-	import type { WorkflowDocument } from '$lib/types';
+	import type { Document } from '$lib/types';
 	import PopUp from './PopUps/PopUp.svelte';
 
 	interface Props {
 		roundedTop: boolean;
-		workflowDocument: WorkflowDocument;
-		onDocumentDeleted?: (doc: WorkflowDocument) => void;
+		workflowDocument: Document;
+		onDocumentDeleted?: (doc: Document) => void;
 	}
 
 	let { roundedTop = false, workflowDocument, onDocumentDeleted }: Props = $props();
