@@ -71,11 +71,12 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 export const actions = {
-	default: async ({ request }) => {
+	codings: async ({ request }) => {
 		const data = await request.formData();
 
 		const name = data.get(`name`);
 		const description = data.get(`description`);
+		const number = data.get(`number`);
 		const type = (data.get(`type`) as string || '').toLowerCase().trim();
 		const parent_id = data.get(`parent_id`);
 
@@ -84,6 +85,8 @@ export const actions = {
 		}
 
 		const url = `${env.API_URL}/${type}`;
+
+		console.log("sending request");
 
 		const res = await fetch(url, {
 			method: 'POST',
@@ -94,9 +97,12 @@ export const actions = {
 			body: JSON.stringify({
 				name,
 				description,
+				number: number ? Number(number) : 0,
 				parent_id: parent_id ? Number(parent_id) : null
 			})
 		});
+
+		console.log("sending");
 
 		if (!res.ok) {
 			const errorBody = await res.text();

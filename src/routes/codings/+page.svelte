@@ -112,12 +112,25 @@
 
 	function handleAddOption(parent_id: number) {
 		isCreateForm = true;
-		codingToEdit = {} as Coding
-		codingToEdit.parent_id = parent_id;
-		codingToEdit.name = ""
-		codingToEdit.description = ""
-		codingToEdit.number = 0;
-		codingToEdit.id = -1;
+
+		codingToEdit = {
+			id: -1,
+			parent_id,
+			name: '',
+			description: '',
+			number: 0,
+			type: selectedCodingTitle.toLowerCase(),
+			children: [],
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+			expanded: false,
+			isOptionsOpen: false
+		};
+		// codingToEdit.parent_id = parent_id;
+		// codingToEdit.name = ""
+		// codingToEdit.description = ""
+		// codingToEdit.number = 0;
+		// codingToEdit.id = -1;
 	}
 </script>
 
@@ -149,6 +162,10 @@
 			coding={codingToEdit}
 			type={selectedCodingTitle}
 			isCreateForm = {isCreateForm}
+			onCreated={() => {
+				codingToEdit = undefined;
+				isCreateForm = false;
+			}}
 		/>
 	</div>
 </section>
