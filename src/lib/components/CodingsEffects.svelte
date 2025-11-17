@@ -2,6 +2,7 @@
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
     import type { Effect } from "$lib/types";
+    import { codingToCodingData } from '$lib';
 
     let { data }: { data: Effect[] } = $props();
     
@@ -14,14 +15,7 @@
         <div class="h-full w-1/2">
             <h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
             {#each n1Effects as effect}
-                <TreeCodings data={{
-                    title: effect.name,
-                    label: effect.number.toString(),
-                    children: effect.children.map(child => ({
-                        title: child.name,
-                        label: child.number.toString()
-                    }))
-                }} />
+                <TreeCodings data={codingToCodingData(effect)} type='effects'/>
             {/each}
         </div>
         <div class="h-full w-1/2">

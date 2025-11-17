@@ -2,6 +2,7 @@
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
     import type { OpportunityStructure } from "$lib/types";
+    import { codingToCodingData } from '$lib';
 
     let { data }: { data: OpportunityStructure[] } = $props();
 
@@ -15,15 +16,7 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each sectors as sector}
-            <TreeCodings data={{
-                title: sector.name,
-                label: sector.number.toString(),
-                children: sector.children.map(child => ({
-                    title: child.name,
-                    label: child.number.toString(),
-                    buttonIcon: "close"
-                }))
-            }} />
+            <TreeCodings data={codingToCodingData(sector)} type='opportunity-structures'/>
             {/each}
         </div>
         <div class="h-full w-1/2">
@@ -31,12 +24,11 @@
         </div>
     </div>
 
-    <h1 class="text-xl font-bold text-light-text-primary">Structures</h1>
+    <!-- <h1 class="text-xl font-bold text-light-text-primary">Structures</h1>
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             <div class="grid grid-cols-2 gap-4">
-                <!-- Ignoring structures for now -->
-                <!-- <ul class="list-disc pl-6 text-light-text-primary">
+                <ul class="list-disc pl-6 text-light-text-primary">
                 {#each structures.slice(0, Math.ceil(structures.length / 2)) as structure}
                     <li class="py-1">{structure}</li>
                 {/each}
@@ -45,11 +37,11 @@
                 {#each structures.slice(Math.ceil(structures.length / 2)) as structure}
                     <li class="py-1">{structure}</li>
                 {/each}
-                </ul> -->
+                </ul>
             </div>
         </div>
         <div class="h-full w-1/2">
             <AddCoding />
         </div>
-    </div>
+    </div> -->
 </div>

@@ -6,10 +6,10 @@ export type Coding = {
 	type: string;
 	description: string;
 	parent_id?: number;
-	children: Coding[];
-	created_at: string;
-	updated_at: string;
-	expanded: boolean;
+	children: Coding[] | null;
+	created_at?: string;
+	updated_at?: string;
+	expanded?: boolean;
 };
 
 export type Activity = Coding;
@@ -39,10 +39,12 @@ export type EssenceData = {
 };
 
 export type Workflow = {
+	id: number;
 	Document: Document;
 	Activities: Activity[];
 	Effects: Effect[];
 	Os: OpportunityStructure[];
 	Sv: SystemVulnerability[];
-	Dstep: DStep[];
+	Dsteps: DStep[];
+	updated_at: string;
 };

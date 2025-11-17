@@ -15,20 +15,31 @@
 	let { data }: PageProps = $props();
 
 	let workflow = $state(data.workflowData);
-
-	console.log(workflow);
+	
+	// Helper function to normalize codings data (replace null children with empty arrays)
+	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
+		return items.map(item => ({
+			...item,
+			children: item.children === null ? [] : item.children.map((child: any) => ({
+				...child,
+				children: child?.children === null ? [] : (child?.children || [])
+			}))
+		}));
+	}
+	
+	let document = $derived(workflow.Document);
+	
 	let essenceContent = $derived<EssenceData>({
-		essence: '',
+		essence: document?.Essence || '',
 		summary: '',
-		conclusion: ''
+		conclusion: document?.Conclusion || ''
 	});
 
-	let document = $derived(workflow.Document);
-	let activities = $derived(workflow.Activities);
-	let effects = $derived(workflow.Effects);
-	let dsteps = $derived(workflow.Dstep);
-	let opportunityStructures = $derived(workflow.Os);
-	let systemVulnerabilities = $derived(workflow.Sv);
+	let activities = $derived(normalizeCodingsData(workflow.Activities || []));
+	let effects = $derived(normalizeCodingsData(workflow.Effects || []));
+	let dsteps = $derived(normalizeCodingsData(workflow.Dsteps || []));
+	let opportunityStructures = $derived(normalizeCodingsData(workflow.Os || []));
+	let systemVulnerabilities = $derived(normalizeCodingsData(workflow.Sv || []));
 
 	let containerRef: HTMLDivElement | null = null;
 	let essenceRef: HTMLDivElement | null = null;
@@ -105,8 +116,8 @@
 	<!-- Left sidebar-->
 
 	<SidenNav {selectedId} on:selectSection={(e) => scrollToSection(e.detail)} />
-	<!--	
-	Middle content
+	
+	<!-- Middle content -->
 	<div
 		bind:this={containerRef}
 		onscroll={onContainerScroll}
@@ -118,7 +129,7 @@
 		<div bind:this={destepRef}><CodingsDESTEP data={dsteps} /></div>
 		<div bind:this={osRef}><CodingsOS data={opportunityStructures} /></div>
 		<div bind:this={svRef}><CodingsSV data={systemVulnerabilities} /></div>
-	</div> -->
+	</div>
 
 	<!-- Right content -->
 	<div

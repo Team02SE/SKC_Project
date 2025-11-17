@@ -2,6 +2,7 @@
 	import TreeCodings from './TreeCodings.svelte';
 	import AddCoding from './AddCoding.svelte';
 	import type { Activity } from '$lib/types';
+	import { codingToCodingData } from '$lib';
 
 	let { data }: { data: Activity[] } = $props();
 
@@ -14,17 +15,7 @@
 		<div class="h-full w-1/2">
 			<h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
 			{#each n1Activities as activity}
-				<TreeCodings
-					data={{
-						title: activity.name,
-						label: activity.number.toString(),
-						children: activity.children.map((child) => ({
-							title: child.name,
-							label: child.number.toString(),
-							buttonIcon: 'close'
-						}))
-					}}
-				/>
+				<TreeCodings data={codingToCodingData(activity)} type='activities'/>
 			{/each}
 		</div>
 
