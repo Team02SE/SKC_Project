@@ -2,11 +2,19 @@
 	import TreeCodings from './TreeCodings.svelte';
 	import AddCoding from './AddCoding.svelte';
 	import type { Activity } from '$lib/types';
-	import { codingToCodingData } from '$lib';
+	import { codingToCodingData, getAllCodingIds } from '$lib';
 
-	let { data }: { data: Activity[] } = $props();
+	interface Props {
+		data: Activity[];
+		availableCodings?: Activity[];
+		documentId?: number;
+		onCodingAdded?: (coding: Activity) => void;
+	}
+
+	let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
 	let n1Activities = $derived(data.filter((activity) => !activity.parent_id));
+	let existingCodingIds = $derived(getAllCodingIds(data));
 </script>
 
 <div class="mb-50">
@@ -21,7 +29,13 @@
 
 		<div class="h-full w-1/2">
 			<h2 class="mb-2 text-2xl font-semibold text-light-text-primary">Add N1 Activity</h2>
-			<AddCoding />
+			<AddCoding 
+				type="activities"
+				availableCodings={availableCodings}
+				documentId={documentId}
+				excludeCodingIds={existingCodingIds}
+				onCodingAdded={onCodingAdded}
+			/>
 		</div>
 	</div>
 </div>
