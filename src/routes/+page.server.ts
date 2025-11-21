@@ -1,8 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
-import type { Coding, Document } from '$lib/types';
-import type { Actions } from './$types';
-import { json } from 'stream/consumers';
+import type { Document } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;

@@ -12,6 +12,24 @@ export function codingToCodingData(coding: Coding): CodingData {
 	return {
 		title: coding.name,
 		label: coding.number.toString(),
-		children: coding.children?.map(child => codingToCodingData(child))
+		children: coding.children?.map(child => codingToCodingData(child)),
+		isNew: coding.isNew
 	};
+}
+
+/**
+ * Recursively collects all coding IDs from an array of codings, including nested children.
+ * @param codings - Array of codings to extract IDs from.
+ * @returns A Set containing all unique coding IDs.
+ */
+export function getAllCodingIds(codings: Coding[]): Set<number> {
+	const ids = new Set<number>();
+	function traverse(coding: Coding) {
+		ids.add(coding.id);
+		if (coding.children) {
+			coding.children.forEach(child => traverse(child));
+		}
+	}
+	codings.forEach(traverse);
+	return ids;
 }

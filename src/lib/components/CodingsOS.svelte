@@ -2,11 +2,17 @@
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
     import type { OpportunityStructure } from "$lib/types";
-    import { codingToCodingData } from '$lib';
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
-    let { data }: { data: OpportunityStructure[] } = $props();
+	interface Props {
+        data: OpportunityStructure[];
+        availableCodings?: OpportunityStructure[];
+        documentId?: number;
+        onCodingAdded?: (coding: OpportunityStructure) => void;
+    }
 
-    let sectors = $derived(data.filter(item => !item.parent_id));
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();    let sectors = $derived(data.filter(item => !item.parent_id));
+    let existingCodingIds = $derived(getAllCodingIds(data));
     
     // let structures = $derived(data.map(item => item.name));
 </script>
@@ -19,8 +25,14 @@
             <TreeCodings data={codingToCodingData(sector)} type='opportunity-structures'/>
             {/each}
         </div>
-        <div class="h-full w-1/2">
-            <AddCoding />
+		<div class="h-full w-1/2">
+            <AddCoding 
+                type='opportunity-structures'
+                availableCodings={availableCodings}
+                documentId={documentId}
+                excludeCodingIds={existingCodingIds}
+                onCodingAdded={onCodingAdded}
+            />
         </div>
     </div>
 

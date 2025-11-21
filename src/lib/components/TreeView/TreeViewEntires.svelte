@@ -1,12 +1,10 @@
 <script lang="ts">
-	import TreeView from '$lib/components/TreeView/TreeView.svelte';
 	import type { Coding } from '$lib/types';
-	import ButtonSvg from '../ButtonSvg.svelte';
-	import LeafNode from './LeafNode.svelte';
-	import TreeViewEntry from './TreeViewEntires.svelte';
 	import dropdown from '$lib/assets/dropdown.svg';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
+	import LeafNode from './LeafNode.svelte';
+	import TreeViewEntry from './TreeViewEntires.svelte';
 
 	interface Props {
 		rootNodes: Coding[];

@@ -1,12 +1,9 @@
 <script lang="ts">
 	import type { Coding } from '$lib/types';
-	import InputText from '$lib/components/Forms/InputText.svelte';
-	import edit_pencil from '$lib/assets/edit-pencil.svg';
-	import { slide } from 'svelte/transition';
 	import ButtonText from '../ButtonText.svelte';
 	import PopUp from '../PopUps/PopUp.svelte';
-	import { invalidateAll, refreshAll } from '$app/navigation';
-	import { page } from '$app/state';
+	import edit_pencil from '$lib/assets/edit-pencil.svg';
+	import { slide } from 'svelte/transition';
 
 	interface Props {
 		coding: Coding | undefined;

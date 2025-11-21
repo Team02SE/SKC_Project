@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { Coding } from '$lib/types';
 	import TreeViewEntires from './TreeViewEntires.svelte';
-	import { fade, fly } from 'svelte/transition';
 
 	interface Props {
 		rootNodes: Coding[];

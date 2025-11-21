@@ -1,13 +1,5 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
-import type {
-	Document,
-	Activity,
-	Effect,
-	OpportunityStructure,
-	SystemVulnerability,
-	DStep
-} from '$lib/types';
 import { error } from '@sveltejs/kit';
 import type { Workflow } from '$lib/types';
 
@@ -26,7 +18,6 @@ export const load: PageServerLoad = async ({ params }) => {
 	try {
 		const workflowRes = await fetch(`${apiBase}/workflows/${workflowId}`, header);
 
-		// Check if document exists
 		if (!workflowRes.ok) {
 			if (workflowRes.status === 404) {
 				throw error(404, `Workflow with ID ${workflowId} not found`);
@@ -36,7 +27,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const workflowData = await workflowRes.json();
 
-		console.log(`Workflow ${workflowId} loaded correcty `);
+		console.log(`Workflow ${workflowId} loaded correctly`);
 
 		return {
 			workflowData: workflowData as Workflow
