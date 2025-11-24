@@ -15,6 +15,8 @@
 		hasPendingChanges,
 		mergeCodingsWithPending,
 		addPendingCodingsToWorkflow,
+		addCodingToPendingDeletions,
+		removePendingDeletions,
 		type PendingCodingsState,
 		type CodingType
 	} from '$lib/utils/codingHelpers';
@@ -37,11 +39,11 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities));
-	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects));
-	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps));
-	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os));
-	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv));
+	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities, pendingCodings.pendingDeletions));
+	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects, pendingCodings.pendingDeletions));
+	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps, pendingCodings.pendingDeletions));
+	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions));
+	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions));
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -114,16 +116,35 @@
 		pendingCodings = addCodingToPending(pendingCodings, type, coding);
 	}
 
+	function handleCodingDeleted(codingId: number, type: CodingType) {
+		pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId);
+	}
+
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
 			const updatedWorkflow = {
 				...workflow,
-				Activities: addPendingCodingsToWorkflow(workflow.Activities || [], pendingCodings.activities),
-				Effects: addPendingCodingsToWorkflow(workflow.Effects || [], pendingCodings.effects),
-				Dsteps: addPendingCodingsToWorkflow(workflow.Dsteps || [], pendingCodings.dsteps),
-				Os: addPendingCodingsToWorkflow(workflow.Os || [], pendingCodings.os),
-				Sv: addPendingCodingsToWorkflow(workflow.Sv || [], pendingCodings.sv)
+				Activities: removePendingDeletions(
+					addPendingCodingsToWorkflow(workflow.Activities || [], pendingCodings.activities),
+					pendingCodings.pendingDeletions
+				),
+				Effects: removePendingDeletions(
+					addPendingCodingsToWorkflow(workflow.Effects || [], pendingCodings.effects),
+					pendingCodings.pendingDeletions
+				),
+				Dsteps: removePendingDeletions(
+					addPendingCodingsToWorkflow(workflow.Dsteps || [], pendingCodings.dsteps),
+					pendingCodings.pendingDeletions
+				),
+				Os: removePendingDeletions(
+					addPendingCodingsToWorkflow(workflow.Os || [], pendingCodings.os),
+					pendingCodings.pendingDeletions
+				),
+				Sv: removePendingDeletions(
+					addPendingCodingsToWorkflow(workflow.Sv || [], pendingCodings.sv),
+					pendingCodings.pendingDeletions
+				)
 			};
 
 			const response = await fetch(`/api/workflows/${workflow.id}`, {
@@ -195,6 +216,7 @@
 				availableCodings={allActivities}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'activities')}
 			/>
 		</div>
 		<div bind:this={effectsRef}>
@@ -205,6 +227,7 @@
 				availableCodings={allEffects}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'effects')}
 			/>
 		</div>
 		<div bind:this={destepRef}>
@@ -215,6 +238,7 @@
 				availableCodings={allDsteps}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'dsteps')}
 			/>
 		</div>
 		<div bind:this={osRef}>
@@ -225,6 +249,7 @@
 				availableCodings={allOpportunityStructures}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'os')}
 			/>
 		</div>
 		<div bind:this={svRef}>
@@ -235,6 +260,7 @@
 				availableCodings={allSystemVulnerabilities}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'sv')}
 			/>
 		</div>
 	</div>

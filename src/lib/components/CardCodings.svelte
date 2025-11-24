@@ -5,12 +5,14 @@
     export let title: string = "Activity Name";
     export let customClass: string = "";
     export let isNew: boolean = false;
+    export let isDeleted: boolean = false;
     export let showDropdown: boolean = false;
 
     export let buttonIcon: string = "moreOptions";
     export let type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps' = 'activities';
     export let codingId: number | undefined = undefined;
     export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
+    export let onDeleteRequest: ((codingId: number) => void) | undefined = undefined;
 
     let buttonOnClick = () => {
         showDropdown = !showDropdown;
@@ -30,11 +32,14 @@
     }
 
     function handleDelete() {
-        // Handle delete action
+        if (codingId !== undefined && onDeleteRequest) {
+            onDeleteRequest(codingId);
+        }
+        showDropdown = false;
     }
 </script>
 
-<div class="relative h-10 w-auto rounded-2xl flex items-center shadow-md/25 {isNew ? 'bg-green-100 border-2 border-green-300' : ''} {customClass}">
+<div class="relative h-10 w-auto rounded-2xl flex items-center shadow-md/25 {isNew ? 'bg-green-100 border-2 border-green-300' : isDeleted ? 'bg-red-100 border-2 border-red-300 opacity-75' : ''} {customClass}">
     <p class="ml-2">{label}</p>
     <p class="flex-1 pl-2 font-medium text-light-text-primary">{title}</p>
     <div class="relative">
@@ -43,7 +48,7 @@
             <div class="absolute bg-white rounded-2xl shadow-lg p-2 z-10 left-1/2 -translate-x-1/2 w-40">
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full">Edit</button>
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleAddSub}>Add sub-{type}</button>
-                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full">Delete</button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleDelete}>Delete</button>
             </div>
         {/if}
     </div>

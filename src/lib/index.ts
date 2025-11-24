@@ -10,10 +10,12 @@ import type { CodingData } from './components/TreeCodings.svelte';
  */
 export function codingToCodingData(coding: Coding): CodingData {
 	return {
+		id: coding.id,
 		title: coding.name,
 		label: coding.number.toString(),
 		children: coding.children?.map(child => codingToCodingData(child)),
-		isNew: coding.isNew
+		isNew: coding.isNew,
+		isDeleted: coding.isDeleted
 	};
 }
 

@@ -11,6 +11,7 @@ export type Coding = {
 	updated_at?: string;
 	expanded?: boolean;
 	isNew?: boolean;
+	isDeleted?: boolean;
 };
 
 export type Activity = Coding;

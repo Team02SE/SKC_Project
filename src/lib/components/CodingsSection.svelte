@@ -12,9 +12,10 @@
 		availableCodings?: Coding[];
 		documentId?: number;
 		onCodingAdded?: (coding: Coding) => void;
+		onDeleteRequest?: (codingId: number) => void;
 	}
 
-	let { title, type, data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
+	let { title, type, data, availableCodings = data, documentId, onCodingAdded, onDeleteRequest }: Props = $props();
 
 	let topLevelCodings = $derived(data.filter((coding) => !coding.parent_id));
 	let existingCodingIds = $derived(getAllCodingIds(data));
@@ -25,7 +26,22 @@
 	let availableChildCodings = $derived.by(() => {
 		if (!addSubCodingParentId || !availableCodings) return [];
 
-		const parentCoding = availableCodings.find((c) => c.id === addSubCodingParentId);
+		// Recursively search for the parent coding at any level
+		function findCodingById(codings: Coding[], id: number): Coding | undefined {
+			for (const coding of codings) {
+				if (coding.id === id) return coding;
+				if (coding.children) {
+					const found = findCodingById(coding.children, id);
+					if (found) return found;
+				}
+			}
+			return undefined;
+		}
+
+		const parentCoding = findCodingById(availableCodings, addSubCodingParentId);
+		console.log('Looking for parent ID:', addSubCodingParentId);
+		console.log('Found parent coding:', parentCoding);
+		console.log('Available children:', parentCoding?.children);
 		return parentCoding?.children || [];
 	});
 
@@ -65,6 +81,7 @@
 						{type}
 						codingId={coding.id}
 						onAddSubRequest={handleAddSubRequest}
+						onDeleteRequest={onDeleteRequest}
 					/>
 				{/each}
 			</div>
