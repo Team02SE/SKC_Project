@@ -29,6 +29,10 @@
 	let pendingDsteps = $state<DStep[]>([]);
 	let pendingOS = $state<OpportunityStructure[]>([]);
 	let pendingSV = $state<SystemVulnerability[]>([]);
+	
+	$effect(() => {
+		workflow = data.workflowData;
+	});
 	let isSaving = $state(false);
 
 	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
@@ -180,10 +184,34 @@
 		}
 	}
 
+	function addPendingCodingsToWorkflow<T extends Coding>(
+		workflowCodings: T[],
+		pendingCodings: T[]
+	): T[] {
+		const topLevelPending = pendingCodings.filter(c => !c.parent_id);
+		const subCodingsPending = pendingCodings.filter(c => c.parent_id);
+		
+		const updatedCodings = workflowCodings.map(item => {
+			const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === item.id);
+			if (childrenForThis.length > 0) {
+				return {
+					...item,
+					children: [
+						...(item.children || []),
+						...childrenForThis
+					]
+				};
+			}
+			return item;
+		});
+		
+		return [...updatedCodings, ...topLevelPending];
+	}
+
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
-			let updatedWorkflow = workflow;
+			let updatedWorkflow = { ...workflow };
 
 			if (!updatedWorkflow.Activities) updatedWorkflow.Activities = [];
 			if (!updatedWorkflow.Effects) updatedWorkflow.Effects = [];
@@ -191,11 +219,27 @@
 			if (!updatedWorkflow.Os) updatedWorkflow.Os = [];
 			if (!updatedWorkflow.Sv) updatedWorkflow.Sv = [];
 
-			updatedWorkflow.Activities.push(...pendingActivities);
-			updatedWorkflow.Effects.push(...pendingEffects);
-			updatedWorkflow.Dsteps.push(...pendingDsteps);
-			updatedWorkflow.Os.push(...pendingOS);
-			updatedWorkflow.Sv.push(...pendingSV);
+			// Properly nest sub-codings under their parents before saving
+			updatedWorkflow.Activities = addPendingCodingsToWorkflow(
+				updatedWorkflow.Activities,
+				pendingActivities
+			);
+			updatedWorkflow.Effects = addPendingCodingsToWorkflow(
+				updatedWorkflow.Effects,
+				pendingEffects
+			);
+			updatedWorkflow.Dsteps = addPendingCodingsToWorkflow(
+				updatedWorkflow.Dsteps,
+				pendingDsteps
+			);
+			updatedWorkflow.Os = addPendingCodingsToWorkflow(
+				updatedWorkflow.Os,
+				pendingOS
+			);
+			updatedWorkflow.Sv = addPendingCodingsToWorkflow(
+				updatedWorkflow.Sv,
+				pendingSV
+			);
 
 			const response = await fetch(`/api/workflows/${workflow.id}`, {
 				method: 'PUT',
@@ -204,7 +248,6 @@
 			});
 
 			if (!response.ok) {
-				// remove from the workflow in case update fails
 				throw new Error(`Failed to save changes: ${response.statusText}`);
 			}
 
