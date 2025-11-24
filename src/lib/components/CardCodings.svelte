@@ -10,6 +10,7 @@
         buttonIcon?: string;
         type?: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
         codingId?: number;
+        hasDeletedAncestor?: boolean;
         onAddSubRequest?: (parentId: number) => void;
         onDeleteRequest?: (codingId: number) => void;
         onCancelRequest?: (codingId: number) => void;
@@ -24,6 +25,7 @@
         buttonIcon = "moreOptions",
         type = 'activities',
         codingId = undefined,
+        hasDeletedAncestor = false,
         onAddSubRequest = undefined,
         onDeleteRequest = undefined,
         onCancelRequest = undefined
@@ -31,11 +33,13 @@
 
     let showDropdown: boolean = $state(false);
 
-    // Determine the button icon and action based on state
     let isPending = $derived(isNew || isDeleted);
     let currentIcon = $derived(isPending ? 'close' : buttonIcon);
 
+    let isButtonDisabled = $derived(hasDeletedAncestor && isDeleted);
+
     let buttonOnClick = () => {
+        if (isButtonDisabled) return;
         if (isPending) {
             handleCancel();
         } else {
@@ -75,7 +79,12 @@
     <p class="ml-2">{label}</p>
     <p class="flex-1 pl-2 font-medium text-light-text-primary">{title}</p>
     <div class="relative">
-        <ButtonSvg type={currentIcon} size={6} customClass="mr-2 ml-auto" onClick={buttonOnClick}/>
+        <ButtonSvg 
+            type={currentIcon} 
+            size={6} 
+            customClass="mr-2 ml-auto {isButtonDisabled ? 'opacity-30 cursor-not-allowed' : ''}" 
+            onClick={buttonOnClick}
+        />
         {#if showDropdown && !isPending}
             <div class="absolute bg-white rounded-2xl shadow-lg p-2 z-10 left-1/2 -translate-x-1/2 w-40">
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full">Edit</button>

@@ -16,6 +16,7 @@
     export let data: CodingData;
     export let type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
     export let codingId: number | undefined = undefined;
+    export let hasDeletedAncestor: boolean = false;
     export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
     export let onDeleteRequest: ((codingId: number) => void) | undefined = undefined;
     export let onCancelRequest: ((codingId: number) => void) | undefined = undefined;
@@ -30,6 +31,7 @@
         isDeleted={data.isDeleted}
         type={type}
         codingId={codingId}
+        {hasDeletedAncestor}
         onAddSubRequest={onAddSubRequest}
         onDeleteRequest={onDeleteRequest}
         onCancelRequest={onCancelRequest}
@@ -42,6 +44,7 @@
                         data={child} 
                         {type} 
                         codingId={child.id}
+                        hasDeletedAncestor={hasDeletedAncestor || (data.isDeleted ?? false)}
                         {onAddSubRequest}
                         {onDeleteRequest}
                         {onCancelRequest}

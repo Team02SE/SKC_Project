@@ -23,18 +23,17 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<number>): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
 
-	// Separate pending into top-level and sub-codings
 	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
 	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
 
-	// Helper to mark deleted codings recursively
+	// mark deleted codings recursively
 	const markDeleted = (coding: T): T => ({
 		...coding,
 		isDeleted: pendingDeletions?.has(coding.id) ?? false,
 		children: (coding.children || []).map(child => markDeleted(child as T))
 	});
 
-	// Recursively add sub-codings to their parents at any level
+	// add sub-codings to their parents at any level
 	const addSubCodingsRecursive = (coding: T): T => {
 		const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === coding.id);
 		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
@@ -46,10 +45,10 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 		};
 	};
 
-	// Add sub-codings to their parents and mark deleted
+	// add sub-codings to their parents and mark deleted
 	const withSubCodings = normalized.map(item => markDeleted(addSubCodingsRecursive(item)));
 
-	// Add top-level pending codings
+	// add top-level pending codings
 	return [
 		...withSubCodings,
 		...topLevelPending.map(a => ({ ...a, children: [], isNew: true }))
@@ -57,13 +56,12 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 }
 
 /**
- * Adds pending codings to workflow codings for saving to the backend
+ * adds pending codings to workflow codings for saving to the backend
  */
 export function addPendingCodingsToWorkflow<T extends Coding>(workflowCodings: T[], pendingCodings: T[]): T[] {
 	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
 	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
 
-	// Recursively add sub-codings to their parents at any level
 	const addSubCodingsRecursive = (coding: T): T => {
 		const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === coding.id);
 		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
@@ -129,6 +127,46 @@ export function removeCodingById<T extends Coding>(codings: T[], codingId: numbe
 			...coding,
 			children: coding.children ? removeCodingById(coding.children as T[], codingId) : []
 		}));
+}
+
+/**
+ * Recursively collects all coding IDs including children
+ */
+export function getAllCodingIds<T extends Coding>(coding: T): number[] {
+	const ids = [coding.id];
+	if (coding.children && coding.children.length > 0) {
+		for (const child of coding.children) {
+			ids.push(...getAllCodingIds(child as T));
+		}
+	}
+	return ids;
+}
+
+/**
+ * Checks if any ancestor of a coding is marked for deletion
+ */
+export function hasAncestorMarkedForDeletion<T extends Coding>(
+	codings: T[],
+	codingId: number,
+	pendingDeletions: Set<number>,
+	parentId?: number
+): boolean {
+	for (const coding of codings) {
+		if (coding.id === codingId) {
+			return parentId !== undefined && pendingDeletions.has(parentId);
+		}
+		if (coding.children) {
+			const isCurrentDeleted = pendingDeletions.has(coding.id);
+			const result = hasAncestorMarkedForDeletion(
+				coding.children as T[],
+				codingId,
+				pendingDeletions,
+				isCurrentDeleted ? coding.id : parentId
+			);
+			if (result !== null) return result;
+		}
+	}
+	return false;
 }
 
 export function addCodingToPendingDeletions(state: PendingCodingsState, codingId: number): PendingCodingsState {

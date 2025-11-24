@@ -19,6 +19,7 @@
 		removePendingDeletions,
 		removeCodingFromPendingDeletions,
 		removeCodingFromPending,
+		getAllCodingIds,
 		type PendingCodingsState,
 		type CodingType
 	} from '$lib/utils/codingHelpers';
@@ -119,12 +120,70 @@
 	}
 
 	function handleCodingDeleted(codingId: number, type: CodingType) {
-		pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId);
+		const allCodings = [
+			...activities,
+			...effects,
+			...dsteps,
+			...opportunityStructures,
+			...systemVulnerabilities
+		];
+		
+		const findCoding = (codings: Coding[], id: number): Coding | null => {
+			for (const coding of codings) {
+				if (coding.id === id) return coding;
+				if (coding.children) {
+					const found = findCoding(coding.children, id);
+					if (found) return found;
+				}
+			}
+			return null;
+		};
+		
+		const coding = findCoding(allCodings, codingId);
+		if (coding) {
+			const allIds = getAllCodingIds(coding);
+			let updatedState = pendingCodings;
+			for (const id of allIds) {
+				updatedState = addCodingToPendingDeletions(updatedState, id);
+			}
+			pendingCodings = updatedState;
+		} else {
+			pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId);
+		}
 	}
 
 	function handleCodingCanceled(codingId: number, type: CodingType) {
 		if (pendingCodings.pendingDeletions.has(codingId)) {
-			pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId);
+			const allCodings = [
+				...activities,
+				...effects,
+				...dsteps,
+				...opportunityStructures,
+				...systemVulnerabilities
+			];
+			
+			const findCoding = (codings: Coding[], id: number): Coding | null => {
+				for (const coding of codings) {
+					if (coding.id === id) return coding;
+					if (coding.children) {
+						const found = findCoding(coding.children, id);
+						if (found) return found;
+					}
+				}
+				return null;
+			};
+			
+			const coding = findCoding(allCodings, codingId);
+			if (coding) {
+				const allIds = getAllCodingIds(coding);
+				let updatedState = pendingCodings;
+				for (const id of allIds) {
+					updatedState = removeCodingFromPendingDeletions(updatedState, id);
+				}
+				pendingCodings = updatedState;
+			} else {
+				pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId);
+			}
 		} else {
 			pendingCodings = removeCodingFromPending(pendingCodings, type, codingId);
 		}
