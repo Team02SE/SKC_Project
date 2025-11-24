@@ -17,6 +17,8 @@
 		addPendingCodingsToWorkflow,
 		addCodingToPendingDeletions,
 		removePendingDeletions,
+		removeCodingFromPendingDeletions,
+		removeCodingFromPending,
 		type PendingCodingsState,
 		type CodingType
 	} from '$lib/utils/codingHelpers';
@@ -120,6 +122,14 @@
 		pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId);
 	}
 
+	function handleCodingCanceled(codingId: number, type: CodingType) {
+		if (pendingCodings.pendingDeletions.has(codingId)) {
+			pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId);
+		} else {
+			pendingCodings = removeCodingFromPending(pendingCodings, type, codingId);
+		}
+	}
+
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
@@ -217,6 +227,7 @@
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'activities')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'activities')}
 			/>
 		</div>
 		<div bind:this={effectsRef}>
@@ -228,6 +239,7 @@
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'effects')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'effects')}
 			/>
 		</div>
 		<div bind:this={destepRef}>
@@ -239,6 +251,7 @@
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'dsteps')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'dsteps')}
 			/>
 		</div>
 		<div bind:this={osRef}>
@@ -250,6 +263,7 @@
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'os')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'os')}
 			/>
 		</div>
 		<div bind:this={svRef}>
@@ -261,6 +275,7 @@
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'sv')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'sv')}
 			/>
 		</div>
 	</div>

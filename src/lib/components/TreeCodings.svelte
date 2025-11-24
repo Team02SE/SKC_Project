@@ -18,9 +18,10 @@
     export let codingId: number | undefined = undefined;
     export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
     export let onDeleteRequest: ((codingId: number) => void) | undefined = undefined;
+    export let onCancelRequest: ((codingId: number) => void) | undefined = undefined;
 </script>
 
-<div class="flex h-auto w-full flex-col gap-3 mb-5">
+<div class="flex h-auto w-full flex-col gap-3">
     <CardCodings 
         title={data.title} 
         label={data.label} 
@@ -31,10 +32,10 @@
         codingId={codingId}
         onAddSubRequest={onAddSubRequest}
         onDeleteRequest={onDeleteRequest}
+        onCancelRequest={onCancelRequest}
     />
     <div class="ml-5">
         {#if data.children && data.children.length > 0}
-            <p class="text-sm italic font-semibold text-light-text-primary/50">sub-{type}</p>
             <div class="flex flex-col gap-2 mt-2">
                 {#each data.children ?? [] as child}
                     <svelte:self 
@@ -43,6 +44,7 @@
                         codingId={child.id}
                         {onAddSubRequest}
                         {onDeleteRequest}
+                        {onCancelRequest}
                     />
                 {/each}
             </div>

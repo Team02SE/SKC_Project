@@ -13,9 +13,10 @@
 		documentId?: number;
 		onCodingAdded?: (coding: Coding) => void;
 		onDeleteRequest?: (codingId: number) => void;
+		onCancelRequest?: (codingId: number) => void;
 	}
 
-	let { title, type, data, availableCodings = data, documentId, onCodingAdded, onDeleteRequest }: Props = $props();
+	let { title, type, data, availableCodings = data, documentId, onCodingAdded, onDeleteRequest, onCancelRequest }: Props = $props();
 
 	let topLevelCodings = $derived(data.filter((coding) => !coding.parent_id));
 	let existingCodingIds = $derived(getAllCodingIds(data));
@@ -82,6 +83,7 @@
 						codingId={coding.id}
 						onAddSubRequest={handleAddSubRequest}
 						onDeleteRequest={onDeleteRequest}
+						onCancelRequest={onCancelRequest}
 					/>
 				{/each}
 			</div>

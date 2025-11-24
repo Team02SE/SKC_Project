@@ -17,7 +17,7 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 }
 
 /**
- * Merges existing codings with pending codings, properly nesting sub-codings
+ * Merges existing codings with pending codings
  * Also marks codings in pendingDeletions with isDeleted flag
  */
 export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<number>): T[] {
@@ -135,6 +135,22 @@ export function addCodingToPendingDeletions(state: PendingCodingsState, codingId
 	return {
 		...state,
 		pendingDeletions: new Set([...state.pendingDeletions, codingId])
+	};
+}
+
+export function removeCodingFromPendingDeletions(state: PendingCodingsState, codingId: number): PendingCodingsState {
+	const newDeletions = new Set(state.pendingDeletions);
+	newDeletions.delete(codingId);
+	return {
+		...state,
+		pendingDeletions: newDeletions
+	};
+}
+
+export function removeCodingFromPending(state: PendingCodingsState, type: CodingType, codingId: number): PendingCodingsState {
+	return {
+		...state,
+		[type]: state[type].filter(coding => coding.id !== codingId)
 	};
 }
 
