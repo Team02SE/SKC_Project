@@ -9,7 +9,15 @@
 	import CodingsOS from '$lib/components/CodingsOS.svelte';
 	import CodingsSV from '$lib/components/CodingsSV.svelte';
 	import type { PageProps } from './$types';
-	import type { EssenceData, Activity, Effect, DStep, OpportunityStructure, SystemVulnerability, Coding } from '$lib/types';
+	import type {
+		EssenceData,
+		Activity,
+		Effect,
+		DStep,
+		OpportunityStructure,
+		SystemVulnerability,
+		Coding
+	} from '$lib/types';
 	import PDFView from '$lib/components/PDFView.svelte';
 	import { invalidateAll } from '$app/navigation';
 
@@ -22,19 +30,22 @@
 	let pendingOS = $state<OpportunityStructure[]>([]);
 	let pendingSV = $state<SystemVulnerability[]>([]);
 	let isSaving = $state(false);
-	
+
 	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
-		return items.map(item => ({
+		return items.map((item) => ({
 			...item,
-			children: item.children === null ? [] : item.children.map((child: any) => ({
-				...child,
-				children: child?.children === null ? [] : (child?.children || [])
-			}))
+			children:
+				item.children === null
+					? []
+					: item.children.map((child: any) => ({
+							...child,
+							children: child?.children === null ? [] : child?.children || []
+						}))
 		}));
 	}
-	
+
 	let document = $derived(workflow.Document);
-	
+
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',
 		summary: '',
@@ -43,23 +54,23 @@
 
 	let activities = $derived([
 		...normalizeCodingsData(workflow.Activities || []),
-		...pendingActivities.map(a => ({ ...a, children: [], isNew: true }))
+		...pendingActivities.map((a) => ({ ...a, children: [], isNew: true }))
 	]);
 	let effects = $derived([
 		...normalizeCodingsData(workflow.Effects || []),
-		...pendingEffects.map(e => ({ ...e, children: [], isNew: true }))
+		...pendingEffects.map((e) => ({ ...e, children: [], isNew: true }))
 	]);
 	let dsteps = $derived([
 		...normalizeCodingsData(workflow.Dsteps || []),
-		...pendingDsteps.map(d => ({ ...d, children: [], isNew: true }))
+		...pendingDsteps.map((d) => ({ ...d, children: [], isNew: true }))
 	]);
 	let opportunityStructures = $derived([
 		...normalizeCodingsData(workflow.Os || []),
-		...pendingOS.map(o => ({ ...o, children: [], isNew: true }))
+		...pendingOS.map((o) => ({ ...o, children: [], isNew: true }))
 	]);
 	let systemVulnerabilities = $derived([
 		...normalizeCodingsData(workflow.Sv || []),
-		...pendingSV.map(s => ({ ...s, children: [], isNew: true }))
+		...pendingSV.map((s) => ({ ...s, children: [], isNew: true }))
 	]);
 
 	let allActivities = $derived(data.allCodings?.activities || []);
@@ -129,8 +140,11 @@
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 
-	function handleCodingAdded<T extends Coding>(coding: T, type: 'activities' | 'effects' | 'dsteps' | 'os' | 'sv') {
-		switch(type) {
+	function handleCodingAdded<T extends Coding>(
+		coding: T,
+		type: 'activities' | 'effects' | 'dsteps' | 'os' | 'sv'
+	) {
+		switch (type) {
 			case 'activities':
 				pendingActivities = [...pendingActivities, coding as Activity];
 				break;
@@ -152,19 +166,22 @@
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
+			let updatedWorkflow = workflow;
+
+			updatedWorkflow.Activities.push(...pendingActivities);
+			updatedWorkflow.Effects.push(...pendingEffects);
+			updatedWorkflow.Dsteps.push(...pendingDsteps);
+			updatedWorkflow.Os.push(...pendingOS);
+			updatedWorkflow.Sv.push(...pendingSV);
+
 			const response = await fetch(`/api/workflows/${workflow.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					activities: pendingActivities.map(a => a.id),
-					effects: pendingEffects.map(e => e.id),
-					dsteps: pendingDsteps.map(d => d.id),
-					opportunity_structures: pendingOS.map(o => o.id),
-					system_vulnerabilities: pendingSV.map(s => s.id)
-				})
+				body: JSON.stringify(updatedWorkflow)
 			});
 
 			if (!response.ok) {
+				// remove from the workflow in case update fails
 				throw new Error(`Failed to save changes: ${response.statusText}`);
 			}
 
@@ -178,16 +195,21 @@
 		} catch (error) {
 			console.error('Error saving changes:', error);
 		} finally {
+			pendingActivities = [];
+			pendingEffects = [];
+			pendingDsteps = [];
+			pendingOS = [];
+			pendingSV = [];
 			isSaving = false;
 		}
 	}
 
 	let hasChanges = $derived(
 		pendingActivities.length > 0 ||
-		pendingEffects.length > 0 ||
-		pendingDsteps.length > 0 ||
-		pendingOS.length > 0 ||
-		pendingSV.length > 0
+			pendingEffects.length > 0 ||
+			pendingDsteps.length > 0 ||
+			pendingOS.length > 0 ||
+			pendingSV.length > 0
 	);
 </script>
 
@@ -195,19 +217,32 @@
 <div class="sticky top-20 flex h-18 w-full items-center p-4">
 	<ButtonSvg type="home" size={12} />
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
-	<div class="flex h-full w-64 items-center justify-center rounded-t-2xl bg-light-navbar-primary text-light-button-content-primary">
+	<div
+		class="flex h-full w-64 items-center justify-center rounded-t-2xl bg-light-navbar-primary text-light-button-content-primary"
+	>
 		<h3>Editing - {document.Title}</h3>
 	</div>
 	<div class="ml-auto flex items-center gap-4">
 		{#if hasChanges}
 			<span class="text-sm text-gray-600">
-				{pendingActivities.length + pendingEffects.length + pendingDsteps.length + pendingOS.length + pendingSV.length} unsaved change{(pendingActivities.length + pendingEffects.length + pendingDsteps.length + pendingOS.length + pendingSV.length) === 1 ? '' : 's'}
+				{pendingActivities.length +
+					pendingEffects.length +
+					pendingDsteps.length +
+					pendingOS.length +
+					pendingSV.length} unsaved change{pendingActivities.length +
+					pendingEffects.length +
+					pendingDsteps.length +
+					pendingOS.length +
+					pendingSV.length ===
+				1
+					? ''
+					: 's'}
 			</span>
 		{/if}
 		<button
 			onclick={saveAllChanges}
 			disabled={!hasChanges || isSaving}
-			class="flex items-center gap-2 px-4 py-2 bg-light-button-primary text-white rounded-lg hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
+			class="flex items-center gap-2 rounded-lg bg-light-button-primary px-4 py-2 text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
 		>
 			<ButtonSvg type="save" size={6} />
 			<span class="font-semibold">{isSaving ? 'Saving...' : 'Save All'}</span>
@@ -219,7 +254,7 @@
 	<!-- Left sidebar-->
 
 	<SidenNav {selectedId} on:selectSection={(e) => scrollToSection(e.detail)} />
-	
+
 	<!-- Middle content -->
 	<div
 		bind:this={containerRef}
@@ -228,40 +263,40 @@
 	>
 		<div bind:this={essenceRef}><CodingsEssence data={essenceContent} /></div>
 		<div bind:this={activitiesRef}>
-			<CodingsActivities 
-				data={activities} 
+			<CodingsActivities
+				data={activities}
 				availableCodings={allActivities}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
 			/>
 		</div>
 		<div bind:this={effectsRef}>
-			<CodingsEffects 
-				data={effects} 
+			<CodingsEffects
+				data={effects}
 				availableCodings={allEffects}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
 			/>
 		</div>
 		<div bind:this={destepRef}>
-			<CodingsDESTEP 
-				data={dsteps} 
+			<CodingsDESTEP
+				data={dsteps}
 				availableCodings={allDsteps}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
 			/>
 		</div>
 		<div bind:this={osRef}>
-			<CodingsOS 
-				data={opportunityStructures} 
+			<CodingsOS
+				data={opportunityStructures}
 				availableCodings={allOpportunityStructures}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
 			/>
 		</div>
 		<div bind:this={svRef}>
-			<CodingsSV 
-				data={systemVulnerabilities} 
+			<CodingsSV
+				data={systemVulnerabilities}
 				availableCodings={allSystemVulnerabilities}
 				documentId={workflow.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}

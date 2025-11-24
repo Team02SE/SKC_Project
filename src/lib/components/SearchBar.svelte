@@ -23,7 +23,7 @@
 </script>
 
 <form
-	class="w-auto h-full inset-shadow-sm/25 rounded-4xl flex items-center bg-light-primary"
+	class="flex h-full w-auto items-center rounded-4xl bg-light-primary inset-shadow-sm/25"
 	role="search"
 	on:submit|preventDefault={handleSubmit}
 >
@@ -35,7 +35,7 @@
 		placeholder="Search..."
 		bind:value={query}
 		on:input={handleInput}
-		class="flex-1 border-0 bg-transparent outline-none px-5 text-light-text-primary placeholder-light-text-primary/50 text-lg rounded-4xl"
+		class="flex-1 rounded-4xl border-0 bg-transparent px-5 text-lg text-light-text-primary placeholder-light-text-primary/50 outline-none"
 		autocomplete="off"
 	/>
 	<ButtonSvg type="search" customClass="p-1 mr-2" onClick={handleSubmit} />
