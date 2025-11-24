@@ -3,7 +3,7 @@
 	import AddCoding from './AddCoding.svelte';
 	import AddSubCoding from './AddSubCoding.svelte';
 	import type { DStep } from "$lib/types";
-	import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
+	import { codingToCodingData, getAllCodingIds } from '$lib';
 
 	interface Props {
 		data: DStep[];
@@ -12,9 +12,7 @@
 		onCodingAdded?: (coding: DStep) => void;
 	}
 
-	let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
-
-	let data = $state(initialData);
+	let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
     let n1Dstep = $derived(data.filter(dstep => !dstep.parent_id));
     let existingCodingIds = $derived(getAllCodingIds(data));
@@ -39,13 +37,21 @@
         addSubCodingParentId = null;
     }
 
-    const handleSubCodingAdded = createSubCodingHandler<DStep>(
-        () => data,
-        (newData) => data = newData,
-        () => addSubCodingParentId,
-        onCodingAdded,
-        handleCloseAddSub
-    );
+    function handleSubCodingAdded(coding: DStep) {
+        if (onCodingAdded) {
+            const parentId = addSubCodingParentId;
+            if (parentId) {
+                const newSubCoding: DStep = {
+                    ...coding,
+                    parent_id: parentId,
+                    isNew: true,
+                    children: null
+                };
+                onCodingAdded(newSubCoding);
+            }
+        }
+        handleCloseAddSub();
+    }
 </script>
 
 <div class="mb-50 relative">

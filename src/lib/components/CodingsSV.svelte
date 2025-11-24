@@ -4,7 +4,7 @@
     import AddSubCoding from "./AddSubCoding.svelte";
 	import Textbox from "./Textbox.svelte";
     import type { SystemVulnerability } from "$lib/types";
-    import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
 	interface Props {
         data: SystemVulnerability[];
@@ -13,9 +13,7 @@
         onCodingAdded?: (coding: SystemVulnerability) => void;
     }
 
-    let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
-    
-    let data = $state(initialData);
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
     let topLevelVulnerabilities = $derived(data.filter(item => !item.parent_id));
     let existingCodingIds = $derived(getAllCodingIds(data));
@@ -40,13 +38,21 @@
         addSubCodingParentId = null;
     }
 
-    const handleSubCodingAdded = createSubCodingHandler<SystemVulnerability>(
-        () => data,
-        (newData) => data = newData,
-        () => addSubCodingParentId,
-        onCodingAdded,
-        handleCloseAddSub
-    );
+    function handleSubCodingAdded(coding: SystemVulnerability) {
+        if (onCodingAdded) {
+            const parentId = addSubCodingParentId;
+            if (parentId) {
+                const newSubCoding: SystemVulnerability = {
+                    ...coding,
+                    parent_id: parentId,
+                    isNew: true,
+                    children: null
+                };
+                onCodingAdded(newSubCoding);
+            }
+        }
+        handleCloseAddSub();
+    }
 </script>
 
 <div class="mb-50 relative">

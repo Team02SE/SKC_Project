@@ -3,7 +3,7 @@
     import AddCoding from "./AddCoding.svelte";
     import AddSubCoding from "./AddSubCoding.svelte";
     import type { Effect } from "$lib/types";
-    import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
 	interface Props {
         data: Effect[];
@@ -12,9 +12,7 @@
         onCodingAdded?: (coding: Effect) => void;
     }
 
-    let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
-    
-    let data = $state(initialData);
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
     let n1Effects = $derived(data.filter(effect => !effect.parent_id));
     let existingCodingIds = $derived(getAllCodingIds(data));
@@ -39,13 +37,21 @@
         addSubCodingParentId = null;
     }
 
-    const handleSubCodingAdded = createSubCodingHandler<Effect>(
-        () => data,
-        (newData) => data = newData,
-        () => addSubCodingParentId,
-        onCodingAdded,
-        handleCloseAddSub
-    );
+    function handleSubCodingAdded(coding: Effect) {
+        if (onCodingAdded) {
+            const parentId = addSubCodingParentId;
+            if (parentId) {
+                const newSubCoding: Effect = {
+                    ...coding,
+                    parent_id: parentId,
+                    isNew: true,
+                    children: null
+                };
+                onCodingAdded(newSubCoding);
+            }
+        }
+        handleCloseAddSub();
+    }
 </script>
 
 <div class="mb-50 relative">

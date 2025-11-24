@@ -44,6 +44,38 @@
 		}));
 	}
 
+	function mergeCodingsWithPending<T extends Coding>(
+		existingCodings: T[],
+		pendingCodings: T[]
+	): T[] {
+		const normalized = normalizeCodingsData(existingCodings || []);
+		
+		// Separate pending into top-level and sub-codings
+		const topLevelPending = pendingCodings.filter(c => !c.parent_id);
+		const subCodingsPending = pendingCodings.filter(c => c.parent_id);
+		
+		// Add sub-codings to their parents
+		const withSubCodings = normalized.map(item => {
+			const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === item.id);
+			if (childrenForThis.length > 0) {
+				return {
+					...item,
+					children: [
+						...(item.children || []),
+						...childrenForThis.map(c => ({ ...c, children: [], isNew: true }))
+					]
+				};
+			}
+			return item;
+		});
+		
+		// Add top-level pending codings
+		return [
+			...withSubCodings,
+			...topLevelPending.map(a => ({ ...a, children: [], isNew: true }))
+		];
+	}
+
 	let document = $derived(workflow.Document);
 
 	let essenceContent = $derived<EssenceData>({
@@ -52,26 +84,11 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived([
-		...normalizeCodingsData(workflow.Activities || []),
-		...pendingActivities.map((a) => ({ ...a, children: [], isNew: true }))
-	]);
-	let effects = $derived([
-		...normalizeCodingsData(workflow.Effects || []),
-		...pendingEffects.map((e) => ({ ...e, children: [], isNew: true }))
-	]);
-	let dsteps = $derived([
-		...normalizeCodingsData(workflow.Dsteps || []),
-		...pendingDsteps.map((d) => ({ ...d, children: [], isNew: true }))
-	]);
-	let opportunityStructures = $derived([
-		...normalizeCodingsData(workflow.Os || []),
-		...pendingOS.map((o) => ({ ...o, children: [], isNew: true }))
-	]);
-	let systemVulnerabilities = $derived([
-		...normalizeCodingsData(workflow.Sv || []),
-		...pendingSV.map((s) => ({ ...s, children: [], isNew: true }))
-	]);
+	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingActivities));
+	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingEffects));
+	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingDsteps));
+	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingOS));
+	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingSV));
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -167,6 +184,12 @@
 		isSaving = true;
 		try {
 			let updatedWorkflow = workflow;
+
+			if (!updatedWorkflow.Activities) updatedWorkflow.Activities = [];
+			if (!updatedWorkflow.Effects) updatedWorkflow.Effects = [];
+			if (!updatedWorkflow.Dsteps) updatedWorkflow.Dsteps = [];
+			if (!updatedWorkflow.Os) updatedWorkflow.Os = [];
+			if (!updatedWorkflow.Sv) updatedWorkflow.Sv = [];
 
 			updatedWorkflow.Activities.push(...pendingActivities);
 			updatedWorkflow.Effects.push(...pendingEffects);

@@ -3,7 +3,7 @@
 	import AddCoding from './AddCoding.svelte';
 	import AddSubCoding from './AddSubCoding.svelte';
 	import type { Activity } from '$lib/types';
-	import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
+	import { codingToCodingData, getAllCodingIds } from '$lib';
 
 	interface Props {
 		data: Activity[];
@@ -12,9 +12,7 @@
 		onCodingAdded?: (coding: Activity) => void;
 	}
 
-	let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
-
-	let data = $state(initialData);
+	let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
 	let n1Activities = $derived(data.filter((activity) => !activity.parent_id));
 	let existingCodingIds = $derived(getAllCodingIds(data));
@@ -39,13 +37,21 @@
 		addSubCodingParentId = null;
 	}
 
-	const handleSubCodingAdded = createSubCodingHandler<Activity>(
-		() => data,
-		(newData) => data = newData,
-		() => addSubCodingParentId,
-		onCodingAdded,
-		handleCloseAddSub
-	);
+	function handleSubCodingAdded(coding: Activity) {
+		if (onCodingAdded) {
+			const parentId = addSubCodingParentId;
+			if (parentId) {
+				const newSubCoding: Activity = {
+					...coding,
+					parent_id: parentId,
+					isNew: true,
+					children: null
+				};
+				onCodingAdded(newSubCoding);
+			}
+		}
+		handleCloseAddSub();
+	}
 </script><div class="mb-50 relative">
 	<h1 class="text-4xl font-bold text-light-text-primary">Activities</h1>
 	<div class="flex h-full w-full gap-30">

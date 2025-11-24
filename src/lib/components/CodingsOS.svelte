@@ -3,7 +3,7 @@
     import AddCoding from "./AddCoding.svelte";
     import AddSubCoding from "./AddSubCoding.svelte";
     import type { OpportunityStructure } from "$lib/types";
-    import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
 	interface Props {
         data: OpportunityStructure[];
@@ -12,9 +12,7 @@
         onCodingAdded?: (coding: OpportunityStructure) => void;
     }
 
-    let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
-    
-    let data = $state(initialData);
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
 
     let sectors = $derived(data.filter(item => !item.parent_id));
     let existingCodingIds = $derived(getAllCodingIds(data));
@@ -39,13 +37,21 @@
         addSubCodingParentId = null;
     }
 
-    const handleSubCodingAdded = createSubCodingHandler<OpportunityStructure>(
-        () => data,
-        (newData) => data = newData,
-        () => addSubCodingParentId,
-        onCodingAdded,
-        handleCloseAddSub
-    );
+    function handleSubCodingAdded(coding: OpportunityStructure) {
+        if (onCodingAdded) {
+            const parentId = addSubCodingParentId;
+            if (parentId) {
+                const newSubCoding: OpportunityStructure = {
+                    ...coding,
+                    parent_id: parentId,
+                    isNew: true,
+                    children: null
+                };
+                onCodingAdded(newSubCoding);
+            }
+        }
+        handleCloseAddSub();
+    }
     </script>
 
 <div class="mb-50 relative">
