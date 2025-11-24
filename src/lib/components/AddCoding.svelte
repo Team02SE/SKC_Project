@@ -10,9 +10,10 @@
 		documentId?: number;
 		excludeCodingIds?: Set<number>;
 		onCodingAdded?: (coding: Coding) => void;
+		parentId?: number | null;
 	}
 
-	let { customClass = '', type, availableCodings = [], documentId, excludeCodingIds, onCodingAdded }: Props = $props();
+	let { customClass = '', type, availableCodings = [], documentId, excludeCodingIds, onCodingAdded, parentId }: Props = $props();
 
 	let isDropdownOpen = $state(false);
 	let searchQuery = $state('');

@@ -13,10 +13,20 @@
 
     export let data: CodingData;
     export let type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
+    export let codingId: number | undefined = undefined;
+    export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
 </script>
 
 <div class="flex h-auto w-full flex-col gap-3 mb-5">
-    <CardCodings title={data.title} label={data.label} buttonIcon={data.buttonIcon} isNew={data.isNew}/>
+    <CardCodings 
+        title={data.title} 
+        label={data.label} 
+        buttonIcon={data.buttonIcon} 
+        isNew={data.isNew} 
+        type={type}
+        codingId={codingId}
+        onAddSubRequest={onAddSubRequest}
+    />
     <div class="ml-5">
         {#if data.children && data.children.length > 0}
             <p class="text-sm italic font-semibold text-light-text-primary/50">sub-{type}</p>
