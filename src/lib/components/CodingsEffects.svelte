@@ -1,50 +1,38 @@
 <script lang="ts">
     import TreeCodings from "./TreeCodings.svelte";
     import AddCoding from "./AddCoding.svelte";
+    import type { Effect } from "$lib/types";
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
-    // THIS IS TEST DATA UNTIL REAL DATA IS IMPLEMENTED
-    const effectsData = [
-        {
-            title: 'Effects Title',
-            label: '1',
-            children: [
-                {
-                    title: 'Effects Title',
-                    label: '2',
-                },
-                {
-                    title: 'Effects Title',
-                    label: '3',
-                }
-            ],
-        },
-        {
-            title: 'Effects Title',
-            label: '4',
-            children: [
-                {
-                    title: 'Effects Title',
-                    label: '5',
-                },
-                {
-                    title: 'Effects Title',
-                    label: '6',
-                }
-            ],
-        }
-    ];
+	interface Props {
+        data: Effect[];
+        availableCodings?: Effect[];
+        documentId?: number;
+        onCodingAdded?: (coding: Effect) => void;
+    }
+
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();    let n1Effects = $derived(data.filter(effect => !effect.parent_id));
+    let existingCodingIds = $derived(getAllCodingIds(data));
 </script>
 
-<h1 class="text-4xl font-bold text-light-text-primary">Effects</h1>
-<div class="flex h-full w-full gap-30">
-	<div class="h-full w-1/2">
-		<h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
-        {#each effectsData as effect}
-            <TreeCodings data={effect} />
-        {/each}
-	</div>
-	<div class="h-full w-1/2">
-		<h2 class="mb-2 text-2xl font-semibold text-light-text-primary">Add N1 Effect</h2>
-		<AddCoding />
-	</div>
+<div class="mb-50">
+    <h1 class="text-4xl font-bold text-light-text-primary">Effects</h1>
+    <div class="flex h-full w-full gap-30">
+        <div class="h-full w-1/2">
+            <h2 class="mb-2 text-2xl font-semibold text-light-text-primary">N1</h2>
+            {#each n1Effects as effect}
+                <TreeCodings data={codingToCodingData(effect)} type='effects'/>
+            {/each}
+        </div>
+		<div class="h-full w-1/2">
+            <h2 class="mb-2 text-2xl font-semibold text-light-text-primary">Add N1 Effect</h2>
+            <AddCoding 
+                type="effects"
+                availableCodings={availableCodings}
+                documentId={documentId}
+                excludeCodingIds={existingCodingIds}
+                onCodingAdded={onCodingAdded}
+            />
+        </div>
+    </div>
 </div>

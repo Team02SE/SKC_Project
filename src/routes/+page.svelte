@@ -1,32 +1,79 @@
-<script>
+<script lang="ts">
 	import Header from '$lib/components/Header.svelte';
-    import DocumentCard from '$lib/components/DocumentCard.svelte';
-    import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-    import SearchBar from '$lib/components/SearchBar.svelte';
-    import FilterBar from '$lib/components/FilterBar.svelte';
-    import UploadComplete from '$lib/components/UploadComplete.svelte';
-    import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+	import DocumentCard from '$lib/components/DocumentCard.svelte';
+	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
+	import SearchBar from '$lib/components/SearchBar.svelte';
+	import FilterBar from '$lib/components/FilterBar.svelte';
+	import UploadComplete from '$lib/components/UploadComplete.svelte';
+	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+
+	let { data } = $props();
+
+	let searchQuery = $state('');
+	let statusFilter = $state<number[]>([]);
+	let sortOption: 'lastModified-asc' | 'lastModified-desc' | null = $state('lastModified-desc');
+
+	function getFilteredDocuments() {
+		let filtered = data.documents;
+
+		if (searchQuery.length > 0) {
+			const normalizedQuery = searchQuery.toLowerCase();
+			filtered = filtered.filter((document) =>
+				document.Title?.toLowerCase().includes(normalizedQuery)
+			);
+		}
+
+		if (statusFilter.length > 0) {
+			filtered = filtered.filter((document) => statusFilter.includes(document.Status));
+		}
+
+		if (sortOption) {
+			filtered = [...filtered].sort((a, b) => {
+				const dateA = new Date(a.UpdatedAt).getTime();
+				const dateB = new Date(b.UpdatedAt).getTime();
+
+				if (sortOption === 'lastModified-desc') {
+					return dateB - dateA;
+				} else if (sortOption === 'lastModified-asc') {
+					return dateA - dateB;
+				}
+				return 0;
+			});
+		}
+
+		return filtered;
+	}
+
+	function handleSearch(event: CustomEvent<string>) {
+		searchQuery = event.detail;
+	}
+
+	function handleFilter(event: CustomEvent<number[]>) {
+		statusFilter = event.detail;
+	}
+
+	function handleSort(event: CustomEvent<'lastModified-asc' | 'lastModified-desc' | null>) {
+		sortOption = event.detail;
+	}
 </script>
 
-<Header/>
 <!-- <UploadComplete/> -->
-<div class="h-18 w-full p-4 flex justify-between items-center">
-    <ButtonSvg type="home" size={12}/>
-    <div class="flex flex-1 justify-end h-full gap-2">
-        <SearchBar/>
-        <FilterBar/>
-    </div>
+<div class="flex h-18 w-full items-center justify-between p-4">
+	<div class="flex h-full flex-1 justify-end gap-2">
+		<SearchBar on:search={handleSearch} />
+		<FilterBar on:filter={handleFilter} on:sort={handleSort} />
+	</div>
 </div>
 
-<div class="flex py-2 px-4 h-[calc(100vh)] w-full gap-5">
-    <div class="bg-light-primary inset-shadow-sm/25 w-5/12 h-full rounded-2xl">
-        <DocumentCard roundedTop={true}/>
-        <DocumentCard/>
-        <DocumentCard/>
-        <DocumentCard/>
-        <DocumentCard/>
-    </div>
-    <div class="bg-light-primary inset-shadow-sm/25 flex-1 rounded-2xl flex justify-center items-stretch">
-        <DocumentInfo/>
-    </div>
+<div class="flex w-full gap-5 px-4 py-2">
+	<div class="h-full w-5/12 overflow-y-visible rounded-2xl bg-light-primary inset-shadow-sm/25">
+		{#each getFilteredDocuments() as workflowDocument, index}
+			<DocumentCard {workflowDocument} roundedTop={index == 0} />
+		{/each}
+	</div>
+	<div
+		class="flex flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25"
+	>
+		<DocumentInfo />
+	</div>
 </div>

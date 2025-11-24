@@ -1,42 +1,141 @@
-<script>
-	import Header from '$lib/components/Header.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
-	import SidenNav from '$lib/components/SidenNav.svelte';
-	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
-	import CodingsEffects from '$lib/components/CodingsEffects.svelte';
-	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
-	import CodingsOS from '$lib/components/CodingsOS.svelte';
-	import CodingsSV from '$lib/components/CodingsSV.svelte';
+<script lang="ts">
+	import CodingTabs from '$lib/components/CodingTabs.svelte';
+	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
+	import SearchBar from '$lib/components/SearchBar.svelte';
+	import TreeView from '$lib/components/TreeView/TreeView.svelte';
+	import type { Coding } from '$lib/types';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+
+	let codings = $state({
+		activities: data.allCodings?.activities || [],
+		effects: data.allCodings?.effects || [],
+		dsteps: data.allCodings?.dsteps || [],
+		opportunityStructures: data.allCodings?.opportunityStructures || [],
+		systemVulnerabilities: data.allCodings?.systemVulnerabilities || []
+	});
+
+	export function GetCodings() {
+		return codings;
+	}
+
+	let searchQuery = $state('');
+
+	function deleteRecursively(codings: Coding[], codingToDelete: Coding): Coding[] {
+		return codings.filter((coding) => {
+			if (coding.id === codingToDelete.id) {
+				return false;
+			}
+			if (coding.children && coding.children.length > 0) {
+				coding.children = deleteRecursively(coding.children, codingToDelete);
+			}
+
+			return true;
+		});
+	}
+
+	// Maps tab IDs to their display titles and corresponding data keys in the codings object
+	const tabConfig = {
+		activities: { title: 'Activities', key: 'activities' as const },
+		effects: { title: 'Effects', key: 'effects' as const },
+		'opportunity-structures': { title: 'Opportunity structures', key: 'opportunityStructures' as const },
+		'system-vulnerabilities': { title: 'System vulnerabilities', key: 'systemVulnerabilities' as const },
+		dsteps: { title: 'Dsteps', key: 'dsteps' as const }
+	};
+
+	type TabKey = keyof typeof tabConfig;
+
+	let selectedTab = $state<TabKey>('activities');
+	let codingToEdit = $state<Coding | undefined>(undefined);
+
+	// Automatically derive the title based on the selected tab
+	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
+
+	function OnTabChange(tab: string) {
+		if (tab in tabConfig) {
+			selectedTab = tab as TabKey;
+		}
+	}
+
+	function handleSearch(event: CustomEvent<string>) {
+		searchQuery = event.detail;
+	}
+
+	function getSelectedCodings(): Coding[] {
+		const key = tabConfig[selectedTab].key;
+		return codings[key] || [];
+	}
+
+	function filterCodingTree(nodes: Coding[], query: string): Coding[] {
+		if (!query) {
+			return nodes;
+		}
+
+		const loweredQuery = query.toLowerCase();
+
+		return nodes.reduce<Coding[]>((acc, node) => {
+			const children = Array.isArray(node.children) ? filterCodingTree(node.children, query) : [];
+			const matchesNode = node.name?.toLowerCase().includes(loweredQuery);
+
+			if (matchesNode || children.length > 0) {
+				acc.push({
+					...node,
+					children
+				});
+			}
+
+			return acc;
+		}, []);
+	}
+
+	function getFilteredCodings(): Coding[] {
+		return filterCodingTree(getSelectedCodings(), searchQuery.trim());
+	}
+
+	function OnCodingSelected(coding: Coding) {
+		codingToEdit = coding;
+	}
+
+	function OnCodingDeleted(coding: Coding) {
+		const key = tabConfig[selectedTab].key;
+		codings = {
+			...codings,
+			[key]: deleteRecursively(codings[key], coding)
+		};
+
+		if (codingToEdit?.id === coding.id) {
+			codingToEdit = undefined;
+		}
+	}
 </script>
 
-<Header />
+<!-- <UploadComplete/> -->
+<div class="flex h-18 w-full items-center justify-between p-4">
+	<CodingTabs onTabChange={OnTabChange} />
 
-<!-- Top bar -->
-<div class="sticky top-20 flex items-center w-full p-4 h-18">
-	<ButtonSvg type="home" size={12} />
-	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
-	<div class="flex items-center justify-center h-full w-64 rounded-t-2xl bg-light-navbar-primary">
-		<p class="px-1 font-medium text-light-primary">Editing - DOCUMENT_NAME</p>
+	<div class="flex h-full flex-1 justify-end gap-2">
+		<SearchBar on:search={handleSearch} />
+<!--		<FilterBar />-->
 	</div>
 </div>
 
-<div class="flex w-full gap-5 px-4 py-2">
-	<!-- Left sidebar -->
-	 <SidenNav />
-
-	<!-- Middle content -->
-	<div class="flex flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 h-[calc(100vh-240px)] w-5/12 inset-shadow-sm/25">
-		<CodingsEssence />
-		<CodingsActivities />
-		<CodingsEffects />
-		<CodingsDESTEP />
-		<CodingsOS />
-		<CodingsSV />
+<!-- Example usage -->
+<section class="flex h-full w-full gap-2">
+	<div class="h-full w-1/2">
+		<TreeView
+			onCodingSelected={OnCodingSelected}
+			label={selectedCodingTitle}
+			rootNodes={getFilteredCodings()}
+		/>
 	</div>
-
-	<!-- Right content -->
-	<div class="flex flex-1 items-center justify-center rounded-2xl bg-light-primary p-20 h-[calc(100vh-240px)] inset-shadow-sm/25">
-		<p class="text-4xl text-light-text-primary opacity-25">Select a document to see its preview</p>
+	<div
+		class="mt-4 mr-4 flex h-[100vh] w-1/2 flex-col items-center rounded-2xl bg-white shadow inset-shadow-sm/25"
+	>
+		<CodingsEdit
+			onCodingDeleted={OnCodingDeleted}
+			coding={codingToEdit}
+			type={selectedCodingTitle}
+		/>
 	</div>
-</div>
+</section>
