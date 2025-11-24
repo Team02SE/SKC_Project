@@ -3,82 +3,31 @@
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
 	import SidenNav from '$lib/components/SidenNav.svelte';
-	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
-	import CodingsEffects from '$lib/components/CodingsEffects.svelte';
-	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
-	import CodingsOS from '$lib/components/CodingsOS.svelte';
-	import CodingsSV from '$lib/components/CodingsSV.svelte';
+	import CodingsSection from '$lib/components/CodingsSection.svelte';
 	import type { PageProps } from './$types';
-	import type {
-		EssenceData,
-		Activity,
-		Effect,
-		DStep,
-		OpportunityStructure,
-		SystemVulnerability,
-		Coding
-	} from '$lib/types';
+	import type { EssenceData, Coding } from '$lib/types';
 	import PDFView from '$lib/components/PDFView.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import {
+		createEmptyPendingState,
+		addCodingToPending,
+		getTotalPendingCount,
+		hasPendingChanges,
+		mergeCodingsWithPending,
+		addPendingCodingsToWorkflow,
+		type PendingCodingsState,
+		type CodingType
+	} from '$lib/utils/codingHelpers';
 
 	let { data }: PageProps = $props();
 
 	let workflow = $state(data.workflowData);
-	let pendingActivities = $state<Activity[]>([]);
-	let pendingEffects = $state<Effect[]>([]);
-	let pendingDsteps = $state<DStep[]>([]);
-	let pendingOS = $state<OpportunityStructure[]>([]);
-	let pendingSV = $state<SystemVulnerability[]>([]);
+	let pendingCodings = $state<PendingCodingsState>(createEmptyPendingState());
 	
 	$effect(() => {
 		workflow = data.workflowData;
 	});
 	let isSaving = $state(false);
-
-	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
-		return items.map((item) => ({
-			...item,
-			children:
-				item.children === null
-					? []
-					: item.children.map((child: any) => ({
-							...child,
-							children: child?.children === null ? [] : child?.children || []
-						}))
-		}));
-	}
-
-	function mergeCodingsWithPending<T extends Coding>(
-		existingCodings: T[],
-		pendingCodings: T[]
-	): T[] {
-		const normalized = normalizeCodingsData(existingCodings || []);
-		
-		// Separate pending into top-level and sub-codings
-		const topLevelPending = pendingCodings.filter(c => !c.parent_id);
-		const subCodingsPending = pendingCodings.filter(c => c.parent_id);
-		
-		// Add sub-codings to their parents
-		const withSubCodings = normalized.map(item => {
-			const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === item.id);
-			if (childrenForThis.length > 0) {
-				return {
-					...item,
-					children: [
-						...(item.children || []),
-						...childrenForThis.map(c => ({ ...c, children: [], isNew: true }))
-					]
-				};
-			}
-			return item;
-		});
-		
-		// Add top-level pending codings
-		return [
-			...withSubCodings,
-			...topLevelPending.map(a => ({ ...a, children: [], isNew: true }))
-		];
-	}
 
 	let document = $derived(workflow.Document);
 
@@ -88,11 +37,11 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingActivities));
-	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingEffects));
-	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingDsteps));
-	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingOS));
-	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingSV));
+	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities));
+	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects));
+	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps));
+	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os));
+	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv));
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -161,85 +110,21 @@
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 
-	function handleCodingAdded<T extends Coding>(
-		coding: T,
-		type: 'activities' | 'effects' | 'dsteps' | 'os' | 'sv'
-	) {
-		switch (type) {
-			case 'activities':
-				pendingActivities = [...pendingActivities, coding as Activity];
-				break;
-			case 'effects':
-				pendingEffects = [...pendingEffects, coding as Effect];
-				break;
-			case 'dsteps':
-				pendingDsteps = [...pendingDsteps, coding as DStep];
-				break;
-			case 'os':
-				pendingOS = [...pendingOS, coding as OpportunityStructure];
-				break;
-			case 'sv':
-				pendingSV = [...pendingSV, coding as SystemVulnerability];
-				break;
-		}
-	}
-
-	function addPendingCodingsToWorkflow<T extends Coding>(
-		workflowCodings: T[],
-		pendingCodings: T[]
-	): T[] {
-		const topLevelPending = pendingCodings.filter(c => !c.parent_id);
-		const subCodingsPending = pendingCodings.filter(c => c.parent_id);
-		
-		const updatedCodings = workflowCodings.map(item => {
-			const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === item.id);
-			if (childrenForThis.length > 0) {
-				return {
-					...item,
-					children: [
-						...(item.children || []),
-						...childrenForThis
-					]
-				};
-			}
-			return item;
-		});
-		
-		return [...updatedCodings, ...topLevelPending];
+	function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
+		pendingCodings = addCodingToPending(pendingCodings, type, coding);
 	}
 
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
-			let updatedWorkflow = { ...workflow };
-
-			if (!updatedWorkflow.Activities) updatedWorkflow.Activities = [];
-			if (!updatedWorkflow.Effects) updatedWorkflow.Effects = [];
-			if (!updatedWorkflow.Dsteps) updatedWorkflow.Dsteps = [];
-			if (!updatedWorkflow.Os) updatedWorkflow.Os = [];
-			if (!updatedWorkflow.Sv) updatedWorkflow.Sv = [];
-
-			// Properly nest sub-codings under their parents before saving
-			updatedWorkflow.Activities = addPendingCodingsToWorkflow(
-				updatedWorkflow.Activities,
-				pendingActivities
-			);
-			updatedWorkflow.Effects = addPendingCodingsToWorkflow(
-				updatedWorkflow.Effects,
-				pendingEffects
-			);
-			updatedWorkflow.Dsteps = addPendingCodingsToWorkflow(
-				updatedWorkflow.Dsteps,
-				pendingDsteps
-			);
-			updatedWorkflow.Os = addPendingCodingsToWorkflow(
-				updatedWorkflow.Os,
-				pendingOS
-			);
-			updatedWorkflow.Sv = addPendingCodingsToWorkflow(
-				updatedWorkflow.Sv,
-				pendingSV
-			);
+			const updatedWorkflow = {
+				...workflow,
+				Activities: addPendingCodingsToWorkflow(workflow.Activities || [], pendingCodings.activities),
+				Effects: addPendingCodingsToWorkflow(workflow.Effects || [], pendingCodings.effects),
+				Dsteps: addPendingCodingsToWorkflow(workflow.Dsteps || [], pendingCodings.dsteps),
+				Os: addPendingCodingsToWorkflow(workflow.Os || [], pendingCodings.os),
+				Sv: addPendingCodingsToWorkflow(workflow.Sv || [], pendingCodings.sv)
+			};
 
 			const response = await fetch(`/api/workflows/${workflow.id}`, {
 				method: 'PUT',
@@ -251,32 +136,17 @@
 				throw new Error(`Failed to save changes: ${response.statusText}`);
 			}
 
-			pendingActivities = [];
-			pendingEffects = [];
-			pendingDsteps = [];
-			pendingOS = [];
-			pendingSV = [];
-
+			pendingCodings = createEmptyPendingState();
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error saving changes:', error);
 		} finally {
-			pendingActivities = [];
-			pendingEffects = [];
-			pendingDsteps = [];
-			pendingOS = [];
-			pendingSV = [];
 			isSaving = false;
 		}
 	}
 
-	let hasChanges = $derived(
-		pendingActivities.length > 0 ||
-			pendingEffects.length > 0 ||
-			pendingDsteps.length > 0 ||
-			pendingOS.length > 0 ||
-			pendingSV.length > 0
-	);
+	let hasChanges = $derived(hasPendingChanges(pendingCodings));
+	let pendingCount = $derived(getTotalPendingCount(pendingCodings));
 </script>
 
 <!-- Top bar -->
@@ -291,18 +161,7 @@
 	<div class="ml-auto flex items-center gap-4">
 		{#if hasChanges}
 			<span class="text-sm text-gray-600">
-				{pendingActivities.length +
-					pendingEffects.length +
-					pendingDsteps.length +
-					pendingOS.length +
-					pendingSV.length} unsaved change{pendingActivities.length +
-					pendingEffects.length +
-					pendingDsteps.length +
-					pendingOS.length +
-					pendingSV.length ===
-				1
-					? ''
-					: 's'}
+				{pendingCount} unsaved change{pendingCount === 1 ? '' : 's'}
 			</span>
 		{/if}
 		<button
@@ -329,7 +188,9 @@
 	>
 		<div bind:this={essenceRef}><CodingsEssence data={essenceContent} /></div>
 		<div bind:this={activitiesRef}>
-			<CodingsActivities
+			<CodingsSection
+				title="Activities"
+				type="activities"
 				data={activities}
 				availableCodings={allActivities}
 				documentId={workflow.id}
@@ -337,7 +198,9 @@
 			/>
 		</div>
 		<div bind:this={effectsRef}>
-			<CodingsEffects
+			<CodingsSection
+				title="Effects"
+				type="effects"
 				data={effects}
 				availableCodings={allEffects}
 				documentId={workflow.id}
@@ -345,7 +208,9 @@
 			/>
 		</div>
 		<div bind:this={destepRef}>
-			<CodingsDESTEP
+			<CodingsSection
+				title="DESTEP"
+				type="dsteps"
 				data={dsteps}
 				availableCodings={allDsteps}
 				documentId={workflow.id}
@@ -353,7 +218,9 @@
 			/>
 		</div>
 		<div bind:this={osRef}>
-			<CodingsOS
+			<CodingsSection
+				title="Opportunity Structures"
+				type="opportunity-structures"
 				data={opportunityStructures}
 				availableCodings={allOpportunityStructures}
 				documentId={workflow.id}
@@ -361,7 +228,9 @@
 			/>
 		</div>
 		<div bind:this={svRef}>
-			<CodingsSV
+			<CodingsSection
+				title="System Vulnerabilities - Clustering"
+				type="system-vulnerabilities"
 				data={systemVulnerabilities}
 				availableCodings={allSystemVulnerabilities}
 				documentId={workflow.id}

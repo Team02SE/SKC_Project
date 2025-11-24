@@ -52,7 +52,7 @@
 	}
 </script>
 
-<div class={`flex flex-col gap-2 ${customClass}`}>
+<div class={`flex flex-col flex-1 gap-2 ${customClass}`}>
 	<div class="relative">
 		<button
 			type="button"
