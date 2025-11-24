@@ -7,7 +7,6 @@
 	import PopUp from '../PopUps/PopUp.svelte';
 	import { invalidateAll, refreshAll } from '$app/navigation';
 	import { page } from '$app/state';
-	import { enhance } from '$app/forms';
 
 	interface Props {
 		coding: Coding | undefined;
@@ -44,7 +43,7 @@
 
 	let popUpOpen = $state(false);
 
-	// let codingCopy = $derived(coding);
+	let codingCopy = $derived(coding);
 
 	async function updateCoding(event: SubmitEvent) {
 		event.preventDefault();
@@ -95,8 +94,8 @@
 	{#if isCreateForm}
 	<form
 		transition:slide
-		method="POST"
 		action="?/codings"
+		method="POST"
 		class="flex h-full w-full flex-col items-center"
 	>
 		<input type="hidden" name="type" value={type.toLowerCase()} />
@@ -216,6 +215,7 @@
 			</div>
 		</div>
 	</form>
+<!-- Temp delete button -->
 <button type="button" onclick={() => (popUpOpen = !popUpOpen)} class="absolute bottom-4">
 	<ButtonText text="Delete" customClass="bg-red-500" />
 </button>

@@ -69,7 +69,7 @@
 					</div>
 				{/if}
 			{:else}
-				<LeafNode {onCodingSelected} coding={node} />
+				<LeafNode {onCodingSelected} {onCodingNodeAdded} coding={node} />
 			{/if}
 		</div>
 	{/each}

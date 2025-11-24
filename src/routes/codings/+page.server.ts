@@ -98,7 +98,7 @@ export const actions = {
 				name,
 				description,
 				number: number ? Number(number) : 0,
-				parent_id: parent_id ? Number(parent_id) : null
+				parent_id: parent_id !== null ? Number(parent_id) : null
 			})
 		});
 
