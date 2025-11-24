@@ -33,3 +33,51 @@ export function getAllCodingIds(codings: Coding[]): Set<number> {
 	codings.forEach(traverse);
 	return ids;
 }
+
+/**
+ * Creates a handler function for adding sub-codings to a parent coding.
+ * @param data - The array of codings (will be mutated)
+ * @param parentId - The ID of the parent coding
+ * @param onCodingAdded - Optional callback to call after adding
+ * @param onClose - Optional callback to close the popup
+ * @returns A function that handles adding a sub-coding
+ */
+export function createSubCodingHandler<T extends Coding>(
+	getData: () => T[],
+	setData: (data: T[]) => void,
+	parentId: () => number | null,
+	onCodingAdded?: (coding: T) => void,
+	onClose?: () => void
+) {
+	return (coding: T) => {
+		const currentParentId = parentId();
+		if (!currentParentId) return;
+
+		const newSubCoding: T = {
+			...coding,
+			parent_id: currentParentId,
+			isNew: true,
+			children: null
+		} as T;
+
+		const updatedData = getData().map(item => {
+			if (item.id === currentParentId) {
+				return {
+					...item,
+					children: [...(item.children || []), newSubCoding]
+				} as T;
+			}
+			return item;
+		});
+
+		setData(updatedData);
+
+		if (onCodingAdded) {
+			onCodingAdded(newSubCoding);
+		}
+
+		if (onClose) {
+			onClose();
+		}
+	};
+}

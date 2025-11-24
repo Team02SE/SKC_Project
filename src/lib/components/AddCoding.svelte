@@ -21,7 +21,7 @@
 
 	let filteredCodings = $derived(
 		(availableCodings || [])
-			.filter(coding => !coding.parent_id)
+			.filter(coding => parentId !== null && parentId !== undefined ? true : !coding.parent_id)
 			.filter(coding => !excludeCodingIds || !excludeCodingIds.has(coding.id))
 			.filter(coding => 
 				coding.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

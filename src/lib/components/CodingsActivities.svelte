@@ -3,7 +3,7 @@
 	import AddCoding from './AddCoding.svelte';
 	import AddSubCoding from './AddSubCoding.svelte';
 	import type { Activity } from '$lib/types';
-	import { codingToCodingData, getAllCodingIds } from '$lib';
+	import { codingToCodingData, getAllCodingIds, createSubCodingHandler } from '$lib';
 
 	interface Props {
 		data: Activity[];
@@ -12,13 +12,22 @@
 		onCodingAdded?: (coding: Activity) => void;
 	}
 
-	let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();
+	let { data: initialData, availableCodings = initialData, documentId, onCodingAdded }: Props = $props();
+
+	let data = $state(initialData);
 
 	let n1Activities = $derived(data.filter((activity) => !activity.parent_id));
 	let existingCodingIds = $derived(getAllCodingIds(data));
 
-	let showAddSubCoding = $state(false);
+    let showAddSubCoding = $state(false);
 	let addSubCodingParentId = $state<number | null>(null);
+
+	let availableChildCodings = $derived.by(() => {
+		if (!addSubCodingParentId || !availableCodings) return [];
+		
+		const parentCoding = availableCodings.find(c => c.id === addSubCodingParentId);
+		return parentCoding?.children || [];
+	});
 
 	function handleAddSubRequest(parentId: number) {
 		addSubCodingParentId = parentId;
@@ -29,9 +38,15 @@
 		showAddSubCoding = false;
 		addSubCodingParentId = null;
 	}
-</script>
 
-<div class="mb-50 relative">
+	const handleSubCodingAdded = createSubCodingHandler<Activity>(
+		() => data,
+		(newData) => data = newData,
+		() => addSubCodingParentId,
+		onCodingAdded,
+		handleCloseAddSub
+	);
+</script><div class="mb-50 relative">
 	<h1 class="text-4xl font-bold text-light-text-primary">Activities</h1>
 	<div class="flex h-full w-full gap-30">
 		<div class="h-full w-1/2">
@@ -58,18 +73,15 @@
 		</div>
 	</div>
 
-	<!-- AddSubCoding Overlay -->
 	{#if showAddSubCoding}
-		<div class="absolute inset-0 bg-black/20 z-30 flex items-center justify-center" onclick={handleCloseAddSub}>
-			<div class="bg-white rounded-2xl shadow-xl p-6 max-w-2xl w-full" onclick={(e) => e.stopPropagation()}>
-				<AddSubCoding 
-					type="activities" 
-					parentId={addSubCodingParentId}
-					availableCodings={availableCodings}
-					documentId={documentId}
-					onClose={handleCloseAddSub}
-				/>
-			</div>
-		</div>
+		<AddSubCoding 
+			type="activities" 
+			parentId={addSubCodingParentId}
+			availableCodings={availableChildCodings}
+			documentId={documentId}
+			excludeCodingIds={existingCodingIds}
+			onClose={handleCloseAddSub}
+			onCodingAdded={handleSubCodingAdded}
+		/>
 	{/if}
 </div>
