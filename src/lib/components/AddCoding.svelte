@@ -42,7 +42,12 @@
 	function handleAdd() {
 		if (!selectedCoding || !onCodingAdded) return;
 		
-		onCodingAdded(selectedCoding);
+		const codingWithoutChildren = {
+			...selectedCoding,
+			children: null
+		};
+		
+		onCodingAdded(codingWithoutChildren);
 		selectedCoding = null;
 	}
 </script>
