@@ -40,9 +40,6 @@
 		}
 
 		const parentCoding = findCodingById(availableCodings, addSubCodingParentId);
-		console.log('Looking for parent ID:', addSubCodingParentId);
-		console.log('Found parent coding:', parentCoding);
-		console.log('Available children:', parentCoding?.children);
 		return parentCoding?.children || [];
 	});
 
