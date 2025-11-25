@@ -81,7 +81,7 @@
     <div class="relative">
         <ButtonSvg 
             type={currentIcon} 
-            size={6} 
+            size={6}
             customClass="mr-2 ml-auto {isButtonDisabled ? 'opacity-30 cursor-not-allowed' : ''}" 
             onClick={buttonOnClick}
         />

@@ -23,9 +23,8 @@ function buildPendingByParentMap<T extends Coding>(pendingCodings: T[]): Map<num
 	return map;
 }
 
-/**
- * Helper: Recursively finds a coding by ID in a tree structure
- */
+
+// recursively finds a coding by ID in a tree
 function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
 	for (const coding of codings) {
 		if (coding.id === id) return coding;
@@ -37,9 +36,7 @@ function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
 	return null;
 }
 
-/**
- * Normalizes coding data by ensuring children arrays are never null (fully recursive)
- */
+// Normalizes coding data by ensuring children arrays are never null (reecursive)
 export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 	return items.map((item) => ({
 		...item,
@@ -51,12 +48,7 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
  * Merges existing codings with pending codings
  * Also marks codings in pendingDeletions with isDeleted flag
  */
-export function mergeCodingsWithPending<T extends Coding>(
-	existingCodings: T[],
-	pendingCodings: T[],
-	pendingDeletions?: Set<string>,
-	currentType?: CodingType
-): T[] {
+export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<string>, currentType?: CodingType): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
 	const pendingByParent = buildPendingByParentMap(pendingCodings);
 
@@ -86,7 +78,7 @@ export function mergeCodingsWithPending<T extends Coding>(
 		};
 	};
 
-	// Process existing codings: add sub-codings and mark deleted
+	// add sub-codings and mark deleted
 	const withSubCodings = normalized.map(item =>
 		markDeleted(addSubCodingsRecursive(item))
 	);
@@ -183,7 +175,7 @@ export function removeCodingById<T extends Coding>(codings: T[], codingId: numbe
 }
 
 /**
- * Finds a coding by ID in a tree structure (exported version)
+ * Finds a coding by ID in a tree structure
  */
 export { findCodingById };
 
@@ -203,13 +195,7 @@ export function getAllCodingIds<T extends Coding>(coding: T): number[] {
 /**
  * Checks if any ancestor of a coding is marked for deletion
  */
-export function hasAncestorMarkedForDeletion<T extends Coding>(
-	codings: T[],
-	codingId: number,
-	pendingDeletions: Set<string>,
-	currentType: CodingType,
-	parentId?: number
-): boolean {
+export function hasAncestorMarkedForDeletion<T extends Coding>(codings: T[], codingId: number, pendingDeletions: Set<string>, currentType: CodingType, parentId?: number): boolean {
 	for (const coding of codings) {
 		if (coding.id === codingId) {
 			return parentId !== undefined && pendingDeletions.has(`${currentType}:${parentId}`);
@@ -229,11 +215,7 @@ export function hasAncestorMarkedForDeletion<T extends Coding>(
 	return false;
 }
 
-export function addCodingToPendingDeletions(
-	state: PendingCodingsState,
-	codingId: number,
-	type: CodingType
-): PendingCodingsState {
+export function addCodingToPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
 	const newDeletions = new Set(state.pendingDeletions);
 	newDeletions.add(createDeletionKey(type, codingId));
 	return {
@@ -242,11 +224,7 @@ export function addCodingToPendingDeletions(
 	};
 }
 
-export function removeCodingFromPendingDeletions(
-	state: PendingCodingsState,
-	codingId: number,
-	type: CodingType
-): PendingCodingsState {
+export function removeCodingFromPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
 	const newDeletions = new Set(state.pendingDeletions);
 	newDeletions.delete(createDeletionKey(type, codingId));
 	return {
@@ -262,11 +240,7 @@ export function removeCodingFromPending(state: PendingCodingsState, type: Coding
 	};
 }
 
-export function removePendingDeletions<T extends Coding>(
-	codings: T[],
-	pendingDeletions: Set<string>,
-	currentType: CodingType
-): T[] {
+export function removePendingDeletions<T extends Coding>(codings: T[], pendingDeletions: Set<string>, currentType: CodingType): T[] {
 	if (pendingDeletions.size === 0) return codings;
 
 	return codings
