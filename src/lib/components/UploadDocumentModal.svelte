@@ -8,59 +8,74 @@
 		uploaded: void;
 	}>();
 
-	let title = '';
-	let source = '';
-	let essence = '';
-	let conclusion = '';
-	let status: '0' | '1' | '2' = '0';
-	let file: File | null = null;
+	let documentType: string = 'report';
+	let files: File[] = [];
 
 	let isSubmitting = false;
 	let errorMessage = '';
 
+	const documentTypeOptions = [
+		{ value: 'report', label: 'Report'},
+		{ value: 'article', label: 'Article'},
+		{ value: 'policy', label: 'Policy'},
+		{ value: 'memo', label: 'Memo'},
+		{ value: 'other', label: 'Other'}
+	];
+
+	function addFiles(fileList: FileList) {
+		if (fileList.length > 0) {
+			const newFiles = Array.from(fileList);
+			const existingNames = new Set(files.map((f) => f.name + f.size + f.lastModified));
+			const deduped = newFiles.filter(
+				(file) => !existingNames.has(file.name + file.size + file.lastModified)
+			);
+			files = [...files, ...deduped];
+		}
+	}
+
 	function handleFileChange(event: Event) {
 		const target = event.target as HTMLInputElement;
 		if (target.files && target.files.length > 0) {
-			file = target.files[0];
-		} else {
-			file = null;
+			addFiles(target.files);
+			target.value = '';
 		}
 	}
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 
-		if (!title.trim()) {
-			errorMessage = 'Title is required.';
-			return;
-		}
-
-		if (!file) {
-			errorMessage = 'Please select a document file to upload.';
+		if (files.length === 0) {
+			errorMessage = 'Please select at least one document to upload.';
 			return;
 		}
 
 		isSubmitting = true;
 		errorMessage = '';
 
-		const formData = new FormData();
-		formData.append('title', title.trim());
-		formData.append('source', source.trim());
-		formData.append('essence', essence.trim());
-		formData.append('conclusion', conclusion.trim());
-		formData.append('status', status);
-		formData.append('file', file);
-
 		try {
-			const response = await fetch('/api/documents', {
-				method: 'POST',
-				body: formData
-			});
+			for (const file of files) {
+				const derivedTitle =
+					file?.name?.replace(/\.[^/.]+$/, '').trim() || `Document ${Date.now()}`;
 
-			if (!response.ok) {
-				const text = await response.text();
-				errorMessage = `Upload failed: ${text || response.statusText}`;
-				return;
+				const formData = new FormData();
+				formData.append('title', derivedTitle);
+				formData.append('source', '');
+				formData.append('essence', '');
+				formData.append('conclusion', '');
+				formData.append('status', '0');
+				formData.append('documentType', documentType);
+				formData.append('file', file);
+
+				const response = await fetch('/api/documents', {
+					method: 'POST',
+					body: formData
+				});
+
+				if (!response.ok) {
+					const text = await response.text();
+					errorMessage = `Upload failed for ${file.name}: ${text || response.statusText}`;
+					return;
+				}
 			}
 
 			dispatch('uploaded');
@@ -81,81 +96,96 @@
 		event?.preventDefault();
 		handleClose();
 	}
+
+	function selectDocumentType(value: string) {
+		documentType = value;
+	}
+
+	function removeFile(index: number) {
+		files = files.filter((_, i) => i !== index);
+	}
 </script>
 
 <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-	<div class="relative flex h-[85vh] w-[70vw] flex-col rounded-2xl bg-light-primary p-6 shadow-xl">
-		<div class="flex items-center justify-between">
-			<h2 class="text-2xl font-semibold">Upload Document</h2>
+	<div class="relative flex h-auto w-[80vw] max-w-5xl flex-col rounded-2xl bg-light-primary p-6 shadow-xl">
+		<div class="flex items-center justify-between border-b border-light-stroke pb-4">
+			<div>
+				<h2 class="text-3xl font-semibold text-light-text-primary">Upload a document</h2>
+			</div>
 			<ButtonSvg type="close" size={8} onClick={handleClose} />
 		</div>
 
 		<form class="mt-6 flex flex-1 flex-col gap-6 overflow-y-auto pr-2" onsubmit={handleSubmit}>
-			<div class="grid grid-cols-2 gap-6">
-				<label class="flex flex-col gap-2">
-					<span class="text-sm font-medium text-light-text-secondary">Title *</span>
-					<input
-						class="rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2 text-lg focus:border-dark-primary focus:outline-none"
-						type="text"
-						bind:value={title}
-						required
-						placeholder="Document title"
-					/>
-				</label>
-
-				<label class="flex flex-col gap-2">
-					<span class="text-sm font-medium text-light-text-secondary">Source</span>
-					<input
-						class="rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2 text-lg focus:border-dark-primary focus:outline-none"
-						type="text"
-						bind:value={source}
-						placeholder="e.g. Internal Report"
-					/>
-				</label>
-
-				<label class="flex flex-col gap-2">
-					<span class="text-sm font-medium text-light-text-secondary">Status</span>
-					<select
-						class="rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2 text-lg focus:border-dark-primary focus:outline-none"
-						bind:value={status}
+			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+				<section class="flex flex-col gap-4 rounded-2xl border border-dashed border-light-stroke bg-light-hovered-primary/50 px-6 py-8 text-center">
+					<p class="text-base font-medium text-light-text-primary">Choose or drag and drop your document</p>
+					<label
+						class="mx-auto flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-light-stroke bg-light-primary px-4 py-6 text-sm font-semibold text-light-text-primary transition hover:border-dark-primary hover:bg-light-hovered-primary"
+						ondragover={(event) => event.preventDefault()}
+						ondrop={(event) => {
+							event.preventDefault();
+							const droppedFiles = event.dataTransfer?.files;
+							if (droppedFiles) {
+								addFiles(droppedFiles);
+							}
+						}}
 					>
-						<option value="0">Not started</option>
-						<option value="1">In progress</option>
-						<option value="2">Finished</option>
-					</select>
-				</label>
+						<input
+							class="hidden"
+							type="file"
+							multiple
+							accept=".pdf,.doc,.docx,.txt,.md"
+							onchange={handleFileChange}
+							required
+						/>
+						<ButtonSvg type="cloudUpload" size={10} />
+						<span>{files.length > 0 ? 'Add more documents' : 'Select documents'}</span>
+						<span class="text-xs font-normal text-light-text-secondary">PDF, Word, or plain text up to 25 MB each</span>
+					</label>
 
-				<label class="flex flex-col gap-2">
-					<span class="text-sm font-medium text-light-text-secondary">Document file *</span>
-					<input
-						class="rounded-lg border border-dashed border-light-stroke bg-light-hovered-primary px-3 py-2 text-base focus:border-dark-primary focus:outline-none"
-						type="file"
-						accept=".pdf,.doc,.docx,.txt,.md"
-						onchange={handleFileChange}
-					/>
-					{#if file}
-						<span class="text-xs text-light-text-secondary">Selected: {file.name}</span>
+					{#if files.length > 0}
+						<div class="flex max-h-56 flex-col gap-3 overflow-y-auto rounded-xl bg-light-primary/70 p-4 text-left text-sm">
+							{#each files as file, index}
+								<div class="flex items-center justify-between rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2">
+									<div class="flex flex-col">
+										<p class="font-semibold text-light-text-primary">{file.name}</p>
+										<p class="text-xs text-light-text-secondary">
+											{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown type'}
+										</p>
+									</div>
+									<button
+										type="button"
+										class="rounded-full border border-transparent p-2 text-light-text-secondary"
+										onclick={() => removeFile(index)}
+										aria-label={`Remove ${file.name}`}
+									>
+										<ButtonSvg type="close" size={6} />
+									</button>
+								</div>
+							{/each}
+						</div>
 					{/if}
-				</label>
+				</section>
+
+				<section class="flex flex-col gap-4 rounded-2xl border border-light-stroke bg-light-primary/80 px-6 py-6">
+					<p class="text-base font-medium text-light-text-primary">What kind of document is this?</p>
+					<div class="flex flex-col gap-3">
+						{#each documentTypeOptions as option}
+							<button
+								type="button"
+								class={`flex flex-col rounded-xl border px-4 py-3 text-left transition ${
+									documentType === option.value
+										? 'border-dark-primary bg-dark-primary/10 text-dark-primary'
+										: 'border-light-stroke bg-light-hovered-primary text-light-text-primary hover:border-dark-primary/60 hover:text-dark-primary'
+								}`}
+								onclick={() => selectDocumentType(option.value)}
+							>
+								<span class="text-sm font-semibold">{option.label}</span>
+							</button>
+						{/each}
+					</div>
+				</section>
 			</div>
-
-			<label class="flex flex-col gap-2">
-				<span class="text-sm font-medium text-light-text-secondary">Essence</span>
-				<textarea
-					class="min-h-[8rem] rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2 text-base focus:border-dark-primary focus:outline-none"
-					bind:value={essence}
-					placeholder="What is the essence of this document?"
-				></textarea>
-			</label>
-
-			<label class="flex flex-col gap-2">
-				<span class="text-sm font-medium text-light-text-secondary">Conclusion</span>
-				<textarea
-					class="min-h-[6rem] rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2 text-base focus:border-dark-primary focus:outline-none"
-					bind:value={conclusion}
-					placeholder="Any conclusion or summary"
-				></textarea>
-			</label>
 
 			{#if errorMessage}
 				<div class="rounded-lg border border-red-400 bg-red-100 px-4 py-2 text-sm text-red-700">
