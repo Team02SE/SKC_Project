@@ -53,7 +53,7 @@
     }
 
     function handleAddSub() {
-        console.log("Adding sub-" + type);
+        
         if (codingId !== undefined && onAddSubRequest) {
             onAddSubRequest(codingId);
         }
