@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/private';
 import type { PageServerLoad } from './$types';
 import type { Actions } from './$types';
 
