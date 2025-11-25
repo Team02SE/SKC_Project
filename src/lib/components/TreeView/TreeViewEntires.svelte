@@ -47,14 +47,14 @@
 							<p class="m-0 leading-tight">Description:</p>
 						</div>
 					</div>
-					<div>
-						<button class="mr-10 duration-100 hover:scale-110" onclick={() => {node.isOptionsOpen=!node.isOptionsOpen}}>
+					<div class="relative inline-block">
+						<button class="mr-10 duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
 							<img src={more} alt="more" class="h-10 w-10" />
 						</button>
 						{#if node.isOptionsOpen}
 							<DropdownList 
-							rootNode={node}
-							onCodingNodeAdded={onCodingNodeAdded}
+								rootNode={node}
+								onCodingNodeAdded={onCodingNodeAdded}
 							/>
 						{/if}
 					</div>
