@@ -2,11 +2,14 @@
 	import type { Coding } from '$lib/types';
 	import more from '$lib/assets/three-dots-circle.svg';
 
+	import DropdownList from './../DropdownList/DropdownList.svelte';
+
 	interface Props {
 		coding: Coding;
-		onCodingSelected: any;
+		onCodingSelected: (c: Coding) => void;
+		onCodingNodeAdded: (parentId: number | null) => void;
 	}
-	let { coding, onCodingSelected }: Props = $props();
+	let { coding, onCodingSelected, onCodingNodeAdded }: Props = $props();
 </script>
 
 <div
@@ -26,7 +29,13 @@
 			</div>
 		</button>
 	</div>
-	<span class="mr-10 duration-100 hover:scale-110">
-		<img src={more} alt="more" class="h-10 w-10" />
-	</span>
+	<div class="relative mr-10">
+		<button class="mr-10 duration-100 hover:scale-110" onclick={() => (coding.isOptionsOpen = !coding.isOptionsOpen)}>
+			<img src={more} alt="more" class="h-10 w-10" />
+		</button>
+
+		{#if coding.isOptionsOpen}
+			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} />
+		{/if}
+	</div>
 </div>
