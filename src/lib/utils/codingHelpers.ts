@@ -209,7 +209,7 @@ export function hasAncestorMarkedForDeletion<T extends Coding>(codings: T[], cod
 				currentType,
 				isCurrentDeleted ? coding.id : parentId
 			);
-			if (result !== null) return result;
+			if (result) return true;
 		}
 	}
 	return false;
