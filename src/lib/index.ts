@@ -38,11 +38,12 @@ export function getAllCodingIds(codings: Coding[]): Set<number> {
 
 /**
  * Creates a handler function for adding sub-codings to a parent coding.
- * @param data - The array of codings (will be mutated)
- * @param parentId - The ID of the parent coding
- * @param onCodingAdded - Optional callback to call after adding
- * @param onClose - Optional callback to close the popup
- * @returns A function that handles adding a sub-coding
+ * @param getData - A function that returns the current array of codings.
+ * @param setData - A callback to update the array of codings (the array is replaced, not mutated in place).
+ * @param parentId - A function that returns the ID of the parent coding.
+ * @param onCodingAdded - Optional callback to call after adding.
+ * @param onClose - Optional callback to close the popup.
+ * @returns A function that handles adding a sub-coding.
  */
 export function createSubCodingHandler<T extends Coding>(
 	getData: () => T[],
