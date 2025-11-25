@@ -35,7 +35,6 @@
 		});
 	}
 
-	// Maps tab IDs to their display titles and corresponding data keys in the codings object
 	const tabConfig = {
 		activities: { title: 'Activities', key: 'activities' as const },
 		effects: { title: 'Effects', key: 'effects' as const },
@@ -49,7 +48,6 @@
 	let selectedTab = $state<TabKey>('activities');
 	let codingToEdit = $state<Coding | undefined>(undefined);
 
-	// Automatically derive the title based on the selected tab
 	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
 
 	function OnTabChange(tab: string) {
@@ -128,11 +126,6 @@
 			expanded: false,
 			isOptionsOpen: false
 		};
-		// codingToEdit.parent_id = parent_id;
-		// codingToEdit.name = ""
-		// codingToEdit.description = ""
-		// codingToEdit.number = 0;
-		// codingToEdit.id = -1;
 	}
 </script>
 
