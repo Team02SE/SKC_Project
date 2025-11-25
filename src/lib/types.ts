@@ -31,6 +31,10 @@ export type Document = {
 	Conclusion: string;
 	Status: number;
 	UpdatedAt: string;
+	CreatedAt?: string;
+	FileName?: string;
+	FileMime?: string;
+	FileSize?: number;
 };
 
 export type EssenceData = {
