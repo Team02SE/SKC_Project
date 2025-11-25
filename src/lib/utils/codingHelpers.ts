@@ -36,7 +36,7 @@ function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
 	return null;
 }
 
-// Normalizes coding data by ensuring children arrays are never null (reecursive)
+// Normalizes coding data by ensuring children arrays are never null (recursive)
 export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 	return items.map((item) => ({
 		...item,
