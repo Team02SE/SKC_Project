@@ -3,16 +3,19 @@
 	import dropdown from '$lib/assets/dropdown.svg';
 	import more from '$lib/assets/three-dots-circle.svg';
 	import { slide } from 'svelte/transition';
+	import DropdownList from '../DropdownList/DropdownList.svelte';
 	import LeafNode from './LeafNode.svelte';
 	import TreeViewEntry from './TreeViewEntires.svelte';
 
 	interface Props {
 		rootNodes: Coding[];
 		onCodingSelected: any;
+		onCodingNodeAdded: any;
 	}
-	let { rootNodes, onCodingSelected }: Props = $props();
+	let { rootNodes, onCodingSelected, onCodingNodeAdded }: Props = $props();
 
 	let options = { duration: 200 };
+
 </script>
 
 <div class="w-full flex-col items-start py-2">
@@ -44,19 +47,27 @@
 							<p class="m-0 leading-tight">Description:</p>
 						</div>
 					</div>
-					<span class="mr-10 duration-100 hover:scale-110">
-						<img src={more} alt="more" class="h-10 w-10" />
-					</span>
+					<div>
+						<button class="mr-10 duration-100 hover:scale-110" onclick={() => {node.isOptionsOpen=!node.isOptionsOpen}}>
+							<img src={more} alt="more" class="h-10 w-10" />
+						</button>
+						{#if node.isOptionsOpen}
+							<DropdownList 
+							rootNode={node}
+							onCodingNodeAdded={onCodingNodeAdded}
+							/>
+						{/if}
+					</div>
 				</div>
 				{#if node.expanded}
 					<div transition:slide={options}>
 						{#each node.children as child (child.id)}
-							<TreeViewEntry {onCodingSelected} rootNodes={[child]} />
+							<TreeViewEntry {onCodingSelected} rootNodes={[child]} onCodingNodeAdded={onCodingNodeAdded} />
 						{/each}
 					</div>
 				{/if}
 			{:else}
-				<LeafNode {onCodingSelected} coding={node} />
+				<LeafNode {onCodingSelected} {onCodingNodeAdded} coding={node} />
 			{/if}
 		</div>
 	{/each}
