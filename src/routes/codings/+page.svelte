@@ -35,7 +35,6 @@
 		});
 	}
 
-	// Maps tab IDs to their display titles and corresponding data keys in the codings object
 	const tabConfig = {
 		activities: { title: 'Activities', key: 'activities' as const },
 		effects: { title: 'Effects', key: 'effects' as const },
@@ -55,7 +54,6 @@
 	let selectedTab = $state<TabKey>('activities');
 	let codingToEdit = $state<Coding | undefined>(undefined);
 
-	// Automatically derive the title based on the selected tab
 	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
 
 	function OnTabChange(tab: string) {

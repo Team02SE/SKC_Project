@@ -31,8 +31,8 @@
 			</div>
 		</button>
 	</div>
-	<div class="relative mr-10">
-		<button class="mr-10 duration-100 hover:scale-110" onclick={() => (isDropdownOpen = !isDropdownOpen)}>
+	<div class="relative inline-block mr-10">
+		<button class="mr-10 duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); coding.isOptionsOpen = !coding.isOptionsOpen; }}>
 			<img src={more} alt="more" class="h-10 w-10" />
 		</button>
 

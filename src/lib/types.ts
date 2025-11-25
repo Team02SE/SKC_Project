@@ -12,6 +12,7 @@ export type Coding = {
 	expanded?: boolean;
 	isNew?: boolean;
 	isDeleted?: boolean;
+	isOptionsOpen?: boolean;
 };
 
 export type Activity = Coding;
