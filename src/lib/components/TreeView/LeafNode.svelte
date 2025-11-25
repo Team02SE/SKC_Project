@@ -10,6 +10,8 @@
 		onCodingNodeAdded: (parentId: number | null) => void;
 	}
 	let { coding, onCodingSelected, onCodingNodeAdded }: Props = $props();
+	
+	let isDropdownOpen = $state(false);
 </script>
 
 <div
@@ -30,11 +32,11 @@
 		</button>
 	</div>
 	<div class="relative mr-10">
-		<button class="mr-10 duration-100 hover:scale-110" onclick={() => (coding.isOptionsOpen = !coding.isOptionsOpen)}>
+		<button class="mr-10 duration-100 hover:scale-110" onclick={() => (isDropdownOpen = !isDropdownOpen)}>
 			<img src={more} alt="more" class="h-10 w-10" />
 		</button>
 
-		{#if coding.isOptionsOpen}
+		{#if isDropdownOpen}
 			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} />
 		{/if}
 	</div>

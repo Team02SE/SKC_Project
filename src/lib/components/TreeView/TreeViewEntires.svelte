@@ -15,6 +15,11 @@
 	let { rootNodes, onCodingSelected, onCodingNodeAdded }: Props = $props();
 
 	let options = { duration: 200 };
+	let openDropdownId = $state<number | null>(null);
+
+	function toggleDropdown(nodeId: number) {
+		openDropdownId = openDropdownId === nodeId ? null : nodeId;
+	}
 
 </script>
 
@@ -48,10 +53,10 @@
 						</div>
 					</div>
 					<div>
-						<button class="mr-10 duration-100 hover:scale-110" onclick={() => {node.isOptionsOpen=!node.isOptionsOpen}}>
+						<button class="mr-10 duration-100 hover:scale-110" onclick={() => toggleDropdown(node.id)}>
 							<img src={more} alt="more" class="h-10 w-10" />
 						</button>
-						{#if node.isOptionsOpen}
+						{#if openDropdownId === node.id}
 							<DropdownList 
 							rootNode={node}
 							onCodingNodeAdded={onCodingNodeAdded}
