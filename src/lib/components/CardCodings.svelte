@@ -34,13 +34,13 @@
     let showDropdown: boolean = $state(false);
 
     let isPending = $derived(isNew || isDeleted);
-    let currentIcon = $derived(isPending ? 'close' : buttonIcon);
+    let currentIcon = $derived(isDeleted ? 'close' : isNew ? 'moreOptions' : buttonIcon);
 
     let isButtonDisabled = $derived(hasDeletedAncestor && isDeleted);
 
     let buttonOnClick = () => {
         if (isButtonDisabled) return;
-        if (isPending) {
+        if (isDeleted) {
             handleCancel();
         } else {
             showDropdown = !showDropdown;
@@ -85,7 +85,12 @@
             customClass="mr-2 ml-auto {isButtonDisabled ? 'opacity-30 cursor-not-allowed' : ''}" 
             onClick={buttonOnClick}
         />
-        {#if showDropdown && !isPending}
+        {#if showDropdown && isNew}
+            <div class="absolute bg-white rounded-2xl shadow-lg p-2 z-10 left-1/2 -translate-x-1/2 w-40">
+                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleAddSub}>Add sub-{type}</button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleCancel}>Cancel</button>
+            </div>
+        {:else if showDropdown && !isPending}
             <div class="absolute bg-white rounded-2xl shadow-lg p-2 z-10 left-1/2 -translate-x-1/2 w-40">
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full">Edit</button>
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleAddSub}>Add sub-{type}</button>

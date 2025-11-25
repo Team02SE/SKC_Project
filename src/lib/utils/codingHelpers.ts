@@ -26,6 +26,15 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
 	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
 
+	const pendingByParent = new Map<number, T[]>();
+	subCodingsPending.forEach(sub => {
+		const parentId = sub.parent_id!;
+		if (!pendingByParent.has(parentId)) {
+			pendingByParent.set(parentId, []);
+		}
+		pendingByParent.get(parentId)!.push(sub);
+	});
+
 	// mark deleted codings recursively
 	const markDeleted = (coding: T): T => ({
 		...coding,
@@ -33,11 +42,14 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 		children: (coding.children || []).map(child => markDeleted(child as T))
 	});
 
-	// add sub-codings to their parents at any level
-	const addSubCodingsRecursive = (coding: T): T => {
-		const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === coding.id);
+		const addSubCodingsRecursive = (coding: T): T => {
+		const childrenForThis = pendingByParent.get(coding.id) || [];
 		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
-		const newChildren = childrenForThis.map(c => ({ ...c, children: [], isNew: true }));
+		
+		const newChildren = childrenForThis.map(c => {
+			const processed = addSubCodingsRecursive(c);
+			return { ...processed, isNew: true };
+		});
 		
 		return {
 			...coding,
@@ -48,10 +60,15 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 	// add sub-codings to their parents and mark deleted
 	const withSubCodings = normalized.map(item => markDeleted(addSubCodingsRecursive(item)));
 
+	const processedTopLevel = topLevelPending.map(coding => {
+		const processed = addSubCodingsRecursive(coding);
+		return { ...processed, isNew: true };
+	});
+
 	// add top-level pending codings
 	return [
 		...withSubCodings,
-		...topLevelPending.map(a => ({ ...a, children: [], isNew: true }))
+		...processedTopLevel
 	];
 }
 
@@ -62,19 +79,33 @@ export function addPendingCodingsToWorkflow<T extends Coding>(workflowCodings: T
 	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
 	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
 
+	// Create a map for quick lookup of pending children by parent ID
+	const pendingByParent = new Map<number, T[]>();
+	subCodingsPending.forEach(sub => {
+		const parentId = sub.parent_id!;
+		if (!pendingByParent.has(parentId)) {
+			pendingByParent.set(parentId, []);
+		}
+		pendingByParent.get(parentId)!.push(sub);
+	});
+
 	const addSubCodingsRecursive = (coding: T): T => {
-		const childrenForThis = subCodingsPending.filter(sub => sub.parent_id === coding.id);
+		const childrenForThis = pendingByParent.get(coding.id) || [];
 		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
+		
+		const newChildren = childrenForThis.map(c => addSubCodingsRecursive(c));
 		
 		return {
 			...coding,
-			children: [...existingChildren, ...childrenForThis]
+			children: [...existingChildren, ...newChildren]
 		};
 	};
 
 	const updatedCodings = workflowCodings.map(item => addSubCodingsRecursive(item));
+	
+	const processedTopLevel = topLevelPending.map(coding => addSubCodingsRecursive(coding));
 
-	return [...updatedCodings, ...topLevelPending];
+	return [...updatedCodings, ...processedTopLevel];
 }
 
 /**
@@ -88,7 +119,7 @@ export interface PendingCodingsState {
 	dsteps: Coding[];
 	os: Coding[];
 	sv: Coding[];
-	pendingDeletions: Set<string>; // Format: "type:id"
+	pendingDeletions: Set<string>;
 }
 
 export function createEmptyPendingState(): PendingCodingsState {
