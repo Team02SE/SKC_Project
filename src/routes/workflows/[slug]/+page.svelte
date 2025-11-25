@@ -20,6 +20,7 @@
 		removeCodingFromPendingDeletions,
 		removeCodingFromPending,
 		getAllCodingIds,
+		findCodingById,
 		type PendingCodingsState,
 		type CodingType
 	} from '$lib/utils/codingHelpers';
@@ -115,32 +116,20 @@
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 
-	function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
-		pendingCodings = addCodingToPending(pendingCodings, type, coding);
+	// Helper to get codings by type
+	function getCodingsByType(type: CodingType): Coding[] {
+		return {
+			activities,
+			effects,
+			dsteps,
+			os: opportunityStructures,
+			sv: systemVulnerabilities
+		}[type];
 	}
 
-	function handleCodingDeleted(codingId: number, type: CodingType) {
-		// Only search within the specific type's codings
-		const typeCodings = {
-			'activities': activities,
-			'effects': effects,
-			'dsteps': dsteps,
-			'os': opportunityStructures,
-			'sv': systemVulnerabilities
-		}[type];
-		
-		const findCoding = (codings: Coding[], id: number): Coding | null => {
-			for (const coding of codings) {
-				if (coding.id === id) return coding;
-				if (coding.children) {
-					const found = findCoding(coding.children, id);
-					if (found) return found;
-				}
-			}
-			return null;
-		};
-		
-		const coding = findCoding(typeCodings, codingId);
+	// Helper to mark coding and all descendants for deletion
+	function markCodingTreeForDeletion(codingId: number, type: CodingType): void {
+		const coding = findCodingById(getCodingsByType(type), codingId);
 		if (coding) {
 			const allIds = getAllCodingIds(coding);
 			let updatedState = pendingCodings;
@@ -153,42 +142,43 @@
 		}
 	}
 
+	// Helper to unmark coding and all descendants from deletion
+	function unmarkCodingTreeFromDeletion(codingId: number, type: CodingType): void {
+		const coding = findCodingById(getCodingsByType(type), codingId);
+		if (coding) {
+			const allIds = getAllCodingIds(coding);
+			let updatedState = pendingCodings;
+			for (const id of allIds) {
+				updatedState = removeCodingFromPendingDeletions(updatedState, id, type);
+			}
+			pendingCodings = updatedState;
+		} else {
+			pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId, type);
+		}
+	}
+
+	function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
+		pendingCodings = addCodingToPending(pendingCodings, type, coding);
+	}
+
+	function handleCodingDeleted(codingId: number, type: CodingType) {
+		markCodingTreeForDeletion(codingId, type);
+	}
+
 	function handleCodingCanceled(codingId: number, type: CodingType) {
 		if (pendingCodings.pendingDeletions.has(`${type}:${codingId}`)) {
-			// Only search within the specific type's codings
-			const typeCodings = {
-				'activities': activities,
-				'effects': effects,
-				'dsteps': dsteps,
-				'os': opportunityStructures,
-				'sv': systemVulnerabilities
-			}[type];
-			
-			const findCoding = (codings: Coding[], id: number): Coding | null => {
-				for (const coding of codings) {
-					if (coding.id === id) return coding;
-					if (coding.children) {
-						const found = findCoding(coding.children, id);
-						if (found) return found;
-					}
-				}
-				return null;
-			};
-			
-			const coding = findCoding(typeCodings, codingId);
-			if (coding) {
-				const allIds = getAllCodingIds(coding);
-				let updatedState = pendingCodings;
-				for (const id of allIds) {
-					updatedState = removeCodingFromPendingDeletions(updatedState, id, type);
-				}
-				pendingCodings = updatedState;
-			} else {
-				pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId, type);
-			}
+			unmarkCodingTreeFromDeletion(codingId, type);
 		} else {
 			pendingCodings = removeCodingFromPending(pendingCodings, type, codingId);
 		}
+	}
+
+	function applyPendingChanges(workflowCodings: Coding[], pendingCodingsForType: Coding[], type: CodingType): Coding[] {
+		return removePendingDeletions(
+			addPendingCodingsToWorkflow(workflowCodings || [], pendingCodingsForType),
+			pendingCodings.pendingDeletions,
+			type
+		);
 	}
 
 	async function saveAllChanges() {
@@ -196,31 +186,11 @@
 		try {
 			const updatedWorkflow = {
 				...workflow,
-				Activities: removePendingDeletions(
-					addPendingCodingsToWorkflow(workflow.Activities || [], pendingCodings.activities),
-					pendingCodings.pendingDeletions,
-					'activities'
-				),
-				Effects: removePendingDeletions(
-					addPendingCodingsToWorkflow(workflow.Effects || [], pendingCodings.effects),
-					pendingCodings.pendingDeletions,
-					'effects'
-				),
-				Dsteps: removePendingDeletions(
-					addPendingCodingsToWorkflow(workflow.Dsteps || [], pendingCodings.dsteps),
-					pendingCodings.pendingDeletions,
-					'dsteps'
-				),
-				Os: removePendingDeletions(
-					addPendingCodingsToWorkflow(workflow.Os || [], pendingCodings.os),
-					pendingCodings.pendingDeletions,
-					'os'
-				),
-				Sv: removePendingDeletions(
-					addPendingCodingsToWorkflow(workflow.Sv || [], pendingCodings.sv),
-					pendingCodings.pendingDeletions,
-					'sv'
-				)
+				Activities: applyPendingChanges(workflow.Activities, pendingCodings.activities, 'activities'),
+				Effects: applyPendingChanges(workflow.Effects, pendingCodings.effects, 'effects'),
+				Dsteps: applyPendingChanges(workflow.Dsteps, pendingCodings.dsteps, 'dsteps'),
+				Os: applyPendingChanges(workflow.Os, pendingCodings.os, 'os'),
+				Sv: applyPendingChanges(workflow.Sv, pendingCodings.sv, 'sv')
 			};
 
 			const response = await fetch(`/api/workflows/${workflow.id}`, {

@@ -1,18 +1,49 @@
 import type { Coding } from '$lib/types';
 
 /**
- * Normalizes coding data by ensuring children arrays are never null
+ * Helper: Creates a deletion key for tracking pending deletions
+ */
+function createDeletionKey(type: CodingType, codingId: number): string {
+	return `${type}:${codingId}`;
+}
+
+/**
+ * Helper: Builds a map of parent IDs to their pending children
+ */
+function buildPendingByParentMap<T extends Coding>(pendingCodings: T[]): Map<number, T[]> {
+	const map = new Map<number, T[]>();
+	pendingCodings.forEach(coding => {
+		if (coding.parent_id) {
+			if (!map.has(coding.parent_id)) {
+				map.set(coding.parent_id, []);
+			}
+			map.get(coding.parent_id)!.push(coding);
+		}
+	});
+	return map;
+}
+
+/**
+ * Helper: Recursively finds a coding by ID in a tree structure
+ */
+function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
+	for (const coding of codings) {
+		if (coding.id === id) return coding;
+		if (coding.children) {
+			const found = findCodingById(coding.children as T[], id);
+			if (found) return found;
+		}
+	}
+	return null;
+}
+
+/**
+ * Normalizes coding data by ensuring children arrays are never null (fully recursive)
  */
 export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 	return items.map((item) => ({
 		...item,
-		children:
-			item.children === null
-				? []
-				: item.children.map((child: any) => ({
-					...child,
-					children: child?.children === null ? [] : child?.children || []
-				}))
+		children: item.children ? normalizeCodingsData(item.children as T[]) : []
 	}));
 }
 
@@ -20,92 +51,83 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
  * Merges existing codings with pending codings
  * Also marks codings in pendingDeletions with isDeleted flag
  */
-export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<string>, currentType?: CodingType): T[] {
+export function mergeCodingsWithPending<T extends Coding>(
+	existingCodings: T[],
+	pendingCodings: T[],
+	pendingDeletions?: Set<string>,
+	currentType?: CodingType
+): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
+	const pendingByParent = buildPendingByParentMap(pendingCodings);
 
-	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
-	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
-
-	const pendingByParent = new Map<number, T[]>();
-	subCodingsPending.forEach(sub => {
-		const parentId = sub.parent_id!;
-		if (!pendingByParent.has(parentId)) {
-			pendingByParent.set(parentId, []);
-		}
-		pendingByParent.get(parentId)!.push(sub);
-	});
-
-	// mark deleted codings recursively
+	// Marks deleted codings recursively
 	const markDeleted = (coding: T): T => ({
 		...coding,
-		isDeleted: pendingDeletions ? pendingDeletions.has(`${currentType}:${coding.id}`) : false,
+		isDeleted: pendingDeletions && currentType
+			? pendingDeletions.has(createDeletionKey(currentType, coding.id))
+			: false,
 		children: (coding.children || []).map(child => markDeleted(child as T))
 	});
 
-		const addSubCodingsRecursive = (coding: T): T => {
+	// Recursively adds pending sub-codings to their parents
+	const addSubCodingsRecursive = (coding: T, markAsNew = false): T => {
 		const childrenForThis = pendingByParent.get(coding.id) || [];
-		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
-		
-		const newChildren = childrenForThis.map(c => {
-			const processed = addSubCodingsRecursive(c);
-			return { ...processed, isNew: true };
-		});
-		
+		const existingChildren = (coding.children || []).map(child =>
+			addSubCodingsRecursive(child as T, false)
+		);
+		const newChildren = childrenForThis.map(c =>
+			addSubCodingsRecursive(c, true)
+		);
+
 		return {
 			...coding,
+			isNew: markAsNew || coding.isNew,
 			children: [...existingChildren, ...newChildren]
 		};
 	};
 
-	// add sub-codings to their parents and mark deleted
-	const withSubCodings = normalized.map(item => markDeleted(addSubCodingsRecursive(item)));
+	// Process existing codings: add sub-codings and mark deleted
+	const withSubCodings = normalized.map(item =>
+		markDeleted(addSubCodingsRecursive(item))
+	);
 
-	const processedTopLevel = topLevelPending.map(coding => {
-		const processed = addSubCodingsRecursive(coding);
-		return { ...processed, isNew: true };
-	});
+	// Process top-level pending codings
+	const topLevelPending = pendingCodings
+		.filter(c => !c.parent_id)
+		.map(coding => addSubCodingsRecursive(coding, true));
 
-	// add top-level pending codings
-	return [
-		...withSubCodings,
-		...processedTopLevel
-	];
+	return [...withSubCodings, ...topLevelPending];
 }
 
 /**
- * adds pending codings to workflow codings for saving to the backend
+ * Adds pending codings to workflow codings for saving to the backend
  */
-export function addPendingCodingsToWorkflow<T extends Coding>(workflowCodings: T[], pendingCodings: T[]): T[] {
-	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
-	const subCodingsPending = pendingCodings.filter(c => c.parent_id);
+export function addPendingCodingsToWorkflow<T extends Coding>(
+	workflowCodings: T[],
+	pendingCodings: T[]
+): T[] {
+	const pendingByParent = buildPendingByParentMap(pendingCodings);
 
-	// Create a map for quick lookup of pending children by parent ID
-	const pendingByParent = new Map<number, T[]>();
-	subCodingsPending.forEach(sub => {
-		const parentId = sub.parent_id!;
-		if (!pendingByParent.has(parentId)) {
-			pendingByParent.set(parentId, []);
-		}
-		pendingByParent.get(parentId)!.push(sub);
-	});
-
+	// Recursively merges pending children into the tree
 	const addSubCodingsRecursive = (coding: T): T => {
 		const childrenForThis = pendingByParent.get(coding.id) || [];
-		const existingChildren = (coding.children || []).map(child => addSubCodingsRecursive(child as T));
-		
+		const existingChildren = (coding.children || []).map(child =>
+			addSubCodingsRecursive(child as T)
+		);
 		const newChildren = childrenForThis.map(c => addSubCodingsRecursive(c));
-		
+
 		return {
 			...coding,
 			children: [...existingChildren, ...newChildren]
 		};
 	};
 
-	const updatedCodings = workflowCodings.map(item => addSubCodingsRecursive(item));
-	
-	const processedTopLevel = topLevelPending.map(coding => addSubCodingsRecursive(coding));
+	const updatedCodings = workflowCodings.map(addSubCodingsRecursive);
+	const topLevelPending = pendingCodings
+		.filter(c => !c.parent_id)
+		.map(addSubCodingsRecursive);
 
-	return [...updatedCodings, ...processedTopLevel];
+	return [...updatedCodings, ...topLevelPending];
 }
 
 /**
@@ -161,6 +183,11 @@ export function removeCodingById<T extends Coding>(codings: T[], codingId: numbe
 }
 
 /**
+ * Finds a coding by ID in a tree structure (exported version)
+ */
+export { findCodingById };
+
+/**
  * Recursively collects all coding IDs including children
  */
 export function getAllCodingIds<T extends Coding>(coding: T): number[] {
@@ -202,18 +229,26 @@ export function hasAncestorMarkedForDeletion<T extends Coding>(
 	return false;
 }
 
-export function addCodingToPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
+export function addCodingToPendingDeletions(
+	state: PendingCodingsState,
+	codingId: number,
+	type: CodingType
+): PendingCodingsState {
 	const newDeletions = new Set(state.pendingDeletions);
-	newDeletions.add(`${type}:${codingId}`);
+	newDeletions.add(createDeletionKey(type, codingId));
 	return {
 		...state,
 		pendingDeletions: newDeletions
 	};
 }
 
-export function removeCodingFromPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
+export function removeCodingFromPendingDeletions(
+	state: PendingCodingsState,
+	codingId: number,
+	type: CodingType
+): PendingCodingsState {
 	const newDeletions = new Set(state.pendingDeletions);
-	newDeletions.delete(`${type}:${codingId}`);
+	newDeletions.delete(createDeletionKey(type, codingId));
 	return {
 		...state,
 		pendingDeletions: newDeletions
@@ -227,13 +262,19 @@ export function removeCodingFromPending(state: PendingCodingsState, type: Coding
 	};
 }
 
-export function removePendingDeletions<T extends Coding>(codings: T[], pendingDeletions: Set<string>, currentType: CodingType): T[] {
+export function removePendingDeletions<T extends Coding>(
+	codings: T[],
+	pendingDeletions: Set<string>,
+	currentType: CodingType
+): T[] {
 	if (pendingDeletions.size === 0) return codings;
 
 	return codings
-		.filter(coding => !pendingDeletions.has(`${currentType}:${coding.id}`))
+		.filter(coding => !pendingDeletions.has(createDeletionKey(currentType, coding.id)))
 		.map(coding => ({
 			...coding,
-			children: coding.children ? removePendingDeletions(coding.children as T[], pendingDeletions, currentType) : []
+			children: coding.children
+				? removePendingDeletions(coding.children as T[], pendingDeletions, currentType)
+				: []
 		}));
 }
