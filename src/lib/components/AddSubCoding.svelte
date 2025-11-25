@@ -55,6 +55,7 @@
             parentId={parentId}
             excludeCodingIds={excludeCodingIds}
             onCodingAdded={onCodingAdded}
+            autoOpenDropdown={true}
         />
     </div>
 </div>
