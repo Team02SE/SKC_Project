@@ -6,11 +6,6 @@
 	export let disabled = false;
 </script>
 
-<button
-	type={type}
-	class={`bg-light-active-primary p-2 inset-shadow-sm/25 rounded-2xl text-2xl text-light-primary font-semibold hover:brightness-125 disabled:cursor-not-allowed disabled:opacity-60 ${customClass}`}
-	disabled={disabled}
-	onclick={onClick}
->
-	{text}
+<button type="submit" class={`bg-light-active-primary p-2 inset-shadow-sm/25 rounded-2xl text-2xl text-light-primary font-semibold hover:brightness-125 ${customClass}`} on:click={onClick}>
+    {text}
 </button>

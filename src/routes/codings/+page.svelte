@@ -1,18 +1,20 @@
 <script lang="ts">
-	import NavBar from '$lib/components/NavBar.svelte';
 	import CodingTabs from '$lib/components/CodingTabs.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import TreeView from '$lib/components/TreeView/TreeView.svelte';
-	import type { PageProps } from './$types';
-	import type { Coding } from '$lib/types';
-	import { fade } from 'svelte/transition';
 	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
+	import SearchBar from '$lib/components/SearchBar.svelte';
+	import TreeView from '$lib/components/TreeView/TreeView.svelte';
+	import type { Coding } from '$lib/types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	let codings = $state(data);
+	let codings = $state({
+		activities: data.allCodings?.activities || [],
+		effects: data.allCodings?.effects || [],
+		dsteps: data.allCodings?.dsteps || [],
+		opportunityStructures: data.allCodings?.opportunityStructures || [],
+		systemVulnerabilities: data.allCodings?.systemVulnerabilities || []
+	});
 
 	export function GetCodings() {
 		return codings;
@@ -92,6 +94,7 @@
 	}
 
 	function OnCodingSelected(coding: Coding) {
+		isCreateForm = false;
 		codingToEdit = coding;
 	}
 
@@ -105,6 +108,31 @@
 		if (codingToEdit?.id === coding.id) {
 			codingToEdit = undefined;
 		}
+	}
+
+	let isCreateForm = $state(false)
+
+	function handleAddOption(parent_id: number) {
+		isCreateForm = true;
+
+		codingToEdit = {
+			id: -1,
+			parent_id,
+			name: '',
+			description: '',
+			number: 0,
+			type: selectedCodingTitle.toLowerCase(),
+			children: [],
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+			expanded: false,
+			isOptionsOpen: false
+		};
+		// codingToEdit.parent_id = parent_id;
+		// codingToEdit.name = ""
+		// codingToEdit.description = ""
+		// codingToEdit.number = 0;
+		// codingToEdit.id = -1;
 	}
 </script>
 
@@ -125,6 +153,7 @@
 			onCodingSelected={OnCodingSelected}
 			label={selectedCodingTitle}
 			rootNodes={getFilteredCodings()}
+			onCodingNodeAdded={handleAddOption}
 		/>
 	</div>
 	<div
@@ -134,6 +163,11 @@
 			onCodingDeleted={OnCodingDeleted}
 			coding={codingToEdit}
 			type={selectedCodingTitle}
+			isCreateForm = {isCreateForm}
+			onCreated={() => {
+				codingToEdit = undefined;
+				isCreateForm = false;
+			}}
 		/>
 	</div>
 </section>

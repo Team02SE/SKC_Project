@@ -1,5 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { error } from '@sveltejs/kit';
+import { error, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
 	const pdfUrl = url.searchParams.get('url');
