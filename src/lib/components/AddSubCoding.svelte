@@ -26,7 +26,6 @@
 	}
 </script>
 
-F
 <div
 	class="absolute inset-0 z-30 flex items-center justify-center bg-black/20"
 	role="button"

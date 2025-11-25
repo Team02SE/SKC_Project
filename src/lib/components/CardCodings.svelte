@@ -53,7 +53,7 @@
     }
 
     function handleAddSub() {
-        console.log("Adding sub-" + type);
+        
         if (codingId !== undefined && onAddSubRequest) {
             onAddSubRequest(codingId);
         }
@@ -92,7 +92,7 @@
             </div>
         {:else if showDropdown && !isPending}
             <div class="absolute bg-white rounded-2xl shadow-lg p-2 z-10 left-1/2 -translate-x-1/2 w-40">
-                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full">Edit</button>
+                <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleEdit}>Edit</button>
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleAddSub}>Add sub-{type}</button>
                 <button class="p-2 hover:bg-gray-100 rounded-lg cursor-pointer w-full" onclick={handleDelete}>Delete</button>
             </div>

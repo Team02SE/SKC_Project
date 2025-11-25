@@ -36,7 +36,7 @@ function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
 	return null;
 }
 
-// Normalizes coding data by ensuring children arrays are never null (reecursive)
+// Normalizes coding data by ensuring children arrays are never null (recursive)
 export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 	return items.map((item) => ({
 		...item,
@@ -209,7 +209,7 @@ export function hasAncestorMarkedForDeletion<T extends Coding>(codings: T[], cod
 				currentType,
 				isCurrentDeleted ? coding.id : parentId
 			);
-			if (result !== null) return result;
+			if (result) return true;
 		}
 	}
 	return false;
