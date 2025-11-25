@@ -1,18 +1,20 @@
 <script lang="ts">
-	import NavBar from '$lib/components/NavBar.svelte';
 	import CodingTabs from '$lib/components/CodingTabs.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import TreeView from '$lib/components/TreeView/TreeView.svelte';
-	import type { PageProps } from './$types';
-	import type { Coding } from '$lib/types';
-	import { fade } from 'svelte/transition';
 	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
+	import SearchBar from '$lib/components/SearchBar.svelte';
+	import TreeView from '$lib/components/TreeView/TreeView.svelte';
+	import type { Coding } from '$lib/types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
-	let codings = $state(data);
+	let codings = $state({
+		activities: data.allCodings?.activities || [],
+		effects: data.allCodings?.effects || [],
+		dsteps: data.allCodings?.dsteps || [],
+		opportunityStructures: data.allCodings?.opportunityStructures || [],
+		systemVulnerabilities: data.allCodings?.systemVulnerabilities || []
+	});
 
 	export function GetCodings() {
 		return codings;
@@ -140,7 +142,7 @@
 
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-		<FilterBar />
+<!--		<FilterBar />-->
 	</div>
 </div>
 

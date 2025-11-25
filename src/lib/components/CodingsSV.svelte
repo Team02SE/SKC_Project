@@ -3,11 +3,17 @@
     import AddCoding from "./AddCoding.svelte";
 	import Textbox from "./Textbox.svelte";
     import type { SystemVulnerability } from "$lib/types";
+    import { codingToCodingData, getAllCodingIds } from '$lib';
 
-    let { data }: { data: SystemVulnerability[] } = $props();
+	interface Props {
+        data: SystemVulnerability[];
+        availableCodings?: SystemVulnerability[];
+        documentId?: number;
+        onCodingAdded?: (coding: SystemVulnerability) => void;
+    }
 
-    // Filter for top-level vulnerabilities (those without parent_id)
-    let topLevelVulnerabilities = $derived(data.filter(item => !item.parent_id));
+    let { data, availableCodings = data, documentId, onCodingAdded }: Props = $props();    let topLevelVulnerabilities = $derived(data.filter(item => !item.parent_id));
+    let existingCodingIds = $derived(getAllCodingIds(data));
 </script>
 
 <div class="mb-50">
@@ -15,23 +21,21 @@
     <div class="flex h-full w-full gap-30">
         <div class="h-full w-1/2">
             {#each topLevelVulnerabilities as vulnerability}
-            <TreeCodings data={{
-                title: vulnerability.name,
-                label: vulnerability.number.toString(),
-                children: vulnerability.children.map(child => ({
-                    title: child.name,
-                    label: child.number.toString(),
-                    buttonIcon: "close"
-                }))
-            }} />
+            <TreeCodings data={codingToCodingData(vulnerability)} type='system-vulnerabilities' />
             {/each}
         </div>
 
-        <div class="h-full w-1/2">
-            <AddCoding />
+		<div class="h-full w-1/2">
+            <AddCoding 
+                type="system-vulnerabilities"
+                availableCodings={availableCodings}
+                documentId={documentId}
+                excludeCodingIds={existingCodingIds}
+                onCodingAdded={onCodingAdded}
+            />
         </div>
     </div>
 
-    <h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities</h1>
-    <Textbox />
+    <!-- <h1 class="text-4xl font-bold text-light-text-primary">System Vulnerabilities</h1>
+    <Textbox /> -->
 </div>

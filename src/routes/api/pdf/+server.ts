@@ -1,5 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { error } from '@sveltejs/kit';
+import { error, type RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
 	const pdfUrl = url.searchParams.get('url');
@@ -31,7 +30,7 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
 			}
 		});
 	} catch (err: any) {
-		console.error('Error proxying PDF:', err);
+		console.log('Error proxying PDF:', err);
 		throw error(500, err.message || 'Failed to load PDF');
 	}
 };

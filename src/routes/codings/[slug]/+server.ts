@@ -1,6 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { API_URL, API_KEY } from '$env/static/private';
-import { refreshAll } from '$app/navigation';
 
 export const PUT: RequestHandler = async ({ request, params }) => {
 	const { slug } = params;

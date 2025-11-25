@@ -1,12 +1,9 @@
 <script lang="ts">
 	import type { Coding } from '$lib/types';
-	import InputText from '$lib/components/Forms/InputText.svelte';
-	import edit_pencil from '$lib/assets/edit-pencil.svg';
-	import { slide } from 'svelte/transition';
 	import ButtonText from '../ButtonText.svelte';
 	import PopUp from '../PopUps/PopUp.svelte';
-	import { invalidateAll, refreshAll } from '$app/navigation';
-	import { page } from '$app/state';
+	import edit_pencil from '$lib/assets/edit-pencil.svg';
+	import { slide } from 'svelte/transition';
 
 	interface Props {
 		coding: Coding | undefined;
@@ -47,9 +44,8 @@
 
 	async function updateCoding(event: SubmitEvent) {
 		event.preventDefault();
-
-		if (!form.id || form.id === -1) {
-			console.error('No valid ID available for update');
+		if (!codingCopy?.id) {
+			console.log('No ID available for update');
 			return;
 		}
 
@@ -64,7 +60,7 @@
 			body: JSON.stringify(payload)
 		});
 
-		if (!response.ok) console.error('Update failed');
+		if (!response.ok) console.log('Update failed');
 		else console.log('Update successful');
 	}
 
@@ -82,7 +78,7 @@
 			body: JSON.stringify({ type })
 		});
 
-		if (!response.ok) console.error('Delete failed');
+		if (!response.ok) console.log('Delete failed');
 		else {
 			onCodingDeleted(coding);
 			console.log('Delete successful');

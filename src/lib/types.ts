@@ -6,11 +6,11 @@ export type Coding = {
 	type: string;
 	description: string;
 	parent_id?: number;
-	children: Coding[];
-	created_at: string;
-	updated_at: string;
-	expanded: boolean;
-	isOptionsOpen: boolean;
+	children: Coding[] | null;
+	created_at?: string;
+	updated_at?: string;
+	expanded?: boolean;
+	isNew?: boolean;
 };
 
 export type Activity = Coding;
@@ -23,7 +23,7 @@ export type SystemVulnerability = Coding;
 
 export type DStep = Coding;
 
-export type WorkflowDocument = {
+export type Document = {
 	id: number;
 	Title: string;
 	Source: string;
@@ -37,4 +37,15 @@ export type EssenceData = {
 	essence: string;
 	summary: string;
 	conclusion: string;
+};
+
+export type Workflow = {
+	id: number;
+	Document: Document;
+	Activities: Activity[];
+	Effects: Effect[];
+	Os: OpportunityStructure[];
+	Sv: SystemVulnerability[];
+	Dsteps: DStep[];
+	updated_at: string;
 };

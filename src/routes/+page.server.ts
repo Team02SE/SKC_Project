@@ -1,8 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
-import type { Coding, WorkflowDocument } from '$lib/types';
-import type { Actions } from './$types';
-import { json } from 'stream/consumers';
+import type { Document } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
@@ -23,10 +21,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		if (!documentsRes.ok) {
 			const errorText = await documentsRes.text();
-			console.error('Failed to fetch documents:', documentsRes.status, errorText);
-			
+			console.log('Failed to fetch documents:', documentsRes.status, errorText);
+
 			return {
-				documents: [] as WorkflowDocument[]
+				documents: [] as Document[]
 			};
 		}
 
@@ -34,12 +32,12 @@ export const load: PageServerLoad = async ({ params }) => {
 		console.log('Documents fetched successfully:', documentData.length);
 
 		return {
-			documents: documentData as WorkflowDocument[]
+			documents: documentData as Document[]
 		};
 	} catch (error) {
-		console.error('Error fetching documents:', error);
+		console.log('Error fetching documents:', error);
 		return {
-			documents: [] as WorkflowDocument[]
+			documents: [] as Document[]
 		};
 	}
 };
