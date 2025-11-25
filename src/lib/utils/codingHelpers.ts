@@ -20,7 +20,7 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
  * Merges existing codings with pending codings
  * Also marks codings in pendingDeletions with isDeleted flag
  */
-export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<number>): T[] {
+export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], pendingCodings: T[], pendingDeletions?: Set<string>, currentType?: CodingType): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
 
 	const topLevelPending = pendingCodings.filter(c => !c.parent_id);
@@ -29,7 +29,7 @@ export function mergeCodingsWithPending<T extends Coding>(existingCodings: T[], 
 	// mark deleted codings recursively
 	const markDeleted = (coding: T): T => ({
 		...coding,
-		isDeleted: pendingDeletions?.has(coding.id) ?? false,
+		isDeleted: pendingDeletions ? pendingDeletions.has(`${currentType}:${coding.id}`) : false,
 		children: (coding.children || []).map(child => markDeleted(child as T))
 	});
 
@@ -88,7 +88,7 @@ export interface PendingCodingsState {
 	dsteps: Coding[];
 	os: Coding[];
 	sv: Coding[];
-	pendingDeletions: Set<number>;
+	pendingDeletions: Set<string>; // Format: "type:id"
 }
 
 export function createEmptyPendingState(): PendingCodingsState {
@@ -98,7 +98,7 @@ export function createEmptyPendingState(): PendingCodingsState {
 		dsteps: [],
 		os: [],
 		sv: [],
-		pendingDeletions: new Set<number>()
+		pendingDeletions: new Set<string>()
 	};
 }
 
@@ -148,19 +148,21 @@ export function getAllCodingIds<T extends Coding>(coding: T): number[] {
 export function hasAncestorMarkedForDeletion<T extends Coding>(
 	codings: T[],
 	codingId: number,
-	pendingDeletions: Set<number>,
+	pendingDeletions: Set<string>,
+	currentType: CodingType,
 	parentId?: number
 ): boolean {
 	for (const coding of codings) {
 		if (coding.id === codingId) {
-			return parentId !== undefined && pendingDeletions.has(parentId);
+			return parentId !== undefined && pendingDeletions.has(`${currentType}:${parentId}`);
 		}
 		if (coding.children) {
-			const isCurrentDeleted = pendingDeletions.has(coding.id);
+			const isCurrentDeleted = pendingDeletions.has(`${currentType}:${coding.id}`);
 			const result = hasAncestorMarkedForDeletion(
 				coding.children as T[],
 				codingId,
 				pendingDeletions,
+				currentType,
 				isCurrentDeleted ? coding.id : parentId
 			);
 			if (result !== null) return result;
@@ -169,16 +171,18 @@ export function hasAncestorMarkedForDeletion<T extends Coding>(
 	return false;
 }
 
-export function addCodingToPendingDeletions(state: PendingCodingsState, codingId: number): PendingCodingsState {
+export function addCodingToPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
+	const newDeletions = new Set(state.pendingDeletions);
+	newDeletions.add(`${type}:${codingId}`);
 	return {
 		...state,
-		pendingDeletions: new Set([...state.pendingDeletions, codingId])
+		pendingDeletions: newDeletions
 	};
 }
 
-export function removeCodingFromPendingDeletions(state: PendingCodingsState, codingId: number): PendingCodingsState {
+export function removeCodingFromPendingDeletions(state: PendingCodingsState, codingId: number, type: CodingType): PendingCodingsState {
 	const newDeletions = new Set(state.pendingDeletions);
-	newDeletions.delete(codingId);
+	newDeletions.delete(`${type}:${codingId}`);
 	return {
 		...state,
 		pendingDeletions: newDeletions
@@ -192,13 +196,13 @@ export function removeCodingFromPending(state: PendingCodingsState, type: Coding
 	};
 }
 
-export function removePendingDeletions<T extends Coding>(codings: T[], pendingDeletions: Set<number>): T[] {
+export function removePendingDeletions<T extends Coding>(codings: T[], pendingDeletions: Set<string>, currentType: CodingType): T[] {
 	if (pendingDeletions.size === 0) return codings;
 
 	return codings
-		.filter(coding => !pendingDeletions.has(coding.id))
+		.filter(coding => !pendingDeletions.has(`${currentType}:${coding.id}`))
 		.map(coding => ({
 			...coding,
-			children: coding.children ? removePendingDeletions(coding.children as T[], pendingDeletions) : []
+			children: coding.children ? removePendingDeletions(coding.children as T[], pendingDeletions, currentType) : []
 		}));
 }

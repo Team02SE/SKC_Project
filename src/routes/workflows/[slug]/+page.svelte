@@ -42,11 +42,11 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities, pendingCodings.pendingDeletions));
-	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects, pendingCodings.pendingDeletions));
-	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps, pendingCodings.pendingDeletions));
-	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions));
-	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions));
+	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities, pendingCodings.pendingDeletions, 'activities'));
+	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects, pendingCodings.pendingDeletions, 'effects'));
+	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps, pendingCodings.pendingDeletions, 'dsteps'));
+	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions, 'os'));
+	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions, 'sv'));
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -120,13 +120,14 @@
 	}
 
 	function handleCodingDeleted(codingId: number, type: CodingType) {
-		const allCodings = [
-			...activities,
-			...effects,
-			...dsteps,
-			...opportunityStructures,
-			...systemVulnerabilities
-		];
+		// Only search within the specific type's codings
+		const typeCodings = {
+			'activities': activities,
+			'effects': effects,
+			'dsteps': dsteps,
+			'os': opportunityStructures,
+			'sv': systemVulnerabilities
+		}[type];
 		
 		const findCoding = (codings: Coding[], id: number): Coding | null => {
 			for (const coding of codings) {
@@ -139,28 +140,29 @@
 			return null;
 		};
 		
-		const coding = findCoding(allCodings, codingId);
+		const coding = findCoding(typeCodings, codingId);
 		if (coding) {
 			const allIds = getAllCodingIds(coding);
 			let updatedState = pendingCodings;
 			for (const id of allIds) {
-				updatedState = addCodingToPendingDeletions(updatedState, id);
+				updatedState = addCodingToPendingDeletions(updatedState, id, type);
 			}
 			pendingCodings = updatedState;
 		} else {
-			pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId);
+			pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId, type);
 		}
 	}
 
 	function handleCodingCanceled(codingId: number, type: CodingType) {
-		if (pendingCodings.pendingDeletions.has(codingId)) {
-			const allCodings = [
-				...activities,
-				...effects,
-				...dsteps,
-				...opportunityStructures,
-				...systemVulnerabilities
-			];
+		if (pendingCodings.pendingDeletions.has(`${type}:${codingId}`)) {
+			// Only search within the specific type's codings
+			const typeCodings = {
+				'activities': activities,
+				'effects': effects,
+				'dsteps': dsteps,
+				'os': opportunityStructures,
+				'sv': systemVulnerabilities
+			}[type];
 			
 			const findCoding = (codings: Coding[], id: number): Coding | null => {
 				for (const coding of codings) {
@@ -173,16 +175,16 @@
 				return null;
 			};
 			
-			const coding = findCoding(allCodings, codingId);
+			const coding = findCoding(typeCodings, codingId);
 			if (coding) {
 				const allIds = getAllCodingIds(coding);
 				let updatedState = pendingCodings;
 				for (const id of allIds) {
-					updatedState = removeCodingFromPendingDeletions(updatedState, id);
+					updatedState = removeCodingFromPendingDeletions(updatedState, id, type);
 				}
 				pendingCodings = updatedState;
 			} else {
-				pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId);
+				pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId, type);
 			}
 		} else {
 			pendingCodings = removeCodingFromPending(pendingCodings, type, codingId);
@@ -196,23 +198,28 @@
 				...workflow,
 				Activities: removePendingDeletions(
 					addPendingCodingsToWorkflow(workflow.Activities || [], pendingCodings.activities),
-					pendingCodings.pendingDeletions
+					pendingCodings.pendingDeletions,
+					'activities'
 				),
 				Effects: removePendingDeletions(
 					addPendingCodingsToWorkflow(workflow.Effects || [], pendingCodings.effects),
-					pendingCodings.pendingDeletions
+					pendingCodings.pendingDeletions,
+					'effects'
 				),
 				Dsteps: removePendingDeletions(
 					addPendingCodingsToWorkflow(workflow.Dsteps || [], pendingCodings.dsteps),
-					pendingCodings.pendingDeletions
+					pendingCodings.pendingDeletions,
+					'dsteps'
 				),
 				Os: removePendingDeletions(
 					addPendingCodingsToWorkflow(workflow.Os || [], pendingCodings.os),
-					pendingCodings.pendingDeletions
+					pendingCodings.pendingDeletions,
+					'os'
 				),
 				Sv: removePendingDeletions(
 					addPendingCodingsToWorkflow(workflow.Sv || [], pendingCodings.sv),
-					pendingCodings.pendingDeletions
+					pendingCodings.pendingDeletions,
+					'sv'
 				)
 			};
 
