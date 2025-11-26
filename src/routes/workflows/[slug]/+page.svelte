@@ -193,6 +193,8 @@
 			pendingOS = [];
 			pendingSV = [];
 
+			workflow = updatedWorkflow;
+
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error saving changes:', error);
