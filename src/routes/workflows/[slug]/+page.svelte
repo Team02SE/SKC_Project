@@ -44,10 +44,10 @@
 		}));
 	}
 
-	let document = $derived(workflow.Document);
+	let document = $derived(data.documentData);
 
 	let essenceContent = $derived<EssenceData>({
-		essence: document?.Essence || '',
+		essence: document?.docu || '',
 		summary: '',
 		conclusion: document?.Conclusion || ''
 	});

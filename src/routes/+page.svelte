@@ -4,7 +4,7 @@
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
 	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
-	import type { Document } from '$lib/types';
+	import type { WorkflowDocument } from '$lib/types';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 
@@ -13,7 +13,7 @@
 	let searchQuery = $state('');
 	let statusFilter = $state<number[]>([]);
 	let sortOption: 'lastModified-asc' | 'lastModified-desc' | null = $state('lastModified-desc');
-	let selectedDocument = $state<Document | null>(null);
+	let selectedDocument = $state<WorkflowDocument | null>(null);
 
 	function getFilteredDocuments() {
 		let filtered = data.documents;
@@ -78,7 +78,7 @@
 		sortOption = event.detail;
 	}
 
-	function handleDocumentDeleted(doc: Document) {
+	function handleDocumentDeleted(doc: WorkflowDocument) {
 		if (selectedDocument?.id === doc.id) {
 			selectedDocument = null;
 		}

@@ -5,6 +5,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const apiBase = env.API_URL;
 	const apiKey = env.API_KEY;
 
+	console.log('Attmepting to submit the docuemnt....');
 	if (!apiBase || !apiKey) {
 		return new Response('API configuration missing', { status: 500 });
 	}
@@ -17,7 +18,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	try {
-		const response = await fetch(`${apiBase}/documents`, {
+		const response = await fetch(`${apiBase}/workflows`, {
 			method: 'POST',
 			headers: {
 				Authorization: apiKey
