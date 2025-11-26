@@ -17,6 +17,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 		console.log(body);
 
+		console.log('updating workflow with url: ' + `${apiBase}/workflows/${documentId}`);
 		const response = await fetch(`${apiBase}/workflows/${documentId}`, {
 			method: 'PUT',
 			headers: {
@@ -34,10 +35,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			});
 		}
 
-		const result = await response.json();
-		console.log(`Successfully updated workflow ${documentId}`);
-
-		return new Response(JSON.stringify(result), {
+		return new Response(JSON.stringify('Success'), {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json'

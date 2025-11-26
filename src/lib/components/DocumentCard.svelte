@@ -2,13 +2,13 @@
 	import ButtonSvg from './ButtonSvg.svelte';
 	import { goto } from '$app/navigation';
 	import { invalidateAll } from '$app/navigation';
-	import type { Document } from '$lib/types';
+	import type { WorkflowDocument } from '$lib/types';
 	import PopUp from './PopUps/PopUp.svelte';
 
 	interface Props {
 		roundedTop: boolean;
-		workflowDocument: Document;
-		onDocumentDeleted?: (doc: Document) => void;
+		workflowDocument: WorkflowDocument;
+		onDocumentDeleted?: (doc: WorkflowDocument) => void;
 	}
 
 	let { roundedTop = false, workflowDocument, onDocumentDeleted }: Props = $props();
@@ -21,7 +21,7 @@
 
 	async function handleDelete() {
 		popUpOpen = false;
-		
+
 		try {
 			const response = await fetch(`/api/documents/${workflowDocument.id}`, {
 				method: 'DELETE',
@@ -32,13 +32,13 @@
 				console.error('Delete failed:', response.statusText);
 				return;
 			}
-			
+
 			console.log('Delete successful');
-			
+
 			if (onDocumentDeleted) {
 				onDocumentDeleted(workflowDocument);
 			}
-			
+
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error deleting document:', error);
@@ -71,14 +71,14 @@
 </script>
 
 {#if popUpOpen}
-<div class="p-5 rounded-4xl">
-	<PopUp
-	heading="Delete Document"
-	question="Are you sure you want to delete '{workflowDocument.Title}'? This action cannot be undone."
-	onClose={() => (popUpOpen = false)}
-	onYes={handleDelete}
-	/>
-</div>
+	<div class="rounded-4xl p-5">
+		<PopUp
+			heading="Delete Document"
+			question="Are you sure you want to delete '{workflowDocument.Title}'? This action cannot be undone."
+			onClose={() => (popUpOpen = false)}
+			onYes={handleDelete}
+		/>
+	</div>
 {/if}
 
 <div

@@ -44,11 +44,11 @@
 		}));
 	}
 
-	let document = $derived(workflow.Document);
+	let document = $derived(data.documentData);
 
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',
-		summary: '',
+		summary: document?.Summary || '',
 		conclusion: document?.Conclusion || ''
 	});
 
@@ -166,13 +166,15 @@
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
-			let updatedWorkflow = workflow;
-
-			updatedWorkflow.Activities.push(...pendingActivities);
-			updatedWorkflow.Effects.push(...pendingEffects);
-			updatedWorkflow.Dsteps.push(...pendingDsteps);
-			updatedWorkflow.Os.push(...pendingOS);
-			updatedWorkflow.Sv.push(...pendingSV);
+			// makes deep copy of the workflow
+			let updatedWorkflow = {
+				...workflow,
+				Activities: [...(workflow.Activities || []), ...pendingActivities],
+				Effects: [...(workflow.Effects || []), ...pendingEffects],
+				Dsteps: [...(workflow.Dsteps || []), ...pendingDsteps],
+				Os: [...(workflow.Os || []), ...pendingOS],
+				Sv: [...(workflow.Sv || []), ...pendingSV]
+			};
 
 			const response = await fetch(`/api/workflows/${workflow.id}`, {
 				method: 'PUT',
@@ -190,6 +192,8 @@
 			pendingDsteps = [];
 			pendingOS = [];
 			pendingSV = [];
+
+			workflow = updatedWorkflow;
 
 			await invalidateAll();
 		} catch (error) {
