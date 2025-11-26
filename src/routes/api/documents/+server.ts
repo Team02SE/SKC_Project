@@ -17,6 +17,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		forwardFormData.append(key, value);
 	}
 
+	console.log(forwardFormData);
+
 	try {
 		const response = await fetch(`${apiBase}/workflows`, {
 			method: 'POST',
