@@ -8,8 +8,9 @@
 		coding: Coding;
 		onCodingSelected: (c: Coding) => void;
 		onCodingNodeAdded: (parentId: number | null) => void;
+		onCodingDeleted: (coding: Coding) => void;
 	}
-	let { coding, onCodingSelected, onCodingNodeAdded }: Props = $props();
+	let { coding, onCodingSelected, onCodingNodeAdded, onCodingDeleted }: Props = $props();
 </script>
 
 <div
@@ -35,7 +36,7 @@
 		</button>
 
 		{#if coding.isOptionsOpen}
-			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} />
+			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} onCodingDeleted={onCodingDeleted} />
 		{/if}
 	</div>
 </div>

@@ -11,8 +11,9 @@
 		rootNodes: Coding[];
 		onCodingSelected: any;
 		onCodingNodeAdded: any;
+		onCodingDeleted: any;
 	}
-	let { rootNodes, onCodingSelected, onCodingNodeAdded }: Props = $props();
+	let { rootNodes, onCodingSelected, onCodingNodeAdded, onCodingDeleted }: Props = $props();
 
 	let options = { duration: 200 };
 
@@ -55,6 +56,7 @@
 							<DropdownList 
 								rootNode={node}
 								onCodingNodeAdded={onCodingNodeAdded}
+								onCodingDeleted={onCodingDeleted}
 							/>
 						{/if}
 					</div>
@@ -62,12 +64,12 @@
 				{#if node.expanded}
 					<div transition:slide={options}>
 						{#each node.children as child (child.id)}
-							<TreeViewEntry {onCodingSelected} rootNodes={[child]} onCodingNodeAdded={onCodingNodeAdded} />
+							<TreeViewEntry {onCodingSelected} rootNodes={[child]} onCodingNodeAdded={onCodingNodeAdded} {onCodingDeleted} />
 						{/each}
 					</div>
 				{/if}
 			{:else}
-				<LeafNode {onCodingSelected} {onCodingNodeAdded} coding={node} />
+				<LeafNode {onCodingSelected} {onCodingNodeAdded} {onCodingDeleted} coding={node} />
 			{/if}
 		</div>
 	{/each}
