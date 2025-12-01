@@ -29,7 +29,7 @@
 
 	let workflow = $state(data.workflowData);
 	let pendingCodings = $state<PendingCodingsState>(createEmptyPendingState());
-	
+
 	$effect(() => {
 		workflow = data.workflowData;
 	});
@@ -43,11 +43,36 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities, pendingCodings.pendingDeletions, 'activities'));
-	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects, pendingCodings.pendingDeletions, 'effects'));
-	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps, pendingCodings.pendingDeletions, 'dsteps'));
-	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions, 'os'));
-	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions, 'sv'));
+	let activities = $derived(
+		mergeCodingsWithPending(
+			workflow.Activities,
+			pendingCodings.activities,
+			pendingCodings.pendingDeletions,
+			'activities'
+		)
+	);
+	let effects = $derived(
+		mergeCodingsWithPending(
+			workflow.Effects,
+			pendingCodings.effects,
+			pendingCodings.pendingDeletions,
+			'effects'
+		)
+	);
+	let dsteps = $derived(
+		mergeCodingsWithPending(
+			workflow.Dsteps,
+			pendingCodings.dsteps,
+			pendingCodings.pendingDeletions,
+			'dsteps'
+		)
+	);
+	let opportunityStructures = $derived(
+		mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions, 'os')
+	);
+	let systemVulnerabilities = $derived(
+		mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions, 'sv')
+	);
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -173,7 +198,11 @@
 		}
 	}
 
-	function applyPendingChanges(workflowCodings: Coding[], pendingCodingsForType: Coding[], type: CodingType): Coding[] {
+	function applyPendingChanges(
+		workflowCodings: Coding[],
+		pendingCodingsForType: Coding[],
+		type: CodingType
+	): Coding[] {
 		return removePendingDeletions(
 			addPendingCodingsToWorkflow(workflowCodings || [], pendingCodingsForType),
 			pendingCodings.pendingDeletions,
@@ -186,7 +215,11 @@
 		try {
 			const updatedWorkflow = {
 				...workflow,
-				Activities: applyPendingChanges(workflow.Activities, pendingCodings.activities, 'activities'),
+				Activities: applyPendingChanges(
+					workflow.Activities,
+					pendingCodings.activities,
+					'activities'
+				),
 				Effects: applyPendingChanges(workflow.Effects, pendingCodings.effects, 'effects'),
 				Dsteps: applyPendingChanges(workflow.Dsteps, pendingCodings.dsteps, 'dsteps'),
 				Os: applyPendingChanges(workflow.Os, pendingCodings.os, 'os'),
@@ -320,6 +353,6 @@
 	<div
 		class="flex h-[calc(100vh-240px)] flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 inset-shadow-sm/25"
 	>
-		<PDFView />
+		<PDFView pdfUrl={data.pdfUrl} />
 	</div>
 </div>
