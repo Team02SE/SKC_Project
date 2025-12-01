@@ -7,8 +7,9 @@
 		label: String;
 		onCodingSelected: any;
 		onCodingNodeAdded: any;
+		onCodingDeleted: any;
 	}
-	let { rootNodes, label, onCodingSelected, onCodingNodeAdded }: Props = $props();
+	let { rootNodes, label, onCodingSelected, onCodingNodeAdded, onCodingDeleted }: Props = $props();
 </script>
 
 <div class="flex h-full w-full flex-col overflow-auto">
@@ -16,6 +17,6 @@
 		{label}
 	</div>
 	<div class="flex h-[40rem] w-full flex-col overflow-y-scroll">
-		<TreeViewEntires {onCodingSelected} {rootNodes} {onCodingNodeAdded}/>
+		<TreeViewEntires {onCodingSelected} {rootNodes} {onCodingNodeAdded} {onCodingDeleted}/>
 	</div>
 </div>

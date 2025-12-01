@@ -6,8 +6,9 @@
 	interface Props {
 		rootNode: Coding;
 		onCodingNodeAdded: (parentId: number | null) => void;
+		onCodingDeleted: (coding: Coding) => void;
 	}
-	let { rootNode, onCodingNodeAdded }: Props = $props();
+	let { rootNode, onCodingNodeAdded, onCodingDeleted }: Props = $props();
 
 	let el: HTMLElement | null = null;
 
@@ -16,8 +17,19 @@
 		rootNode.isOptionsOpen = false;
 	}
 
-	function handleDelete() {
-		rootNode.isOptionsOpen = false;
+	async function handleDelete() {
+		const response = await fetch(`/codings/${rootNode.id}`, {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ type: rootNode.type })
+		});
+
+		if (response.ok) {
+			rootNode.isOptionsOpen = false;
+			onCodingDeleted(rootNode);
+		} else {
+			console.error('Delete failed:', response.statusText);
+		}
 	}
 
 	function onDocumentClick(e: MouseEvent) {
