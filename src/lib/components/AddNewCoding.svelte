@@ -16,6 +16,8 @@
 	let codingName = $state('');
 	let codingNumber = $state('');
 	let codingDescription = $state('');
+	let isSubmitting = $state(false);
+	let errorMessage = $state('');
 
 	function closeModal() {
 		resetForm();
@@ -28,29 +30,102 @@
 		codingName = '';
 		codingNumber = '';
 		codingDescription = '';
+		isSubmitting = false;
+		errorMessage = '';
 	}
 
 	async function handleSubmit() {
 		if (!codingName.trim() || !codingNumber || codingNumber === '') {
+			errorMessage = 'Please fill in all required fields';
 			return;
 		}
 
-		const newCoding: Coding = {
-			id: Date.now(),
-			name: codingName.trim(),
-			number: parseInt(codingNumber.toString()),
-			type: type,
-			description: codingDescription.trim(),
-			parent_id: parentId ?? undefined,
-			children: null,
-			isNew: true
-		};
+		isSubmitting = true;
+		errorMessage = '';
 
-		if (onCodingCreated) {
-			onCodingCreated(newCoding);
+		// Create FormData to POST to the server
+		const formData = new FormData();
+		formData.append('name', codingName.trim());
+		formData.append('description', codingDescription.trim());
+		formData.append('number', codingNumber);
+		formData.append('type', type.toLowerCase());
+		// Match the codings page behavior: always include parent_id, use empty string for null
+		formData.append('parent_id', (parentId !== null && parentId !== undefined && parentId > 0) ? parentId.toString() : '');
+
+		try {
+			const response = await fetch('/codings?/codings', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				errorMessage = 'Failed to create coding. Please try again.';
+				isSubmitting = false;
+				return;
+			}
+
+			const result = await response.json();
+			let responseData = result.data;
+			
+			// Parse response data if it's a string
+			if (typeof responseData === 'string') {
+				try {
+					responseData = JSON.parse(responseData);
+				} catch (e) {
+					errorMessage = 'Invalid response from server';
+					isSubmitting = false;
+					return;
+				}
+			}
+			
+			// Extract the coding ID from the response
+			const codingId = extractCodingId(responseData);
+			
+			if (codingId && codingId > 0) {
+				const newCoding: Coding = {
+					id: codingId,
+					name: codingName.trim(),
+					number: parseInt(codingNumber),
+					type: type.toLowerCase(),
+					description: codingDescription.trim(),
+					parent_id: parentId ?? undefined,
+					children: []
+				};
+
+				if (onCodingCreated) {
+					onCodingCreated({ ...newCoding, isNewlyCreated: true } as any);
+				}
+
+				closeModal();
+			} else {
+				errorMessage = 'Failed to get coding ID from server';
+				isSubmitting = false;
+			}
+		} catch (error) {
+			errorMessage = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+			isSubmitting = false;
 		}
+	}
 
-		closeModal();
+	// Extract coding ID from various response formats
+	function extractCodingId(responseData: any): number | null {
+		if (Array.isArray(responseData)) {
+			if (responseData.length > 3 && typeof responseData[3] === 'number') {
+				return responseData[3];
+			}
+			if (responseData[0]?.data) {
+				return responseData[0].data;
+			}
+			if (responseData[2]?.id && typeof responseData[2].id === 'number') {
+				return responseData[2].id;
+			}
+		}
+		
+		if (responseData?.id) return responseData.id;
+		if (responseData?.data?.id) return responseData.data.id;
+		if (typeof responseData === 'number') return responseData;
+		
+		return null;
 	}
 
 	function handleOverlayKeydown(e: KeyboardEvent) {
@@ -134,20 +209,27 @@
 					></textarea>
 				</div>
 
+				{#if errorMessage}
+					<div class="text-red-600 text-sm p-2 bg-red-50 rounded-lg">
+						{errorMessage}
+					</div>
+				{/if}
+
 				<div class="flex gap-3 mt-2">
 					<button
 						type="button"
 						onclick={closeModal}
-						class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+						disabled={isSubmitting}
+						class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						Cancel
 					</button>
 					<button
 						type="submit"
-						disabled={!codingName.trim() || !codingNumber || codingNumber === ''}
+						disabled={!codingName.trim() || !codingNumber || codingNumber === '' || isSubmitting}
 						class="flex-1 px-4 py-2 bg-light-button-primary text-white rounded-lg hover:brightness-110 transition disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						Create
+						{isSubmitting ? 'Creating...' : 'Create & Add'}
 					</button>
 				</div>
 			</form>

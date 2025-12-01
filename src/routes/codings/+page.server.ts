@@ -22,31 +22,46 @@ export const actions = {
 			throw new Error('Missing type parameter');
 		}
 
-		const url = `${env.API_URL}/${type}`;
+		// Process parent_id: convert to number if valid, otherwise omit
+		const processedParentId = parent_id && parent_id !== '' ? Number(parent_id) : null;
 
-		console.log("sending request");
+		const payload: Record<string, any> = {
+			name,
+			description,
+			number: number ? Number(number) : 0
+		};
+		
+		// Only include parent_id if it has a valid value
+		if (processedParentId !== null) {
+			payload.parent_id = processedParentId;
+		}
 
-		const res = await fetch(url, {
+		const res = await fetch(`${env.API_URL}/${type}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: env.API_KEY
 			},
-			body: JSON.stringify({
-				name,
-				description,
-				number: number ? Number(number) : 0,
-				parent_id: parent_id !== null ? Number(parent_id) : null
-			})
+			body: JSON.stringify(payload)
 		});
-
-		console.log("sending");
 
 		if (!res.ok) {
 			const errorBody = await res.text();
 			console.error(`API Error [${res.status}]:`, errorBody);
 			throw new Error(`Failed to create coding: ${res.status} ${res.statusText}`);
 		}
-		return { success: true };
+		
+		const responseText = await res.text();
+		let responseData = null;
+		
+		if (responseText) {
+			try {
+				responseData = JSON.parse(responseText);
+			} catch (e) {
+				console.error('Failed to parse API response:', e);
+			}
+		}
+		
+		return { success: true, data: responseData };
 	}
 } satisfies Actions;

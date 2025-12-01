@@ -106,17 +106,14 @@
 		const target = map[id];
 		if (!target || !containerRef) return;
 
-		// compute offset of target relative to container's content
 		const containerRect = containerRef.getBoundingClientRect();
 		const targetRect = target.getBoundingClientRect();
 		const offsetTop = targetRect.top - containerRect.top + containerRef.scrollTop;
 
-		// small offset so the section isn't flush to the container top
 		const topPadding = 8;
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 
-	// Helper to get codings by type
 	function getCodingsByType(type: CodingType): Coding[] {
 		return {
 			activities,
@@ -127,7 +124,6 @@
 		}[type];
 	}
 
-	// Helper to mark coding and all descendants for deletion
 	function markCodingTreeForDeletion(codingId: number, type: CodingType): void {
 		const coding = findCodingById(getCodingsByType(type), codingId);
 		if (coding) {
@@ -142,7 +138,6 @@
 		}
 	}
 
-	// Helper to unmark coding and all descendants from deletion
 	function unmarkCodingTreeFromDeletion(codingId: number, type: CodingType): void {
 		const coding = findCodingById(getCodingsByType(type), codingId);
 		if (coding) {
@@ -157,8 +152,12 @@
 		}
 	}
 
-	function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
+	async function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
 		pendingCodings = addCodingToPending(pendingCodings, type, coding);
+		
+		if ((coding as any).isNewlyCreated) {
+			await invalidateAll();
+		}
 	}
 
 	function handleCodingDeleted(codingId: number, type: CodingType) {
@@ -181,10 +180,109 @@
 		);
 	}
 
+	async function createCoding(coding: Coding, typeString: string): Promise<Coding | null> {
+		const formData = new FormData();
+		formData.append('name', coding.name);
+		formData.append('description', coding.description || '');
+		formData.append('number', coding.number.toString());
+		formData.append('type', typeString);
+		if (coding.parent_id !== undefined && coding.parent_id !== null && coding.parent_id > 0) {
+			formData.append('parent_id', coding.parent_id.toString());
+		}
+
+		try {
+			console.log('Creating coding:', coding.name, 'type:', typeString);
+			const response = await fetch('/codings?/codings', {
+				method: 'POST',
+				body: formData
+			});
+
+			if (!response.ok) {
+				console.error('Failed to create coding:', coding.name, 'Status:', response.status);
+				return null;
+			}
+
+			const result = await response.json();
+			console.log('Raw result from server:', result);
+			
+			let parsedData = result.data;
+			if (typeof parsedData === 'string') {
+				parsedData = JSON.parse(parsedData);
+			}
+			
+			const codingId = parsedData?.[0]?.data;
+			console.log('Created coding ID:', codingId);
+			
+			if (codingId) {
+				return {
+					...coding,
+					id: codingId
+				};
+			}
+			
+			return null;
+		} catch (error) {
+			console.error('Error creating coding:', error);
+			return null;
+		}
+	}
+
+	async function createNewCodingsAndBuildIdMap(
+		codings: Coding[],
+		typeString: string,
+		idMap: Map<number, number>
+	): Promise<void> {
+		for (const coding of codings) {
+			if (coding.id < 0) {
+				const tempId = coding.id;
+				console.log(`Processing new coding with temp ID ${tempId}:`, coding.name);
+				
+				const realParentId = coding.parent_id && coding.parent_id < 0
+					? idMap.get(coding.parent_id)
+					: coding.parent_id;
+
+				console.log(`Parent ID: ${coding.parent_id} -> Real parent ID: ${realParentId}`);
+
+				const codingToCreate = {
+					...coding,
+					parent_id: realParentId
+				};
+
+				const createdCoding = await createCoding(codingToCreate, typeString);
+				if (createdCoding && createdCoding.id) {
+					console.log(`Created coding ${coding.name} with ID ${createdCoding.id}, mapped from temp ID ${tempId}`);
+					idMap.set(tempId, createdCoding.id);
+				} else {
+					console.error(`Failed to create coding: ${coding.name}`);
+				}
+			}
+
+			if (coding.children && coding.children.length > 0) {
+				await createNewCodingsAndBuildIdMap(coding.children, typeString, idMap);
+			}
+		}
+	}
+
+	function replaceTemporaryIds(codings: Coding[], idMap: Map<number, number>): Coding[] {
+		return codings.map(coding => {
+			const newId = coding.id < 0 ? (idMap.get(coding.id) ?? coding.id) : coding.id;
+			const newParentId = coding.parent_id && coding.parent_id < 0
+				? (idMap.get(coding.parent_id) ?? coding.parent_id)
+				: coding.parent_id;
+
+			return {
+				...coding,
+				id: newId,
+				parent_id: newParentId,
+				children: coding.children ? replaceTemporaryIds(coding.children, idMap) : []
+			};
+		}).filter(coding => coding.id >= 0);
+	}
+
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
-			const updatedWorkflow = {
+			let updatedWorkflow = {
 				...workflow,
 				Activities: applyPendingChanges(workflow.Activities, pendingCodings.activities, 'activities'),
 				Effects: applyPendingChanges(workflow.Effects, pendingCodings.effects, 'effects'),
@@ -193,27 +291,41 @@
 				Sv: applyPendingChanges(workflow.Sv, pendingCodings.sv, 'sv')
 			};
 
-			console.log('Updated workflow to save:', updatedWorkflow);
-			// const response = await fetch(`/api/workflows/${document.id}`, {
-			// 	method: 'PUT',
-			// 	headers: { 'Content-Type': 'application/json' },
-			// 	body: JSON.stringify(updatedWorkflow)
-			// });
+			const idMap = new Map<number, number>();
+			await createNewCodingsAndBuildIdMap(updatedWorkflow.Activities, 'activities', idMap);
+			await createNewCodingsAndBuildIdMap(updatedWorkflow.Effects, 'effects', idMap);
+			await createNewCodingsAndBuildIdMap(updatedWorkflow.Dsteps, 'dsteps', idMap);
+			await createNewCodingsAndBuildIdMap(updatedWorkflow.Os, 'opportunity-structures', idMap);
+			await createNewCodingsAndBuildIdMap(updatedWorkflow.Sv, 'system-vulnerabilities', idMap);
 
-			// if (!response.ok) {
-			// 	throw new Error(`Failed to save changes: ${response.statusText}`);
-			// }
+			updatedWorkflow = {
+				...updatedWorkflow,
+				Activities: replaceTemporaryIds(updatedWorkflow.Activities, idMap),
+				Effects: replaceTemporaryIds(updatedWorkflow.Effects, idMap),
+				Dsteps: replaceTemporaryIds(updatedWorkflow.Dsteps, idMap),
+				Os: replaceTemporaryIds(updatedWorkflow.Os, idMap),
+				Sv: replaceTemporaryIds(updatedWorkflow.Sv, idMap)
+			};
+
+			const response = await fetch(`/api/workflows/${document.id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(updatedWorkflow)
+			});
+
+			if (!response.ok) {
+				throw new Error(`Failed to save changes: ${response.statusText}`);
+			}
 
 			pendingCodings = createEmptyPendingState();
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error saving changes:', error);
+			alert('Failed to save changes. Please try again.');
 		} finally {
 			isSaving = false;
 		}
-	}
-
-	let hasChanges = $derived(hasPendingChanges(pendingCodings));
+	}	let hasChanges = $derived(hasPendingChanges(pendingCodings));
 	let pendingCount = $derived(getTotalPendingCount(pendingCodings));
 </script>
 
