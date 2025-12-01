@@ -17,6 +17,7 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 
 		console.log(body);
 
+		console.log('updating workflow with url: ' + `${apiBase}/workflows/${documentId}`);
 		const response = await fetch(`${apiBase}/workflows/${documentId}`, {
 			method: 'PUT',
 			headers: {

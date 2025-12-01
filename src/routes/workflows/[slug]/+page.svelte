@@ -35,7 +35,7 @@
 	});
 	let isSaving = $state(false);
 
-	let document = $derived(workflow.Document);
+	let document = $derived(data.documentData);
 
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',

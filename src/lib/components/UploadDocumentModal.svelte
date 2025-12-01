@@ -15,11 +15,11 @@
 	let errorMessage = '';
 
 	const documentTypeOptions = [
-		{ value: 'report', label: 'Report'},
-		{ value: 'article', label: 'Article'},
-		{ value: 'policy', label: 'Policy'},
-		{ value: 'memo', label: 'Memo'},
-		{ value: 'other', label: 'Other'}
+		{ value: 'report', label: 'Report' },
+		{ value: 'article', label: 'Article' },
+		{ value: 'policy', label: 'Policy' },
+		{ value: 'memo', label: 'Memo' },
+		{ value: 'other', label: 'Other' }
 	];
 
 	function addFiles(fileList: FileList) {
@@ -58,11 +58,11 @@
 					file?.name?.replace(/\.[^/.]+$/, '').trim() || `Document ${Date.now()}`;
 
 				const formData = new FormData();
-				formData.append('title', derivedTitle);
-				formData.append('source', '');
-				formData.append('essence', '');
-				formData.append('conclusion', '');
-				formData.append('status', '0');
+				formData.append('Title', derivedTitle);
+				formData.append('Source', '');
+				formData.append('Essence', '');
+				formData.append('Conclusion', '');
+				formData.append('Status', '0');
 				formData.append('documentType', documentType);
 				formData.append('file', file);
 
@@ -107,8 +107,10 @@
 </script>
 
 <div class="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
-	<div class="relative flex h-auto w-[80vw] max-w-5xl flex-col rounded-2xl bg-light-primary p-6 shadow-xl">
-		<div class="flex items-center justify-between border-b border-light-stroke pb-4">
+	<div
+		class="relative flex h-auto w-[80vw] max-w-5xl flex-col rounded-2xl bg-light-primary p-6 shadow-xl"
+	>
+		<div class="border-light-stroke flex items-center justify-between border-b pb-4">
 			<div>
 				<h2 class="text-3xl font-semibold text-light-text-primary">Upload a document</h2>
 			</div>
@@ -117,10 +119,14 @@
 
 		<form class="mt-6 flex flex-1 flex-col gap-6 overflow-y-auto pr-2" onsubmit={handleSubmit}>
 			<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-				<section class="flex flex-col gap-4 rounded-2xl border border-dashed border-light-stroke bg-light-hovered-primary/50 px-6 py-8 text-center">
-					<p class="text-base font-medium text-light-text-primary">Choose or drag and drop your document</p>
+				<section
+					class="border-light-stroke flex flex-col gap-4 rounded-2xl border border-dashed bg-light-hovered-primary/50 px-6 py-8 text-center"
+				>
+					<p class="text-base font-medium text-light-text-primary">
+						Choose or drag and drop your document
+					</p>
 					<label
-						class="mx-auto flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-light-stroke bg-light-primary px-4 py-6 text-sm font-semibold text-light-text-primary transition hover:border-dark-primary hover:bg-light-hovered-primary"
+						class="border-light-stroke hover:border-dark-primary mx-auto flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border bg-light-primary px-4 py-6 text-sm font-semibold text-light-text-primary transition hover:bg-light-hovered-primary"
 						ondragover={(event) => event.preventDefault()}
 						ondrop={(event) => {
 							event.preventDefault();
@@ -140,22 +146,28 @@
 						/>
 						<ButtonSvg type="cloudUpload" size={10} />
 						<span>{files.length > 0 ? 'Add more documents' : 'Select documents'}</span>
-						<span class="text-xs font-normal text-light-text-secondary">PDF, Word, or plain text up to 25 MB each</span>
+						<span class="text-light-text-secondary text-xs font-normal"
+							>PDF, Word, or plain text up to 25 MB each</span
+						>
 					</label>
 
 					{#if files.length > 0}
-						<div class="flex max-h-56 flex-col gap-3 overflow-y-auto rounded-xl bg-light-primary/70 p-4 text-left text-sm">
+						<div
+							class="flex max-h-56 flex-col gap-3 overflow-y-auto rounded-xl bg-light-primary/70 p-4 text-left text-sm"
+						>
 							{#each files as file, index}
-								<div class="flex items-center justify-between rounded-lg border border-light-stroke bg-light-hovered-primary px-3 py-2">
+								<div
+									class="border-light-stroke flex items-center justify-between rounded-lg border bg-light-hovered-primary px-3 py-2"
+								>
 									<div class="flex flex-col">
 										<p class="font-semibold text-light-text-primary">{file.name}</p>
-										<p class="text-xs text-light-text-secondary">
+										<p class="text-light-text-secondary text-xs">
 											{(file.size / (1024 * 1024)).toFixed(2)} MB • {file.type || 'Unknown type'}
 										</p>
 									</div>
 									<button
 										type="button"
-										class="rounded-full border border-transparent p-2 text-light-text-secondary"
+										class="text-light-text-secondary rounded-full border border-transparent p-2"
 										onclick={() => removeFile(index)}
 										aria-label={`Remove ${file.name}`}
 									>
@@ -167,8 +179,12 @@
 					{/if}
 				</section>
 
-				<section class="flex flex-col gap-4 rounded-2xl border border-light-stroke bg-light-primary/80 px-6 py-6">
-					<p class="text-base font-medium text-light-text-primary">What kind of document is this?</p>
+				<section
+					class="border-light-stroke flex flex-col gap-4 rounded-2xl border bg-light-primary/80 px-6 py-6"
+				>
+					<p class="text-base font-medium text-light-text-primary">
+						What kind of document is this?
+					</p>
 					<div class="flex flex-col gap-3">
 						{#each documentTypeOptions as option}
 							<button
@@ -176,7 +192,7 @@
 								class={`flex flex-col rounded-xl border px-4 py-3 text-left transition ${
 									documentType === option.value
 										? 'border-dark-primary bg-dark-primary/10 text-dark-primary'
-										: 'border-light-stroke bg-light-hovered-primary text-light-text-primary hover:border-dark-primary/60 hover:text-dark-primary'
+										: 'border-light-stroke hover:border-dark-primary/60 hover:text-dark-primary bg-light-hovered-primary text-light-text-primary'
 								}`}
 								onclick={() => selectDocumentType(option.value)}
 							>
@@ -196,6 +212,7 @@
 			<div class="sticky bottom-0 mt-auto flex justify-end gap-4 pt-4">
 				<ButtonText text="Cancel" onClick={handleCancelClick} />
 				<ButtonText
+					onClick={handleSubmit}
 					text={isSubmitting ? 'Uploading...' : 'Upload document'}
 					disabled={isSubmitting}
 					customClass={`px-6 ${isSubmitting ? 'opacity-70' : ''}`}

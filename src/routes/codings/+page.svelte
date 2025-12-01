@@ -151,6 +151,7 @@
 			label={selectedCodingTitle}
 			rootNodes={getFilteredCodings()}
 			onCodingNodeAdded={handleAddOption}
+			onCodingDeleted={OnCodingDeleted}
 		/>
 	</div>
 	<div
