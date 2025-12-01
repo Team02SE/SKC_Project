@@ -11,6 +11,7 @@
     import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
 	import MoreOptions from '$lib/assets/three-dots-circle.svg';
 	import CloseIcon from '$lib/assets/x.svg';
+	import PlusIcon from '$lib/assets/plus.svg';
 
 	interface Props {
 		type?: string;
@@ -40,7 +41,8 @@
 		cloudUpload: CloudUploadIcon,
 		moreOptions: MoreOptions,
 		threeDots: MoreOptions,
-		close: CloseIcon
+		close: CloseIcon,
+		plus: PlusIcon
 	};
 
 	const sizeMap: Record<number, string> = {
@@ -57,7 +59,7 @@
 
 <button
 	type="button"
-	class={`p-0 border-none bg-transparent cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
+	class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
 	onclick={onClick}
 	aria-label={type}
 >

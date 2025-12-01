@@ -193,15 +193,16 @@
 				Sv: applyPendingChanges(workflow.Sv, pendingCodings.sv, 'sv')
 			};
 
-			const response = await fetch(`/api/workflows/${document.id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(updatedWorkflow)
-			});
+			console.log('Updated workflow to save:', updatedWorkflow);
+			// const response = await fetch(`/api/workflows/${document.id}`, {
+			// 	method: 'PUT',
+			// 	headers: { 'Content-Type': 'application/json' },
+			// 	body: JSON.stringify(updatedWorkflow)
+			// });
 
-			if (!response.ok) {
-				throw new Error(`Failed to save changes: ${response.statusText}`);
-			}
+			// if (!response.ok) {
+			// 	throw new Error(`Failed to save changes: ${response.statusText}`);
+			// }
 
 			pendingCodings = createEmptyPendingState();
 			await invalidateAll();

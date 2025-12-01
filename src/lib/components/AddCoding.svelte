@@ -1,24 +1,21 @@
 <script lang="ts">
 	import ButtonSvg from './ButtonSvg.svelte';
-	import ButtonText from './ButtonText.svelte';
 	import type { Coding } from '$lib/types';
 
 	interface Props {
 		customClass?: string;
 		type: string;
 		availableCodings?: Coding[];
-		documentId?: number;
 		excludeCodingIds?: Set<number>;
 		onCodingAdded?: (coding: Coding) => void;
 		parentId?: number | null;
 		autoOpenDropdown?: boolean;
 	}
 
-	let { customClass = '', type, availableCodings = [], documentId, excludeCodingIds, onCodingAdded, parentId, autoOpenDropdown = false }: Props = $props();
+	let { customClass = '', type, availableCodings = [], excludeCodingIds, onCodingAdded, parentId, autoOpenDropdown = false }: Props = $props();
 
 	let isDropdownOpen = $state(autoOpenDropdown);
 	let searchQuery = $state('');
-	let selectedCoding = $state<Coding | null>(null);
 
 	let filteredCodings = $derived(
 		(availableCodings || [])
@@ -44,25 +41,12 @@
 		}
 		
 		// Reset state
-		selectedCoding = null;
 		isDropdownOpen = false;
 		searchQuery = '';
 	}
-
-	function handleAdd() {
-		if (!selectedCoding || !onCodingAdded) return;
-		
-		const codingWithoutChildren = {
-			...selectedCoding,
-			children: null
-		};
-		
-		onCodingAdded(codingWithoutChildren);
-		selectedCoding = null;
-	}
 </script>
 
-<div class={`flex flex-col flex-1 gap-2 ${customClass}`}>
+<div class={`flex flex-col w-full gap-2 ${customClass}`}>
 	<div class="relative">
 		{#if !autoOpenDropdown}
 			<button
@@ -70,8 +54,8 @@
 				onclick={toggleDropdown}
 				class="flex h-10 w-full items-center rounded-2xl shadow-md/25 hover:shadow-md transition-shadow"
 			>
-				<p class="flex-1 pl-4 font-medium text-left {selectedCoding ? 'text-light-text-primary' : 'text-light-text-primary/50'}">
-					{selectedCoding ? `${selectedCoding.number} - ${selectedCoding.name}` : 'Select coding...'}
+				<p class="flex-1 pl-4 font-medium text-left text-light-text-primary/50">
+					Add existing coding...
 				</p>
 				<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" />
 			</button>

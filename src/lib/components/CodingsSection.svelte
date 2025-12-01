@@ -5,6 +5,7 @@
 	import type { Coding } from '$lib/types';
 	import { codingToCodingData, getAllCodingIds } from '$lib';
 	import { findCodingById } from '$lib/utils/codingHelpers';
+	import AddNewCoding from './AddNewCoding.svelte';
 
 	interface Props {
 		title: string;
@@ -17,13 +18,23 @@
 		onCancelRequest?: (codingId: number) => void;
 	}
 
-	let { title, type, data, availableCodings = data, documentId, onCodingAdded, onDeleteRequest, onCancelRequest }: Props = $props();
+	let {
+		title,
+		type,
+		data,
+		availableCodings = data,
+		documentId,
+		onCodingAdded,
+		onDeleteRequest,
+		onCancelRequest
+	}: Props = $props();
 
 	let topLevelCodings = $derived(data.filter((coding) => !coding.parent_id));
 	let existingCodingIds = $derived(getAllCodingIds(data));
 
 	let showAddSubCoding = $state(false);
 	let addSubCodingParentId = $state<number | null>(null);
+	let showAddNewCoding = $state(false);
 
 	let availableChildCodings = $derived.by(() => {
 		if (!addSubCodingParentId || !availableCodings) return [];
@@ -54,9 +65,20 @@
 
 		handleCloseAddSub();
 	}
+
+	function handleCloseAddNew() {
+		showAddNewCoding = false;
+	}
+
+	function handleNewCodingCreated(coding: Coding) {
+		if (onCodingAdded) {
+			onCodingAdded(coding);
+		}
+		handleCloseAddNew();
+	}
 </script>
 
-<div class="mb-50 relative">
+<div class="relative mb-50">
 	<h1 class="text-4xl font-bold text-light-text-primary">{title}</h1>
 	<div class="flex h-full w-full gap-30">
 		<div class="flex w-full gap-5">
@@ -67,20 +89,29 @@
 						{type}
 						codingId={coding.id}
 						onAddSubRequest={handleAddSubRequest}
-						onDeleteRequest={onDeleteRequest}
-						onCancelRequest={onCancelRequest}
+						{onDeleteRequest}
+						{onCancelRequest}
 					/>
 				{/each}
 			</div>
-			<AddCoding
-				{type}
-				availableCodings={availableCodings}
-				{documentId}
-				excludeCodingIds={existingCodingIds}
-				onCodingAdded={onCodingAdded}
-			/>
+			<div class="flex flex-1 flex-col gap-2 items-end">
+				<AddCoding
+					{type}
+					{availableCodings}
+					{documentId}
+					excludeCodingIds={existingCodingIds}
+					{onCodingAdded}
+				/>
+				<button
+					type="button"
+					onclick={() => { showAddNewCoding = true;}}
+					class="flex items-center gap-2 px-4 py-2 bg-light-button-primary text-white rounded-xl hover:brightness-110 transition shadow-md hover:shadow-lg w-auto"
+				>
+					<span class="font-semibold text-sm">+ New Coding</span>
+				</button>
+			</div>
 		</div>
-	</div>
+	</div>	
 
 	{#if showAddSubCoding}
 		<AddSubCoding
@@ -91,6 +122,15 @@
 			excludeCodingIds={existingCodingIds}
 			onClose={handleCloseAddSub}
 			onCodingAdded={handleSubCodingAdded}
+		/>
+	{/if}
+
+	{#if showAddNewCoding}
+		<AddNewCoding
+			{type}
+			isOpen={showAddNewCoding}
+			onClose={handleCloseAddNew}
+			onCodingCreated={handleNewCodingCreated}
 		/>
 	{/if}
 </div>
