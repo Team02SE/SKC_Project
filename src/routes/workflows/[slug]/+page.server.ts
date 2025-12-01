@@ -21,6 +21,8 @@ export const load: PageServerLoad = async ({ params }) => {
 	try {
 		const workflowRes = await fetch(`${apiBase}/workflows/${documentId}`, header);
 		const documentRes = await fetch(`${apiBase}/documents/${documentId}`, header);
+		const pdf = await fetch(`${apiBase}/documents/file/${documentId}`, header);
+
 		if (!workflowRes.ok || !documentRes.ok) {
 			if (workflowRes.status === 404) {
 				throw error(
@@ -33,13 +35,18 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const workflowData = await workflowRes.json();
 		const documentData = await documentRes.json();
+		const pdfData = await pdf.blob();
+
+		const pdfUrl = URL.createObjectURL(pdfData);
 
 		console.log(`Workflow ${documentId} loaded correctly`);
 		console.log(`Document ${documentId} loaded correctly`);
+		console.log(`PDF With temp url ${pdfUrl} loaded correctly !`);
 
 		return {
 			documentData: documentData as WorkflowDocument,
-			workflowData: workflowData as Workflow
+			workflowData: workflowData as Workflow,
+			pdfUrl: pdfUrl as string
 		};
 	} catch (err) {
 		console.log('Error loading workflow:', err);
