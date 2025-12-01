@@ -193,7 +193,7 @@
 				Sv: applyPendingChanges(workflow.Sv, pendingCodings.sv, 'sv')
 			};
 
-			const response = await fetch(`/api/workflows/${workflow.id}`, {
+			const response = await fetch(`/api/workflows/${document.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(updatedWorkflow)
@@ -260,7 +260,7 @@
 				type="activities"
 				data={activities}
 				availableCodings={allActivities}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'activities')}
 				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'activities')}
@@ -272,7 +272,7 @@
 				type="effects"
 				data={effects}
 				availableCodings={allEffects}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'effects')}
 				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'effects')}
@@ -284,7 +284,7 @@
 				type="dsteps"
 				data={dsteps}
 				availableCodings={allDsteps}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'dsteps')}
 				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'dsteps')}
@@ -296,7 +296,7 @@
 				type="opportunity-structures"
 				data={opportunityStructures}
 				availableCodings={allOpportunityStructures}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'os')}
 				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'os')}
@@ -308,7 +308,7 @@
 				type="system-vulnerabilities"
 				data={systemVulnerabilities}
 				availableCodings={allSystemVulnerabilities}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}
 				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'sv')}
 				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'sv')}
