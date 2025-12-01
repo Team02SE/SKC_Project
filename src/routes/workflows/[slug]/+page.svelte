@@ -3,75 +3,51 @@
 	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
 	import SidenNav from '$lib/components/SidenNav.svelte';
-	import CodingsActivities from '$lib/components/CodingsActivities.svelte';
-	import CodingsEffects from '$lib/components/CodingsEffects.svelte';
-	import CodingsDESTEP from '$lib/components/CodingsDESTEP.svelte';
-	import CodingsOS from '$lib/components/CodingsOS.svelte';
-	import CodingsSV from '$lib/components/CodingsSV.svelte';
+	import CodingsSection from '$lib/components/CodingsSection.svelte';
 	import type { PageProps } from './$types';
-	import type {
-		EssenceData,
-		Activity,
-		Effect,
-		DStep,
-		OpportunityStructure,
-		SystemVulnerability,
-		Coding
-	} from '$lib/types';
+	import type { EssenceData, Coding } from '$lib/types';
 	import PDFView from '$lib/components/PDFView.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import {
+		createEmptyPendingState,
+		addCodingToPending,
+		getTotalPendingCount,
+		hasPendingChanges,
+		mergeCodingsWithPending,
+		addPendingCodingsToWorkflow,
+		addCodingToPendingDeletions,
+		removePendingDeletions,
+		removeCodingFromPendingDeletions,
+		removeCodingFromPending,
+		getAllCodingIds,
+		findCodingById,
+		type PendingCodingsState,
+		type CodingType
+	} from '$lib/utils/codingHelpers';
 
 	let { data }: PageProps = $props();
 
 	let workflow = $state(data.workflowData);
-	let pendingActivities = $state<Activity[]>([]);
-	let pendingEffects = $state<Effect[]>([]);
-	let pendingDsteps = $state<DStep[]>([]);
-	let pendingOS = $state<OpportunityStructure[]>([]);
-	let pendingSV = $state<SystemVulnerability[]>([]);
+	let pendingCodings = $state<PendingCodingsState>(createEmptyPendingState());
+	
+	$effect(() => {
+		workflow = data.workflowData;
+	});
 	let isSaving = $state(false);
-
-	function normalizeCodingsData<T extends { children: any }>(items: T[]): T[] {
-		return items.map((item) => ({
-			...item,
-			children:
-				item.children === null
-					? []
-					: item.children.map((child: any) => ({
-							...child,
-							children: child?.children === null ? [] : child?.children || []
-						}))
-		}));
-	}
 
 	let document = $derived(data.documentData);
 
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',
-		summary: document?.Summary || '',
+		summary: '',
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived([
-		...normalizeCodingsData(workflow.Activities || []),
-		...pendingActivities.map((a) => ({ ...a, children: [], isNew: true }))
-	]);
-	let effects = $derived([
-		...normalizeCodingsData(workflow.Effects || []),
-		...pendingEffects.map((e) => ({ ...e, children: [], isNew: true }))
-	]);
-	let dsteps = $derived([
-		...normalizeCodingsData(workflow.Dsteps || []),
-		...pendingDsteps.map((d) => ({ ...d, children: [], isNew: true }))
-	]);
-	let opportunityStructures = $derived([
-		...normalizeCodingsData(workflow.Os || []),
-		...pendingOS.map((o) => ({ ...o, children: [], isNew: true }))
-	]);
-	let systemVulnerabilities = $derived([
-		...normalizeCodingsData(workflow.Sv || []),
-		...pendingSV.map((s) => ({ ...s, children: [], isNew: true }))
-	]);
+	let activities = $derived(mergeCodingsWithPending(workflow.Activities, pendingCodings.activities, pendingCodings.pendingDeletions, 'activities'));
+	let effects = $derived(mergeCodingsWithPending(workflow.Effects, pendingCodings.effects, pendingCodings.pendingDeletions, 'effects'));
+	let dsteps = $derived(mergeCodingsWithPending(workflow.Dsteps, pendingCodings.dsteps, pendingCodings.pendingDeletions, 'dsteps'));
+	let opportunityStructures = $derived(mergeCodingsWithPending(workflow.Os, pendingCodings.os, pendingCodings.pendingDeletions, 'os'));
+	let systemVulnerabilities = $derived(mergeCodingsWithPending(workflow.Sv, pendingCodings.sv, pendingCodings.pendingDeletions, 'sv'));
 
 	let allActivities = $derived(data.allCodings?.activities || []);
 	let allEffects = $derived(data.allCodings?.effects || []);
@@ -140,81 +116,104 @@
 		containerRef.scrollTo({ top: Math.max(0, offsetTop - topPadding), behavior: 'smooth' });
 	}
 
-	function handleCodingAdded<T extends Coding>(
-		coding: T,
-		type: 'activities' | 'effects' | 'dsteps' | 'os' | 'sv'
-	) {
-		switch (type) {
-			case 'activities':
-				pendingActivities = [...pendingActivities, coding as Activity];
-				break;
-			case 'effects':
-				pendingEffects = [...pendingEffects, coding as Effect];
-				break;
-			case 'dsteps':
-				pendingDsteps = [...pendingDsteps, coding as DStep];
-				break;
-			case 'os':
-				pendingOS = [...pendingOS, coding as OpportunityStructure];
-				break;
-			case 'sv':
-				pendingSV = [...pendingSV, coding as SystemVulnerability];
-				break;
+	// Helper to get codings by type
+	function getCodingsByType(type: CodingType): Coding[] {
+		return {
+			activities,
+			effects,
+			dsteps,
+			os: opportunityStructures,
+			sv: systemVulnerabilities
+		}[type];
+	}
+
+	// Helper to mark coding and all descendants for deletion
+	function markCodingTreeForDeletion(codingId: number, type: CodingType): void {
+		const coding = findCodingById(getCodingsByType(type), codingId);
+		if (coding) {
+			const allIds = getAllCodingIds(coding);
+			let updatedState = pendingCodings;
+			for (const id of allIds) {
+				updatedState = addCodingToPendingDeletions(updatedState, id, type);
+			}
+			pendingCodings = updatedState;
+		} else {
+			pendingCodings = addCodingToPendingDeletions(pendingCodings, codingId, type);
 		}
+	}
+
+	// Helper to unmark coding and all descendants from deletion
+	function unmarkCodingTreeFromDeletion(codingId: number, type: CodingType): void {
+		const coding = findCodingById(getCodingsByType(type), codingId);
+		if (coding) {
+			const allIds = getAllCodingIds(coding);
+			let updatedState = pendingCodings;
+			for (const id of allIds) {
+				updatedState = removeCodingFromPendingDeletions(updatedState, id, type);
+			}
+			pendingCodings = updatedState;
+		} else {
+			pendingCodings = removeCodingFromPendingDeletions(pendingCodings, codingId, type);
+		}
+	}
+
+	function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
+		pendingCodings = addCodingToPending(pendingCodings, type, coding);
+	}
+
+	function handleCodingDeleted(codingId: number, type: CodingType) {
+		markCodingTreeForDeletion(codingId, type);
+	}
+
+	function handleCodingCanceled(codingId: number, type: CodingType) {
+		if (pendingCodings.pendingDeletions.has(`${type}:${codingId}`)) {
+			unmarkCodingTreeFromDeletion(codingId, type);
+		} else {
+			pendingCodings = removeCodingFromPending(pendingCodings, type, codingId);
+		}
+	}
+
+	function applyPendingChanges(workflowCodings: Coding[], pendingCodingsForType: Coding[], type: CodingType): Coding[] {
+		return removePendingDeletions(
+			addPendingCodingsToWorkflow(workflowCodings || [], pendingCodingsForType),
+			pendingCodings.pendingDeletions,
+			type
+		);
 	}
 
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
-			// makes deep copy of the workflow
-			let updatedWorkflow = {
+			const updatedWorkflow = {
 				...workflow,
-				Activities: [...(workflow.Activities || []), ...pendingActivities],
-				Effects: [...(workflow.Effects || []), ...pendingEffects],
-				Dsteps: [...(workflow.Dsteps || []), ...pendingDsteps],
-				Os: [...(workflow.Os || []), ...pendingOS],
-				Sv: [...(workflow.Sv || []), ...pendingSV]
+				Activities: applyPendingChanges(workflow.Activities, pendingCodings.activities, 'activities'),
+				Effects: applyPendingChanges(workflow.Effects, pendingCodings.effects, 'effects'),
+				Dsteps: applyPendingChanges(workflow.Dsteps, pendingCodings.dsteps, 'dsteps'),
+				Os: applyPendingChanges(workflow.Os, pendingCodings.os, 'os'),
+				Sv: applyPendingChanges(workflow.Sv, pendingCodings.sv, 'sv')
 			};
 
-			const response = await fetch(`/api/workflows/${workflow.id}`, {
+			const response = await fetch(`/api/workflows/${document.id}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(updatedWorkflow)
 			});
 
 			if (!response.ok) {
-				// remove from the workflow in case update fails
 				throw new Error(`Failed to save changes: ${response.statusText}`);
 			}
 
-			pendingActivities = [];
-			pendingEffects = [];
-			pendingDsteps = [];
-			pendingOS = [];
-			pendingSV = [];
-
-			workflow = updatedWorkflow;
-
+			pendingCodings = createEmptyPendingState();
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error saving changes:', error);
 		} finally {
-			pendingActivities = [];
-			pendingEffects = [];
-			pendingDsteps = [];
-			pendingOS = [];
-			pendingSV = [];
 			isSaving = false;
 		}
 	}
 
-	let hasChanges = $derived(
-		pendingActivities.length > 0 ||
-			pendingEffects.length > 0 ||
-			pendingDsteps.length > 0 ||
-			pendingOS.length > 0 ||
-			pendingSV.length > 0
-	);
+	let hasChanges = $derived(hasPendingChanges(pendingCodings));
+	let pendingCount = $derived(getTotalPendingCount(pendingCodings));
 </script>
 
 <!-- Top bar -->
@@ -229,18 +228,7 @@
 	<div class="ml-auto flex items-center gap-4">
 		{#if hasChanges}
 			<span class="text-sm text-gray-600">
-				{pendingActivities.length +
-					pendingEffects.length +
-					pendingDsteps.length +
-					pendingOS.length +
-					pendingSV.length} unsaved change{pendingActivities.length +
-					pendingEffects.length +
-					pendingDsteps.length +
-					pendingOS.length +
-					pendingSV.length ===
-				1
-					? ''
-					: 's'}
+				{pendingCount} unsaved change{pendingCount === 1 ? '' : 's'}
 			</span>
 		{/if}
 		<button
@@ -267,43 +255,63 @@
 	>
 		<div bind:this={essenceRef}><CodingsEssence data={essenceContent} /></div>
 		<div bind:this={activitiesRef}>
-			<CodingsActivities
+			<CodingsSection
+				title="Activities"
+				type="activities"
 				data={activities}
 				availableCodings={allActivities}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'activities')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'activities')}
 			/>
 		</div>
 		<div bind:this={effectsRef}>
-			<CodingsEffects
+			<CodingsSection
+				title="Effects"
+				type="effects"
 				data={effects}
 				availableCodings={allEffects}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'effects')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'effects')}
 			/>
 		</div>
 		<div bind:this={destepRef}>
-			<CodingsDESTEP
+			<CodingsSection
+				title="DESTEP"
+				type="dsteps"
 				data={dsteps}
 				availableCodings={allDsteps}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'dsteps')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'dsteps')}
 			/>
 		</div>
 		<div bind:this={osRef}>
-			<CodingsOS
+			<CodingsSection
+				title="Opportunity Structures"
+				type="opportunity-structures"
 				data={opportunityStructures}
 				availableCodings={allOpportunityStructures}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'os')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'os')}
 			/>
 		</div>
 		<div bind:this={svRef}>
-			<CodingsSV
+			<CodingsSection
+				title="System Vulnerabilities - Clustering"
+				type="system-vulnerabilities"
 				data={systemVulnerabilities}
 				availableCodings={allSystemVulnerabilities}
-				documentId={workflow.id}
+				documentId={document.id}
 				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}
+				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'sv')}
+				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'sv')}
 			/>
 		</div>
 	</div>

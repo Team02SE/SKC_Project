@@ -38,8 +38,14 @@
 	const tabConfig = {
 		activities: { title: 'Activities', key: 'activities' as const },
 		effects: { title: 'Effects', key: 'effects' as const },
-		'opportunity-structures': { title: 'Opportunity structures', key: 'opportunityStructures' as const },
-		'system-vulnerabilities': { title: 'System vulnerabilities', key: 'systemVulnerabilities' as const },
+		'opportunity-structures': {
+			title: 'Opportunity structures',
+			key: 'opportunityStructures' as const
+		},
+		'system-vulnerabilities': {
+			title: 'System vulnerabilities',
+			key: 'systemVulnerabilities' as const
+		},
 		dsteps: { title: 'Dsteps', key: 'dsteps' as const }
 	};
 
@@ -108,7 +114,7 @@
 		}
 	}
 
-	let isCreateForm = $state(false)
+	let isCreateForm = $state(false);
 
 	function handleAddOption(parent_id: number) {
 		isCreateForm = true;
@@ -123,8 +129,6 @@
 			children: [],
 			created_at: new Date().toISOString(),
 			updated_at: new Date().toISOString(),
-			expanded: false,
-			isOptionsOpen: false
 		};
 	}
 </script>
@@ -135,7 +139,7 @@
 
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-<!--		<FilterBar />-->
+		<!--		<FilterBar />-->
 	</div>
 </div>
 
@@ -157,7 +161,7 @@
 			onCodingDeleted={OnCodingDeleted}
 			coding={codingToEdit}
 			type={selectedCodingTitle}
-			isCreateForm = {isCreateForm}
+			{isCreateForm}
 			onCreated={() => {
 				codingToEdit = undefined;
 				isCreateForm = false;

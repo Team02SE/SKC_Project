@@ -1,14 +1,14 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
-import type { Workflow } from '$lib/types';
+import type { Workflow, WorkflowDocument } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
 
-	// the backedn will fetch correct workflow based on the id of the document it belongs to
+	// the backend will fetch correct workflow based on the id of the document it belongs to
 	// document id is being passed as a slug here
-	const documentID = params.slug;
+	const documentId = params.slug;
 
 	const header = {
 		headers: {
@@ -19,26 +19,26 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 
 	try {
-		const workflowRes = await fetch(`${apiBase}/workflows/${documentID}`, header);
-		const docuementRes = await fetch(`${apiBase}/documents/${documentID}`, header);
-		if (!workflowRes.ok || !docuementRes.ok) {
+		const workflowRes = await fetch(`${apiBase}/workflows/${documentId}`, header);
+		const documentRes = await fetch(`${apiBase}/documents/${documentId}`, header);
+		if (!workflowRes.ok || !documentRes.ok) {
 			if (workflowRes.status === 404) {
 				throw error(
 					404,
-					`Workflow with ID ${documentID} not found or document with ID ${documentID} not found !`
+					`Workflow with ID ${documentId} not found or document with ID ${documentId} not found !`
 				);
 			}
 			throw error(workflowRes.status, `Failed to fetch workfow: ${workflowRes.statusText}`);
 		}
 
 		const workflowData = await workflowRes.json();
-		const documentData = await docuementRes.json();
+		const documentData = await documentRes.json();
 
-		console.log(`Workflow ${documentID} loaded correctly`);
-		console.log(`Documen ${documentID} loaded correctly`);
+		console.log(`Workflow ${documentId} loaded correctly`);
+		console.log(`Document ${documentId} loaded correctly`);
 
 		return {
-			documentData: documentData as Document,
+			documentData: documentData as WorkflowDocument,
 			workflowData: workflowData as Workflow
 		};
 	} catch (err) {

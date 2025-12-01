@@ -12,11 +12,19 @@
 	import MoreOptions from '$lib/assets/three-dots-circle.svg';
 	import CloseIcon from '$lib/assets/x.svg';
 
-	export let type: string = 'default';
-	export let size: number = 8;
-	export let customClass: string = '';
+	interface Props {
+		type?: string;
+		size?: number;
+		customClass?: string;
+		onClick?: () => void;
+	}
 
-	export let onClick = () => {};
+	let {
+		type = 'default',
+		size = 8,
+		customClass = '',
+		onClick = () => {}
+	}: Props = $props();
 
 	const iconMap: Record<string, string> = {
 		home: HomeIcon,
@@ -43,14 +51,14 @@
 		12: 'h-12 w-12'
 	};
 
-	const iconSrc = iconMap[type] || iconMap['default'];
-	const sizeClass = sizeMap[size] || 'h-8 w-8';
+	let iconSrc = $derived(iconMap[type] || iconMap['default']);
+	let sizeClass = $derived(sizeMap[size] || 'h-8 w-8');
 </script>
 
 <button
 	type="button"
 	class={`p-0 border-none bg-transparent cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
-	on:click={onClick}
+	onclick={onClick}
 	aria-label={type}
 >
 	<img src={iconSrc} alt={type} class={sizeClass} />

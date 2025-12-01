@@ -35,7 +35,33 @@ export const PUT: RequestHandler = async ({ params, request }) => {
 			});
 		}
 
-		return new Response(JSON.stringify('Success'), {
+		// Check if response has content before parsing
+		const contentType = response.headers.get('content-type');
+		const contentLength = response.headers.get('content-length');
+		
+		if (contentLength === '0' || response.status === 204) {
+			// No content to parse, return success
+			console.log(`Successfully updated workflow ${documentId}`);
+			return new Response(JSON.stringify({ success: true }), {
+				status: 200,
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+		}
+
+		// Only parse JSON if content-type indicates JSON and there's content
+		let result;
+		if (contentType && contentType.includes('application/json')) {
+			const text = await response.text();
+			result = text ? JSON.parse(text) : { success: true };
+		} else {
+			result = { success: true };
+		}
+		
+		console.log(`Successfully updated workflow ${documentId}`);
+
+		return new Response(JSON.stringify(result), {
 			status: 200,
 			headers: {
 				'Content-Type': 'application/json'

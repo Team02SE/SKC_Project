@@ -5,7 +5,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	const apiBase = env.API_URL;
 	const apiKey = env.API_KEY;
 
-	console.log('Attmepting to submit the docuemnt....');
+	console.log('Attempting to submit the document....');
 	if (!apiBase || !apiKey) {
 		return new Response('API configuration missing', { status: 500 });
 	}

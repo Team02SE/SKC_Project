@@ -10,10 +10,12 @@ import type { CodingData } from './components/TreeCodings.svelte';
  */
 export function codingToCodingData(coding: Coding): CodingData {
 	return {
+		id: coding.id,
 		title: coding.name,
 		label: coding.number.toString(),
 		children: coding.children?.map(child => codingToCodingData(child)),
-		isNew: coding.isNew
+		isNew: coding.isNew,
+		isDeleted: coding.isDeleted
 	};
 }
 
@@ -32,4 +34,53 @@ export function getAllCodingIds(codings: Coding[]): Set<number> {
 	}
 	codings.forEach(traverse);
 	return ids;
+}
+
+/**
+ * Creates a handler function for adding sub-codings to a parent coding.
+ * @param getData - A function that returns the current array of codings.
+ * @param setData - A callback to update the array of codings (the array is replaced, not mutated in place).
+ * @param parentId - A function that returns the ID of the parent coding.
+ * @param onCodingAdded - Optional callback to call after adding.
+ * @param onClose - Optional callback to close the popup.
+ * @returns A function that handles adding a sub-coding.
+ */
+export function createSubCodingHandler<T extends Coding>(
+	getData: () => T[],
+	setData: (data: T[]) => void,
+	parentId: () => number | null,
+	onCodingAdded?: (coding: T) => void,
+	onClose?: () => void
+) {
+	return (coding: T) => {
+		const currentParentId = parentId();
+		if (!currentParentId) return;
+
+		const newSubCoding: T = {
+			...coding,
+			parent_id: currentParentId,
+			isNew: true,
+			children: null
+		} as T;
+
+		const updatedData = getData().map(item => {
+			if (item.id === currentParentId) {
+				return {
+					...item,
+					children: [...(item.children || []), newSubCoding]
+				} as T;
+			}
+			return item;
+		});
+
+		setData(updatedData);
+
+		if (onCodingAdded) {
+			onCodingAdded(newSubCoding);
+		}
+
+		if (onClose) {
+			onClose();
+		}
+	};
 }
