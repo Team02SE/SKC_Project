@@ -36,70 +36,76 @@
 		conclusion: document?.Conclusion || ''
 	});
 
-	let activities = $derived(
-		mergeCodingsWithPending(
-			workflow.Activities,
-			workflowState.pendingCodings.activities,
-			workflowState.pendingCodings.pendingDeletions,
-			'activities'
-		)
-	);
-	let effects = $derived(
-		mergeCodingsWithPending(
-			workflow.Effects,
-			workflowState.pendingCodings.effects,
-			workflowState.pendingCodings.pendingDeletions,
-			'effects'
-		)
-	);
-	let dsteps = $derived(
-		mergeCodingsWithPending(
-			workflow.Dsteps,
-			workflowState.pendingCodings.dsteps,
-			workflowState.pendingCodings.pendingDeletions,
-			'dsteps'
-		)
-	);
-	let opportunityStructures = $derived(
-		mergeCodingsWithPending(
-			workflow.Os,
-			workflowState.pendingCodings.os,
-			workflowState.pendingCodings.pendingDeletions,
-			'os'
-		)
-	);
-	let systemVulnerabilities = $derived(
-		mergeCodingsWithPending(
-			workflow.Sv,
-			workflowState.pendingCodings.sv,
-			workflowState.pendingCodings.pendingDeletions,
-			'sv'
-		)
-	);
+	// Section configuration with all metadata
+	const sectionConfigs = [
+		{
+			id: 'activities' as const,
+			title: 'Activities',
+			type: 'activities' as const,
+			codingType: 'activities' as CodingType,
+			workflowKey: 'Activities' as const,
+			allCodingsKey: 'activities' as const
+		},
+		{
+			id: 'effects' as const,
+			title: 'Effects',
+			type: 'effects' as const,
+			codingType: 'effects' as CodingType,
+			workflowKey: 'Effects' as const,
+			allCodingsKey: 'effects' as const
+		},
+		{
+			id: 'destep' as const,
+			title: 'DESTEP',
+			type: 'dsteps' as const,
+			codingType: 'dsteps' as CodingType,
+			workflowKey: 'Dsteps' as const,
+			allCodingsKey: 'dsteps' as const
+		},
+		{
+			id: 'opportunity' as const,
+			title: 'Opportunity Structures',
+			type: 'opportunity-structures' as const,
+			codingType: 'os' as CodingType,
+			workflowKey: 'Os' as const,
+			allCodingsKey: 'opportunityStructures' as const
+		},
+		{
+			id: 'vulnerabilities' as const,
+			title: 'System Vulnerabilities - Clustering',
+			type: 'system-vulnerabilities' as const,
+			codingType: 'sv' as CodingType,
+			workflowKey: 'Sv' as const,
+			allCodingsKey: 'systemVulnerabilities' as const
+		}
+	];
 
-	let allActivities = $derived(data.allCodings?.activities || []);
-	let allEffects = $derived(data.allCodings?.effects || []);
-	let allDsteps = $derived(data.allCodings?.dsteps || []);
-	let allOpportunityStructures = $derived(data.allCodings?.opportunityStructures || []);
-	let allSystemVulnerabilities = $derived(data.allCodings?.systemVulnerabilities || []);
+	// Generate merged codings for each section
+	const sections = $derived(
+		sectionConfigs.map(config => ({
+			...config,
+			data: mergeCodingsWithPending(
+				workflow[config.workflowKey],
+				workflowState.pendingCodings[config.codingType],
+				workflowState.pendingCodings.pendingDeletions,
+				config.codingType
+			),
+			availableCodings: data.allCodings?.[config.allCodingsKey] || []
+		}))
+	);
 
 	// Create a map of codings by type for state management
-	let codingsMap = $derived<Record<CodingType, Coding[]>>({
-		activities,
-		effects,
-		dsteps,
-		os: opportunityStructures,
-		sv: systemVulnerabilities
-	});
+	let codingsMap = $derived<Record<CodingType, Coding[]>>(
+		sections.reduce((acc, section) => {
+			acc[section.codingType] = section.data;
+			return acc;
+		}, {} as Record<CodingType, Coding[]>)
+	);
 
 	// Section refs for navigation
 	let containerRef: HTMLDivElement;
 	let essenceRef: HTMLDivElement;
-	let activitiesRef: HTMLDivElement;
-	let effectsRef: HTMLDivElement;
-	let destepRef: HTMLDivElement;
-	let opportunityRef: HTMLDivElement;
-	let vulnerabilitiesRef: HTMLDivElement;
+	let sectionRefs: Record<string, HTMLDivElement | undefined> = {};
 
 	$effect(() => {
 		navigation.setContainerRef(containerRef);
@@ -107,11 +113,9 @@
 
 	$effect(() => {
 		navigation.setSectionRef('essence', essenceRef);
-		navigation.setSectionRef('activities', activitiesRef);
-		navigation.setSectionRef('effects', effectsRef);
-		navigation.setSectionRef('destep', destepRef);
-		navigation.setSectionRef('opportunity', opportunityRef);
-		navigation.setSectionRef('vulnerabilities', vulnerabilitiesRef);
+		sections.forEach(section => {
+			navigation.setSectionRef(section.id, sectionRefs[section.id] || null);
+		});
 	});
 
 	async function handleCodingAdded<T extends Coding>(coding: T, type: CodingType) {
@@ -120,14 +124,6 @@
 		if ((coding as any).isNewlyCreated) {
 			await invalidateAll();
 		}
-	}
-
-	function handleCodingDeleted(codingId: number, type: CodingType) {
-		workflowState.handleCodingDeleted(codingId, type, codingsMap);
-	}
-
-	function handleCodingCanceled(codingId: number, type: CodingType) {
-		workflowState.handleCodingCanceled(codingId, type, codingsMap);
 	}
 
 	async function saveAllChanges() {
@@ -191,66 +187,20 @@
 		<div bind:this={essenceRef}>
 			<CodingsEssence data={essenceContent} />
 		</div>
-		<div bind:this={activitiesRef}>
-			<CodingsSection
-				title="Activities"
-				type="activities"
-				data={activities}
-				availableCodings={allActivities}
-				documentId={document.id}
-				onCodingAdded={(coding) => handleCodingAdded(coding, 'activities')}
-				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'activities')}
-				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'activities')}
-			/>
-		</div>
-		<div bind:this={effectsRef}>
-			<CodingsSection
-				title="Effects"
-				type="effects"
-				data={effects}
-				availableCodings={allEffects}
-				documentId={document.id}
-				onCodingAdded={(coding) => handleCodingAdded(coding, 'effects')}
-				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'effects')}
-				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'effects')}
-			/>
-		</div>
-		<div bind:this={destepRef}>
-			<CodingsSection
-				title="DESTEP"
-				type="dsteps"
-				data={dsteps}
-				availableCodings={allDsteps}
-				documentId={document.id}
-				onCodingAdded={(coding) => handleCodingAdded(coding, 'dsteps')}
-				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'dsteps')}
-				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'dsteps')}
-			/>
-		</div>
-		<div bind:this={opportunityRef}>
-			<CodingsSection
-				title="Opportunity Structures"
-				type="opportunity-structures"
-				data={opportunityStructures}
-				availableCodings={allOpportunityStructures}
-				documentId={document.id}
-				onCodingAdded={(coding) => handleCodingAdded(coding, 'os')}
-				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'os')}
-				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'os')}
-			/>
-		</div>
-		<div bind:this={vulnerabilitiesRef}>
-			<CodingsSection
-				title="System Vulnerabilities - Clustering"
-				type="system-vulnerabilities"
-				data={systemVulnerabilities}
-				availableCodings={allSystemVulnerabilities}
-				documentId={document.id}
-				onCodingAdded={(coding) => handleCodingAdded(coding, 'sv')}
-				onDeleteRequest={(codingId) => handleCodingDeleted(codingId, 'sv')}
-				onCancelRequest={(codingId) => handleCodingCanceled(codingId, 'sv')}
-			/>
-		</div>
+		{#each sections as section (section.id)}
+			<div bind:this={sectionRefs[section.id]}>
+				<CodingsSection
+					title={section.title}
+					type={section.type}
+					data={section.data}
+					availableCodings={section.availableCodings}
+					documentId={document.id}
+					onCodingAdded={(coding) => handleCodingAdded(coding, section.codingType)}
+					onDeleteRequest={(codingId) => workflowState.handleCodingDeleted(codingId, section.codingType, codingsMap)}
+					onCancelRequest={(codingId) => workflowState.handleCodingCanceled(codingId, section.codingType, codingsMap)}
+				/>
+			</div>
+		{/each}
 	</div>
 
 	<!-- Right content -->
