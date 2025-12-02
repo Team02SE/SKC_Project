@@ -6,7 +6,7 @@
 	const dispatch = createEventDispatcher();
 
 	// selectedId comes from parent so scroll position can control the active item
-	export let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity' | 'vulnerabilities' | null = null;
+	export let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity-structures' | 'system-vulnerabilities' | null = null;
 	let hoveredId: string | null = null;
 
 
@@ -15,8 +15,8 @@
 		{ id: 'activities', initial: 'A', label: 'Activities' },
 		{ id: 'effects', initial: 'E', label: 'Effects' },
 		{ id: 'destep', initial: 'D', label: 'DESTEP' },
-		{ id: 'opportunity', initial: 'O', label: 'Opportunity systems' },
-		{ id: 'vulnerabilities', initial: 'S', label: 'System vulnerabilities' }
+		{ id: 'opportunity-structures', initial: 'O', label: 'Opportunity structures' },
+		{ id: 'system-vulnerabilities', initial: 'S', label: 'System vulnerabilities' }
 	];
 </script>
 

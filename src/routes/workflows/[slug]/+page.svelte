@@ -38,46 +38,11 @@
 
 	// Section configuration with all metadata
 	const sectionConfigs = [
-		{
-			id: 'activities' as const,
-			title: 'Activities',
-			type: 'activities' as const,
-			codingType: 'activities' as CodingType,
-			workflowKey: 'Activities' as const,
-			allCodingsKey: 'activities' as const
-		},
-		{
-			id: 'effects' as const,
-			title: 'Effects',
-			type: 'effects' as const,
-			codingType: 'effects' as CodingType,
-			workflowKey: 'Effects' as const,
-			allCodingsKey: 'effects' as const
-		},
-		{
-			id: 'destep' as const,
-			title: 'DESTEP',
-			type: 'dsteps' as const,
-			codingType: 'dsteps' as CodingType,
-			workflowKey: 'Dsteps' as const,
-			allCodingsKey: 'dsteps' as const
-		},
-		{
-			id: 'opportunity' as const,
-			title: 'Opportunity Structures',
-			type: 'opportunity-structures' as const,
-			codingType: 'os' as CodingType,
-			workflowKey: 'Os' as const,
-			allCodingsKey: 'opportunityStructures' as const
-		},
-		{
-			id: 'vulnerabilities' as const,
-			title: 'System Vulnerabilities - Clustering',
-			type: 'system-vulnerabilities' as const,
-			codingType: 'sv' as CodingType,
-			workflowKey: 'Sv' as const,
-			allCodingsKey: 'systemVulnerabilities' as const
-		}
+		{ id: 'activities' as const, title: 'Activities' },
+		{ id: 'effects' as const, title: 'Effects' },
+		{ id: 'destep' as const, title: 'DESTEP' },
+		{ id: 'opportunity-structures' as const, title: 'Opportunity Structures' },
+		{ id: 'system-vulnerabilities' as const, title: 'System Vulnerabilities - Clustering' }
 	];
 
 	// Generate merged codings for each section
@@ -85,19 +50,19 @@
 		sectionConfigs.map(config => ({
 			...config,
 			data: mergeCodingsWithPending(
-				workflow[config.workflowKey],
-				workflowState.pendingCodings[config.codingType],
+				workflow[config.id],
+				workflowState.pendingCodings[config.id],
 				workflowState.pendingCodings.pendingDeletions,
-				config.codingType
+				config.id
 			),
-			availableCodings: data.allCodings?.[config.allCodingsKey] || []
+			availableCodings: data.allCodings?.[config.id] || []
 		}))
 	);
 
 	// Create a map of codings by type for state management
 	let codingsMap = $derived<Record<CodingType, Coding[]>>(
 		sections.reduce((acc, section) => {
-			acc[section.codingType] = section.data;
+			acc[section.id] = section.data;
 			return acc;
 		}, {} as Record<CodingType, Coding[]>)
 	);
@@ -191,13 +156,13 @@
 			<div bind:this={sectionRefs[section.id]}>
 				<CodingsSection
 					title={section.title}
-					type={section.type}
+					type={section.id}
 					data={section.data}
 					availableCodings={section.availableCodings}
 					documentId={document.id}
-					onCodingAdded={(coding) => handleCodingAdded(coding, section.codingType)}
-					onDeleteRequest={(codingId) => workflowState.handleCodingDeleted(codingId, section.codingType, codingsMap)}
-					onCancelRequest={(codingId) => workflowState.handleCodingCanceled(codingId, section.codingType, codingsMap)}
+					onCodingAdded={(coding) => handleCodingAdded(coding, section.id)}
+					onDeleteRequest={(codingId) => workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
+					onCancelRequest={(codingId) => workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
 				/>
 			</div>
 		{/each}

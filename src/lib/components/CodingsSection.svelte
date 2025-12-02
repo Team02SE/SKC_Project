@@ -8,7 +8,7 @@
 
 	interface Props {
 		title: string;
-		type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
+		type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'destep';
 		data: Coding[];
 		availableCodings?: Coding[];
 		documentId?: number;
@@ -85,7 +85,7 @@
 				{#each topLevelCodings as coding (coding.id)}
 					<TreeCodings
 						data={codingToCodingData(coding)}
-						{type}
+						type={type}
 						codingId={coding.id}
 						onAddSubRequest={handleAddSubRequest}
 						{onDeleteRequest}
@@ -95,7 +95,7 @@
 			</div>
 			<div class="flex flex-1 flex-col gap-2 items-end">
 				<AddCoding
-					{type}
+					type={type}
 					{availableCodings}
 					excludeCodingIds={existingCodingIds}
 					{onCodingAdded}
@@ -113,7 +113,7 @@
 
 	{#if showAddSubCoding}
 		<AddSubCoding
-			{type}
+			type={type}
 			parentId={addSubCodingParentId}
 			availableCodings={availableChildCodings}
 			{documentId}
@@ -125,7 +125,7 @@
 
 	{#if showAddNewCoding}
 		<AddNewCoding
-			{type}
+			type={type}
 			isOpen={showAddNewCoding}
 			onClose={handleCloseAddNew}
 			onCodingCreated={handleNewCodingCreated}

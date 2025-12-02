@@ -8,7 +8,7 @@
         isNew?: boolean;
         isDeleted?: boolean;
         buttonIcon?: string;
-        type?: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'dsteps';
+        type?: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'destep';
         codingId?: number;
         hasDeletedAncestor?: boolean;
         onAddSubRequest?: (parentId: number) => void;

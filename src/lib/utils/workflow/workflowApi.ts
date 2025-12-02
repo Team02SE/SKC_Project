@@ -176,58 +176,69 @@ export async function saveWorkflowChanges(
 ): Promise<void> {
 	let updatedWorkflow = {
 		...workflow,
-		Activities: applyPendingChanges(
-			workflow.Activities,
+		activities: applyPendingChanges(
+			workflow.activities,
 			pendingCodings.activities,
 			pendingCodings.pendingDeletions,
 			'activities'
 		),
-		Effects: applyPendingChanges(
-			workflow.Effects,
+		effects: applyPendingChanges(
+			workflow.effects,
 			pendingCodings.effects,
 			pendingCodings.pendingDeletions,
 			'effects'
 		),
-		Dsteps: applyPendingChanges(
-			workflow.Dsteps,
-			pendingCodings.dsteps,
+		destep: applyPendingChanges(
+			workflow.destep,
+			pendingCodings.destep,
 			pendingCodings.pendingDeletions,
-			'dsteps'
+			'destep'
 		),
-		Os: applyPendingChanges(
-			workflow.Os,
-			pendingCodings.os,
+		'opportunity-structures': applyPendingChanges(
+			workflow['opportunity-structures'],
+			pendingCodings['opportunity-structures'],
 			pendingCodings.pendingDeletions,
-			'os'
+			'opportunity-structures'
 		),
-		Sv: applyPendingChanges(
-			workflow.Sv,
-			pendingCodings.sv,
+		'system-vulnerabilities': applyPendingChanges(
+			workflow['system-vulnerabilities'],
+			pendingCodings['system-vulnerabilities'],
 			pendingCodings.pendingDeletions,
-			'sv'
+			'system-vulnerabilities'
 		)
 	};
 
 	const idMap = new Map<number, number>();
-	await createNewCodingsAndBuildIdMap(updatedWorkflow.Activities, 'activities', idMap);
-	await createNewCodingsAndBuildIdMap(updatedWorkflow.Effects, 'effects', idMap);
-	await createNewCodingsAndBuildIdMap(updatedWorkflow.Dsteps, 'dsteps', idMap);
-	await createNewCodingsAndBuildIdMap(updatedWorkflow.Os, 'opportunity-structures', idMap);
-	await createNewCodingsAndBuildIdMap(updatedWorkflow.Sv, 'system-vulnerabilities', idMap);
+	await createNewCodingsAndBuildIdMap(updatedWorkflow.activities, 'activities', idMap);
+	await createNewCodingsAndBuildIdMap(updatedWorkflow.effects, 'effects', idMap);
+	await createNewCodingsAndBuildIdMap(updatedWorkflow.destep, 'destep', idMap);
+	await createNewCodingsAndBuildIdMap(updatedWorkflow['opportunity-structures'], 'opportunity-structures', idMap);
+	await createNewCodingsAndBuildIdMap(updatedWorkflow['system-vulnerabilities'], 'system-vulnerabilities', idMap);
 
 	updatedWorkflow = {
 		...updatedWorkflow,
-		Activities: replaceTemporaryIds(updatedWorkflow.Activities, idMap),
-		Effects: replaceTemporaryIds(updatedWorkflow.Effects, idMap),
-		Dsteps: replaceTemporaryIds(updatedWorkflow.Dsteps, idMap),
-		Os: replaceTemporaryIds(updatedWorkflow.Os, idMap),
-		Sv: replaceTemporaryIds(updatedWorkflow.Sv, idMap)
+		activities: replaceTemporaryIds(updatedWorkflow.activities, idMap),
+		effects: replaceTemporaryIds(updatedWorkflow.effects, idMap),
+		destep: replaceTemporaryIds(updatedWorkflow.destep, idMap),
+		'opportunity-structures': replaceTemporaryIds(updatedWorkflow['opportunity-structures'], idMap),
+		'system-vulnerabilities': replaceTemporaryIds(updatedWorkflow['system-vulnerabilities'], idMap)
+	};
+
+	// Transform frontend keys back to backend format
+	const backendWorkflow = {
+		id: updatedWorkflow.id,
+		Activities: updatedWorkflow.activities,
+		Effects: updatedWorkflow.effects,
+		Dsteps: updatedWorkflow.destep,
+		Os: updatedWorkflow['opportunity-structures'],
+		Sv: updatedWorkflow['system-vulnerabilities'],
+		updated_at: updatedWorkflow.updated_at
 	};
 
 	const response = await fetch(`/api/workflows/${documentId}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(updatedWorkflow)
+		body: JSON.stringify(backendWorkflow)
 	});
 
 	if (!response.ok) {

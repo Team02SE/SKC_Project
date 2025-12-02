@@ -1,9 +1,9 @@
 import type { Coding } from '$lib/types';
 
 /**
- * Coding type discriminator
+ * Coding type discriminator - matches section IDs
  */
-export type CodingType = 'activities' | 'effects' | 'dsteps' | 'os' | 'sv';
+export type CodingType = 'activities' | 'effects' | 'destep' | 'opportunity-structures' | 'system-vulnerabilities';
 
 /**
  * Unified pending state interface
@@ -11,8 +11,8 @@ export type CodingType = 'activities' | 'effects' | 'dsteps' | 'os' | 'sv';
 export interface PendingCodingsState {
 	activities: Coding[];
 	effects: Coding[];
-	dsteps: Coding[];
-	os: Coding[];
-	sv: Coding[];
+	destep: Coding[];
+	'opportunity-structures': Coding[];
+	'system-vulnerabilities': Coding[];
 	pendingDeletions: Map<CodingType, Set<number>>;
 }

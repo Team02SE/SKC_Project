@@ -7,7 +7,7 @@
 		| 'effects'
 		| 'opportunity-structures'
 		| 'system-vulnerabilities'
-		| 'dsteps';
+		| 'destep';
 	export let parentId: number | null = null;
 	export let availableCodings: Activity[] = [];
 	export let documentId: number | undefined = undefined;
@@ -54,7 +54,7 @@
 			{/if}
 		</div>
 		<AddCoding
-			{type}
+			type={type}
 			{availableCodings}
 			{documentId}
 			{parentId}

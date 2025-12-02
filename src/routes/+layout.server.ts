@@ -35,9 +35,9 @@ export const load: LayoutServerLoad = async () => {
 			allCodings: {
 				activities: activities as Activity[],
 				effects: effects as Effect[],
-				dsteps: dsteps as DStep[],
-				opportunityStructures: opportunityStructures as OpportunityStructure[],
-				systemVulnerabilities: systemVulnerabilities as SystemVulnerability[]
+				destep: dsteps as DStep[],
+				'opportunity-structures': opportunityStructures as OpportunityStructure[],
+				'system-vulnerabilities': systemVulnerabilities as SystemVulnerability[]
 			}
 		};
 	} catch (error) {
@@ -46,9 +46,9 @@ export const load: LayoutServerLoad = async () => {
 			allCodings: {
 				activities: [],
 				effects: [],
-				dsteps: [],
-				opportunityStructures: [],
-				systemVulnerabilities: []
+				destep: [],
+				'opportunity-structures': [],
+				'system-vulnerabilities': []
 			}
 		};
 	}

@@ -19,7 +19,7 @@
 		| 'effects'
 		| 'opportunity-structures'
 		| 'system-vulnerabilities'
-		| 'dsteps';
+		| 'destep';
 	export let codingId: number | undefined = undefined;
 	export let hasDeletedAncestor: boolean = false;
 	export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
@@ -34,7 +34,7 @@
 		buttonIcon={data.buttonIcon}
 		isNew={data.isNew}
 		isDeleted={data.isDeleted}
-		{type}
+		type={type}
 		{codingId}
 		{hasDeletedAncestor}
 		{onAddSubRequest}
@@ -47,7 +47,7 @@
 				{#each data.children ?? [] as child}
 					<svelte:self
 						data={child}
-						{type}
+						type={type}
 						codingId={child.id}
 						hasDeletedAncestor={hasDeletedAncestor || (data.isDeleted ?? false)}
 						{onAddSubRequest}

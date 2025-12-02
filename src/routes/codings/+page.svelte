@@ -11,9 +11,9 @@
 	let codings = $state({
 		activities: data.allCodings?.activities || [],
 		effects: data.allCodings?.effects || [],
-		dsteps: data.allCodings?.dsteps || [],
-		opportunityStructures: data.allCodings?.opportunityStructures || [],
-		systemVulnerabilities: data.allCodings?.systemVulnerabilities || []
+		destep: data.allCodings?.destep || [],
+		'opportunity-structures': data.allCodings?.['opportunity-structures'] || [],
+		'system-vulnerabilities': data.allCodings?.['system-vulnerabilities'] || []
 	});
 
 	export function GetCodings() {
@@ -40,13 +40,13 @@
 		effects: { title: 'Effects', key: 'effects' as const },
 		'opportunity-structures': {
 			title: 'Opportunity structures',
-			key: 'opportunityStructures' as const
+			key: 'opportunity-structures' as const
 		},
 		'system-vulnerabilities': {
 			title: 'System vulnerabilities',
-			key: 'systemVulnerabilities' as const
+			key: 'system-vulnerabilities' as const
 		},
-		dsteps: { title: 'Dsteps', key: 'dsteps' as const }
+		destep: { title: 'Destep', key: 'destep' as const }
 	};
 
 	type TabKey = keyof typeof tabConfig;

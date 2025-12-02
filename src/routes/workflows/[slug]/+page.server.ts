@@ -39,13 +39,24 @@ export const load: PageServerLoad = async ({ params }) => {
 
 		const pdfUrl = URL.createObjectURL(pdfData);
 
+		// Transform backend keys to match frontend structure
+		const transformedWorkflow: Workflow = {
+			id: workflowData.id,
+			activities: workflowData.Activities || [],
+			effects: workflowData.Effects || [],
+			destep: workflowData.Dsteps || [],
+			'opportunity-structures': workflowData.Os || [],
+			'system-vulnerabilities': workflowData.Sv || [],
+			updated_at: workflowData.updated_at
+		};
+
 		console.log(`Workflow ${documentId} loaded correctly`);
 		console.log(`Document ${documentId} loaded correctly`);
 		console.log(`PDF With temp url ${pdfUrl} loaded correctly !`);
 
 		return {
 			documentData: documentData as WorkflowDocument,
-			workflowData: workflowData as Workflow,
+			workflowData: transformedWorkflow,
 			pdfUrl: pdfUrl as string
 		};
 	} catch (err) {

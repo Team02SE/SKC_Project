@@ -6,8 +6,8 @@ export type SectionId =
 	| 'activities'
 	| 'effects'
 	| 'destep'
-	| 'opportunity'
-	| 'vulnerabilities';
+	| 'opportunity-structures'
+	| 'system-vulnerabilities';
 
 /**
  * Section references map
@@ -17,8 +17,8 @@ export interface SectionRefs {
 	activities: HTMLDivElement | null;
 	effects: HTMLDivElement | null;
 	destep: HTMLDivElement | null;
-	opportunity: HTMLDivElement | null;
-	vulnerabilities: HTMLDivElement | null;
+	'opportunity-structures': HTMLDivElement | null;
+	'system-vulnerabilities': HTMLDivElement | null;
 }
 
 /**
@@ -32,8 +32,8 @@ export function useSectionNavigation() {
 		activities: null,
 		effects: null,
 		destep: null,
-		opportunity: null,
-		vulnerabilities: null
+		'opportunity-structures': null,
+		'system-vulnerabilities': null
 	});
 
 	/**
@@ -66,8 +66,8 @@ export function useSectionNavigation() {
 			{ id: 'activities', ref: sectionRefs.activities },
 			{ id: 'effects', ref: sectionRefs.effects },
 			{ id: 'destep', ref: sectionRefs.destep },
-			{ id: 'opportunity', ref: sectionRefs.opportunity },
-			{ id: 'vulnerabilities', ref: sectionRefs.vulnerabilities }
+			{ id: 'opportunity-structures', ref: sectionRefs['opportunity-structures'] },
+			{ id: 'system-vulnerabilities', ref: sectionRefs['system-vulnerabilities'] }
 		];
 
 		let minDiff = Infinity;

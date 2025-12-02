@@ -9,9 +9,9 @@ export function createEmptyPendingState(): PendingCodingsState {
 	return {
 		activities: [],
 		effects: [],
-		dsteps: [],
-		os: [],
-		sv: [],
+		destep: [],
+		'opportunity-structures': [],
+		'system-vulnerabilities': [],
 		pendingDeletions: new Map<CodingType, Set<number>>()
 	};
 }

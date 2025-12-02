@@ -82,11 +82,11 @@
 			const codingId = extractCodingId(responseData);
 			
 			if (codingId && codingId > 0) {
-				const newCoding: Coding = {
-					id: codingId,
-					name: codingName.trim(),
-					number: parseInt(codingNumber),
-					type: type.toLowerCase(),
+			const newCoding: Coding = {
+				id: codingId,
+				name: codingName.trim(),
+				number: parseInt(codingNumber),
+				type: type.toLowerCase(),
 					description: codingDescription.trim(),
 					parent_id: parentId ?? undefined,
 					children: []
