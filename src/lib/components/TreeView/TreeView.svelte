@@ -26,7 +26,7 @@
 			<ButtonText text="Add" />
 		</button>
 	</div>
-	<div class="flex h-[40rem] w-full flex-col overflow-y-scroll">
+	<div class="flex h-[40rem] w-full flex-col overflow-x-hidden">
 		<TreeViewEntires {onCodingSelected} {rootNodes} {onCodingNodeAdded} {onCodingDeleted}/>
 	</div>
 </div>

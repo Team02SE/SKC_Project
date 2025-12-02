@@ -112,6 +112,7 @@
 				menuItems={menuItems}
 				position="center"
 				onClose={() => (showDropdown = false)}
+				customClass="w-45"
 			/>
 		{/if}
 	</div>

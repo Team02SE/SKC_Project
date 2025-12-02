@@ -14,6 +14,7 @@
 		position?: 'right' | 'center';
 		customClass?: string;
 	}
+	
 	let { 
 		menuItems,
 		onClose,
