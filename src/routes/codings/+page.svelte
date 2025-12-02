@@ -133,7 +133,6 @@
 	}
 </script>
 
-<!-- <UploadComplete/> -->
 <div class="flex h-18 w-full items-center justify-between p-4">
 	<CodingTabs onTabChange={OnTabChange} />
 

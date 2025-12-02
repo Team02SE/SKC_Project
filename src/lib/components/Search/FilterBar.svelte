@@ -98,12 +98,13 @@
 		aria-haspopup="listbox"
 		aria-expanded={isOpen}
 	>
-		<ButtonSvg type="filter" customClass="p-1" />
+		<ButtonSvg type="filter" customClass="p-1" asChild={true} />
 		<div class="flex-1"></div>
 		<span class="text-sm font-medium text-light-text-primary whitespace-nowrap">{summaryLabel()}</span>
 		<ButtonSvg
 			type="dropdown"
 			customClass={`p-1 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+			asChild={true}
 		/>
 	</button>
 

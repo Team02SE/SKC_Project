@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import ButtonSvg from '$lib/components/Buttons/ButtonSvg.svelte';
 	import CodingsEssence from '$lib/components/Codings/Workflow/CodingsEssence.svelte';
 	import SidenNav from '$lib/components/Layout/SidenNav.svelte';
@@ -70,7 +70,7 @@
 	// Section refs for navigation
 	let containerRef: HTMLDivElement;
 	let essenceRef: HTMLDivElement;
-	let sectionRefs: Record<string, HTMLDivElement | undefined> = {};
+	let sectionRefs = $state<Record<string, HTMLDivElement | undefined>>({});
 
 	$effect(() => {
 		navigation.setContainerRef(containerRef);
@@ -129,7 +129,7 @@
 			disabled={!hasChanges || isSaving}
 			class="flex items-center gap-2 rounded-lg bg-light-button-primary px-4 py-2 text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
 		>
-			<ButtonSvg type="save" size={6} />
+			<ButtonSvg type="save" size={6} asChild={true} />
 			<span class="font-semibold">{isSaving ? 'Saving...' : 'Save All'}</span>
 		</button>
 	</div>
@@ -172,6 +172,13 @@
 	<div
 		class="flex h-[calc(100vh-240px)] flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 inset-shadow-sm/25"
 	>
-		<PDFView pdfUrl={data.pdfUrl} />
+		{#if data.pdfUrl}
+			<PDFView pdfUrl={data.pdfUrl} />
+		{:else}
+			<div class="text-center text-gray-500">
+				<p class="text-xl mb-2">PDF not available</p>
+				<p class="text-sm">The document file could not be loaded</p>
+			</div>
+		{/if}
 	</div>
 </div>

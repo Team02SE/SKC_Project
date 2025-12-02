@@ -82,22 +82,22 @@
 {/if}
 
 <div
-	class={`flex w-full items-end justify-between bg-light-primary p-5 inset-shadow-sm/25 ${roundedTop ? 'rounded-t-2xl' : ''}`}
+	class={`flex w-full flex-col gap-4 bg-light-primary p-5 inset-shadow-sm/25 sm:flex-row sm:items-end sm:justify-between ${roundedTop ? 'rounded-t-2xl' : ''}`}
 >
 	<div class="flex flex-col items-start">
 		<div class="flex items-center">
-			<h2 class="text-3xl font-semibold">{workflowDocument.Title}</h2>
+			<h2 class="text-xl font-semibold sm:text-2xl md:text-3xl">{workflowDocument.Title}</h2>
 			<div class="{IntToStatusColour(workflowDocument.Status)} ml-4 rounded-full p-1"></div>
 		</div>
 		<div class="flex flex-row items-center">
-			<p>Status: {IntToStatusString(workflowDocument.Status)}</p>
+			<p class="text-sm sm:text-base">Status: {IntToStatusString(workflowDocument.Status)}</p>
 		</div>
-		<p>Last modified: {workflowDocument.UpdatedAt}</p>
+		<p class="text-sm sm:text-base">Last modified: {workflowDocument.UpdatedAt}</p>
 	</div>
 
-	<div class="flex gap-4">
-		<ButtonSvg type="eye" />
-		<ButtonSvg type="edit" onClick={handleEdit} />
-		<ButtonSvg type="trash" onClick={handleDeleteClick} />
+	<div class="flex shrink-0 flex-row gap-4 [@media(min-width:1100px)]:flex-col [@media(min-width:1500px)]:flex-row">
+		<ButtonSvg type="eye" size={8} />
+		<ButtonSvg type="edit" size={8} onClick={handleEdit} />
+		<ButtonSvg type="trash" size={8} onClick={handleDeleteClick} />
 	</div>
 </div>

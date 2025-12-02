@@ -18,13 +18,15 @@
 		size?: number;
 		customClass?: string;
 		onClick?: () => void;
+		asChild?: boolean;
 	}
 
 	let {
 		type = 'default',
 		size = 8,
 		customClass = '',
-		onClick = () => {}
+		onClick = () => {},
+		asChild = false
 	}: Props = $props();
 
 	const iconMap: Record<string, string> = {
@@ -57,11 +59,15 @@
 	let sizeClass = $derived(sizeMap[size] || 'h-8 w-8');
 </script>
 
-<button
-	type="button"
-	class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
-	onclick={onClick}
-	aria-label={type}
->
-	<img src={iconSrc} alt={type} class={sizeClass} />
-</button>
+{#if asChild}
+	<img src={iconSrc} alt={type} class={`${sizeClass} ${customClass}`} />
+{:else}
+	<button
+		type="button"
+		class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
+		onclick={onClick}
+		aria-label={type}
+	>
+		<img src={iconSrc} alt={type} class={sizeClass} />
+	</button>
+{/if}

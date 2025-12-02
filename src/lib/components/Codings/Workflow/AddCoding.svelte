@@ -57,7 +57,7 @@
 				<p class="flex-1 pl-4 font-medium text-left text-light-text-primary/50">
 					Add existing coding...
 				</p>
-				<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" />
+				<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" asChild={true} />
 			</button>
 		{/if}
 
