@@ -8,14 +8,21 @@
 		rootNode: Coding;
 		onCodingNodeAdded: (parentId: number | null) => void;
 		onCodingDeleted: (coding: Coding) => void;
+		onClose?: () => void;
 	}
-	let { rootNode, onCodingNodeAdded, onCodingDeleted }: Props = $props();
+	let { rootNode, onCodingNodeAdded, onCodingDeleted, onClose }: Props = $props();
 
 	let el: HTMLElement | null = null;
 
+	function closeDropdown() {
+		if (onClose) {
+			onClose();
+		}
+	}
+
 	function handleAdd() {
 		onCodingNodeAdded(rootNode.id ?? null);
-		rootNode.isOptionsOpen = false;
+		closeDropdown();
 	}
 
 	async function handleDelete() {
@@ -26,7 +33,7 @@
 		});
 
 		if (response.ok) {
-			rootNode.isOptionsOpen = false;
+			closeDropdown();
 			toastStore.success(`"${rootNode.name}" deleted successfully`);
 			onCodingDeleted(rootNode);
 		} else {
@@ -39,7 +46,7 @@
 		if (!el) return;
 		const target = e.target as Node | null;
 		if (target && !el.contains(target)) {
-			rootNode.isOptionsOpen = false;
+			closeDropdown();
 		}
 	}
 

@@ -36,7 +36,7 @@
 		</button>
 
 		{#if coding.isOptionsOpen}
-			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} onCodingDeleted={onCodingDeleted} />
+			<DropdownList rootNode={coding} onCodingNodeAdded={onCodingNodeAdded} onCodingDeleted={onCodingDeleted} onClose={() => coding.isOptionsOpen = false} />
 		{/if}
 	</div>
 </div>

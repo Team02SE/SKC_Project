@@ -49,16 +49,17 @@
 						</div>
 					</div>
 					<div class="relative inline-block">
-						<button class="mr-10 duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
-							<img src={more} alt="more" class="h-10 w-10" />
-						</button>
-						{#if node.isOptionsOpen}
-							<DropdownList 
-								rootNode={node}
-								onCodingNodeAdded={onCodingNodeAdded}
-								onCodingDeleted={onCodingDeleted}
-							/>
-						{/if}
+					<button class="mr-10 duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
+						<img src={more} alt="more" class="h-10 w-10" />
+					</button>
+					{#if node.isOptionsOpen}
+						<DropdownList 
+							rootNode={node}
+							onCodingNodeAdded={onCodingNodeAdded}
+							onCodingDeleted={onCodingDeleted}
+							onClose={() => node.isOptionsOpen = false}
+						/>
+					{/if}
 					</div>
 				</div>
 				{#if node.expanded}

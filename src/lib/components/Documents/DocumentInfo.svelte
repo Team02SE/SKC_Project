@@ -40,7 +40,7 @@
   <div class="flex-1 flex flex-col p-10 pt-5 pr-20 overflow-hidden">
     <div class="flex-1 w-full bg-gray-200 border border-gray-200 rounded-2xl p-4 overflow-hidden">
       {#if showDocument}
-        <PDFView />
+        <!-- <PDFView /> -->
       {:else}
         <MetaView />
       {/if}
