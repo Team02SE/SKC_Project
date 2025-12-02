@@ -8,12 +8,15 @@ export const actions = {
 		const name = data.get('name');
 		const description = data.get('description');
 		const number = data.get('number');
-		const type = (data.get('type') as string || '').replace(/[\s_]+/g, '-').toLowerCase().trim();
+		let type = (data.get('type') as string || '').replace(/[\s_]+/g, '-').toLowerCase().trim();
 		const parent_id = data.get('parent_id');
 
 		if (!type) {
 			throw new Error('Missing type parameter');
 		}
+
+		// Map destep to dsteps backend endpoint
+		if (type === 'destep') { type = 'dsteps'; }
 
 		const processedParentId = parent_id && parent_id !== '' ? Number(parent_id) : null;
 
