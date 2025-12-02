@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Header from '$lib/components/Header.svelte';
-	import DocumentCard from '$lib/components/DocumentCard.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+	import Header from '$lib/components/Layout/Header.svelte';
+	import DocumentCard from '$lib/components/Cards/DocumentCard.svelte';
+	import SearchBar from '$lib/components/Search/SearchBar.svelte';
+	import FilterBar from '$lib/components/Search/FilterBar.svelte';
+	import DocumentInfo from '$lib/components/Documents/DocumentInfo.svelte';
 	import type { WorkflowDocument } from '$lib/types';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';

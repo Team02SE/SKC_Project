@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import ButtonSvg from './ButtonSvg.svelte';
+	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	type StatusValue = 0 | 1 | 2;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import ButtonSvg from './ButtonSvg.svelte';
+	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
 
 	const dispatch = createEventDispatcher<{ search: string }>();
 

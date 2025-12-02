@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ButtonSvg from "./ButtonSvg.svelte";
+	import ButtonSvg from "../Buttons/ButtonSvg.svelte";
 
     export let title: string | undefined = undefined;
     export let content: string | undefined = undefined;

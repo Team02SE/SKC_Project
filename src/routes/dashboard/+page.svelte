@@ -1,9 +1,9 @@
 <script>
-	import Header from '$lib/components/Header.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import NavBar from '$lib/components/NavBar.svelte';
+	import Header from '$lib/components/Layout/Header.svelte';
+	import ButtonSvg from '$lib/components/Buttons/ButtonSvg.svelte';
+	import SearchBar from '$lib/components/Search/SearchBar.svelte';
+	import FilterBar from '$lib/components/Search/FilterBar.svelte';
+	import NavBar from '$lib/components/Layout/NavBar.svelte';
 </script>
 
 <!-- <UploadComplete/> -->

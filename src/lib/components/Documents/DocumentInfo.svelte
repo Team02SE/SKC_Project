@@ -5,7 +5,7 @@
 
   import PDFView from './PDFView.svelte';
   import MetaView from './MetaView.svelte';
-  import Toggle from '$lib/components/Toggle.svelte';
+  import Toggle from '../Forms/Toggle.svelte';
 
   let showDocument = true; // true = Document, false = Metadata
 </script>

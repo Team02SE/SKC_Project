@@ -1,5 +1,5 @@
 import type { Coding } from '$lib/types';
-import type { CodingData } from '$lib/components/TreeCodings.svelte';
+import type { CodingData } from '$lib/components/Codings/Management/TreeCodings.svelte';
 
 /**
  * Converts a Coding object to CodingData format for TreeCodings component.

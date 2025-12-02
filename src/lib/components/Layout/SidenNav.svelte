@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ButtonSvg from './ButtonSvg.svelte';
+	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
 	import { slide, fade } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import { createEventDispatcher } from 'svelte';

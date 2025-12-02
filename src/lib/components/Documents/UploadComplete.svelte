@@ -1,7 +1,7 @@
 <script>
-	import ButtonSvg from './ButtonSvg.svelte';
-	import ButtonText from './ButtonText.svelte';
-	import MetadataCard from './MetadataCard.svelte';
+	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
+	import ButtonText from '../Buttons/ButtonText.svelte';
+	import MetadataCard from '../Cards/MetadataCard.svelte';
 </script>
 
 <div class="fixed top-0 left-0 h-screen w-screen bg-black opacity-50"></div>

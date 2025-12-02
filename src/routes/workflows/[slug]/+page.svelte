@@ -1,11 +1,11 @@
 <script lang="ts">
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
-	import CodingsEssence from '$lib/components/CodingsEssence.svelte';
-	import SidenNav from '$lib/components/SidenNav.svelte';
-	import CodingsSection from '$lib/components/CodingsSection.svelte';
+	import ButtonSvg from '$lib/components/Buttons/ButtonSvg.svelte';
+	import CodingsEssence from '$lib/components/Codings/Workflow/CodingsEssence.svelte';
+	import SidenNav from '$lib/components/Layout/SidenNav.svelte';
+	import CodingsSection from '$lib/components/Codings/Workflow/CodingsSection.svelte';
 	import type { PageProps } from './$types';
 	import type { EssenceData, Coding } from '$lib/types';
-	import PDFView from '$lib/components/PDFView.svelte';
+	import PDFView from '$lib/components/Documents/PDFView.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import {
 		useWorkflowState,

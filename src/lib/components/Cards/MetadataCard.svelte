@@ -1,5 +1,5 @@
 <script>
-	import ButtonSvg from "./ButtonSvg.svelte";
+	import ButtonSvg from "../Buttons/ButtonSvg.svelte";
 
     export let title = "Title";
 	export let content = "Description";

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import CodingTabs from '$lib/components/CodingTabs.svelte';
-	import CodingsEdit from '$lib/components/CodingsEddit/CodingsEdit.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
+	import CodingTabs from '$lib/components/Codings/Management/CodingTabs.svelte';
+	import CodingsEdit from '$lib/components/Codings/Management/CodingsEdit.svelte';
+	import SearchBar from '$lib/components/Search/SearchBar.svelte';
 	import TreeView from '$lib/components/TreeView/TreeView.svelte';
 	import type { Coding } from '$lib/types';
 	import type { PageProps } from './$types';

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ButtonSvg from "./ButtonSvg.svelte";
+    import ButtonSvg from "../Buttons/ButtonSvg.svelte";
 
     interface Props {
         label?: string;
