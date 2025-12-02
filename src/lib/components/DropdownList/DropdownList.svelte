@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import type { Coding } from "$lib/types";
+	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
 
 	interface Props {
 		rootNode: Coding;
@@ -26,9 +27,11 @@
 
 		if (response.ok) {
 			rootNode.isOptionsOpen = false;
+			toastStore.success(`"${rootNode.name}" deleted successfully`);
 			onCodingDeleted(rootNode);
 		} else {
 			console.error('Delete failed:', response.statusText);
+			toastStore.error('Failed to delete coding');
 		}
 	}
 

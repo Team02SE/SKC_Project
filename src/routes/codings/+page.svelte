@@ -17,6 +17,17 @@
 		'system-vulnerabilities': normalizeCodingTypes(data.allCodings?.['system-vulnerabilities'] || [])
 	});
 
+	// Update codings when data changes
+	$effect(() => {
+		codings = {
+			activities: normalizeCodingTypes(data.allCodings?.activities || []),
+			effects: normalizeCodingTypes(data.allCodings?.effects || []),
+			destep: normalizeCodingTypes(data.allCodings?.destep || []),
+			'opportunity-structures': normalizeCodingTypes(data.allCodings?.['opportunity-structures'] || []),
+			'system-vulnerabilities': normalizeCodingTypes(data.allCodings?.['system-vulnerabilities'] || [])
+		};
+	});
+
 	export function GetCodings() {
 		return codings;
 	}
@@ -117,12 +128,12 @@
 
 	let isCreateForm = $state(false);
 
-	function handleAddOption(parent_id: number) {
+	function handleAddOption(parent_id: number | null) {
 		isCreateForm = true;
 
 		codingToEdit = {
 			id: -1,
-			parent_id,
+			parent_id: parent_id ?? undefined,
 			name: '',
 			description: '',
 			number: 0,

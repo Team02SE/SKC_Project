@@ -35,10 +35,10 @@
 	}
 
 	const typeConfig = {
-		success: { bg: 'bg-green-500', icon: '✓', border: 'border-green-600' },
-		error: { bg: 'bg-red-500', icon: '✕', border: 'border-red-600' },
-		warning: { bg: 'bg-amber-500', icon: '⚠', border: 'border-amber-600' },
-		info: { bg: 'bg-blue-500', icon: 'ℹ', border: 'border-blue-600' }
+		success: { bg: 'bg-green-100', icon: '✓', border: 'border-green-300', text: 'text-green-800' },
+		error: { bg: 'bg-red-100', icon: '✕', border: 'border-red-300', text: 'text-red-800' },
+		warning: { bg: 'bg-amber-100', icon: '⚠', border: 'border-amber-300', text: 'text-amber-800' },
+		info: { bg: 'bg-blue-100', icon: 'ℹ', border: 'border-blue-300', text: 'text-blue-800' }
 	};
 
 	const styles = $derived(typeConfig[type]);
@@ -46,7 +46,7 @@
 
 {#if visible}
 	<div
-		class="pointer-events-auto flex min-w-[300px] max-w-md items-center gap-3 rounded-lg border-2 {styles.border} {styles.bg} px-4 py-3 text-white shadow-lg"
+		class="pointer-events-auto flex min-w-[300px] max-w-md items-center gap-3 rounded-lg border {styles.border} {styles.bg} px-4 py-3 {styles.text} shadow-md"
 		transition:fly={{ y: -50, duration: 300, easing: quintOut }}
 		role="alert"
 	>
@@ -54,7 +54,7 @@
 		<p class="flex-1 text-sm font-medium">{message}</p>
 		<button
 			onclick={handleClose}
-			class="ml-2 text-white/80 transition hover:text-white focus:outline-none"
+			class="ml-2 opacity-60 transition hover:opacity-100 focus:outline-none"
 			aria-label="Close"
 		>
 			<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

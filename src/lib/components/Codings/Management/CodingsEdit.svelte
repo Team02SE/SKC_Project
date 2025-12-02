@@ -6,6 +6,7 @@
 	import { slide } from 'svelte/transition';
 	import { toastStore } from '../../PopUps/Toast/toastStore.svelte';
 	import { enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 
 	interface Props {
 		coding: Coding | undefined;
@@ -104,12 +105,18 @@
 			method="POST"
 			class="flex h-full w-full flex-col items-center"
 			use:enhance={() => {
-				return async ({ result }) => {
+				console.log('Form submitting...', { name: form.name, parent_id: form.parent_id, type });
+				return async ({ result, update }) => {
+					console.log('Form result:', result);
 					if (result.type === 'success') {
 						toastStore.success('Coding created successfully!');
+						await invalidateAll();
 						if (onCreated) onCreated();
 					} else if (result.type === 'failure') {
+						console.error('Form submission failed:', result);
 						toastStore.error('Failed to create coding');
+					} else {
+						console.error('Unexpected result type:', result);
 					}
 				};
 			}}
@@ -161,7 +168,7 @@
 				</div>
 				<div class="align-center flex items-center gap-4">
 					<div class="mt-4">
-						<ButtonText text="Submit" />
+						<ButtonText text="Submit" type="submit" />
 					</div>
 				</div>
 			</div>
@@ -222,7 +229,7 @@
 
 			<div class="align-center flex items-center gap-4">
 				<div class="mt-4">
-					<ButtonText text="Submit" />
+					<ButtonText text="Submit" type="submit" />
 				</div>
 			</div>
 		</form>
