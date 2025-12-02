@@ -5,15 +5,16 @@
 	import TreeView from '$lib/components/TreeView/TreeView.svelte';
 	import type { Coding } from '$lib/types';
 	import type { PageProps } from './$types';
+	import { normalizeCodingTypes } from '$lib/utils/coding/codingHelpers';
 
 	let { data }: PageProps = $props();
 
 	let codings = $state({
-		activities: data.allCodings?.activities || [],
-		effects: data.allCodings?.effects || [],
-		destep: data.allCodings?.destep || [],
-		'opportunity-structures': data.allCodings?.['opportunity-structures'] || [],
-		'system-vulnerabilities': data.allCodings?.['system-vulnerabilities'] || []
+		activities: normalizeCodingTypes(data.allCodings?.activities || []),
+		effects: normalizeCodingTypes(data.allCodings?.effects || []),
+		destep: normalizeCodingTypes(data.allCodings?.destep || []),
+		'opportunity-structures': normalizeCodingTypes(data.allCodings?.['opportunity-structures'] || []),
+		'system-vulnerabilities': normalizeCodingTypes(data.allCodings?.['system-vulnerabilities'] || [])
 	});
 
 	export function GetCodings() {

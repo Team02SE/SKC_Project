@@ -55,6 +55,30 @@ export function findCodingById<T extends Coding>(codings: T[], id: number): T | 
 }
 
 /**
+ * Normalizes a coding type string by replacing underscores and spaces with hyphens.
+ * Converts: 'system_vulnerabilities' or 'System Vulnerabilities' -> 'system-vulnerabilities'
+ * @param type - The type string to normalize.
+ * @returns Normalized type string with hyphens.
+ */
+export function normalizeType(type: string): string {
+	return type.replace(/[_\s]+/g, '-').toLowerCase();
+}
+
+/**
+ * Recursively normalizes the type field of codings and their children.
+ * Ensures consistent type format throughout the coding tree.
+ * @param codings - Array of codings to normalize.
+ * @returns Array of codings with normalized type fields.
+ */
+export function normalizeCodingTypes<T extends Coding>(codings: T[]): T[] {
+	return codings.map(coding => ({
+		...coding,
+		type: normalizeType(coding.type),
+		children: coding.children ? normalizeCodingTypes(coding.children as T[]) : null
+	}));
+}
+
+/**
  * Normalizes coding data by ensuring children arrays are never null (recursive).
  * @param items - Array of codings to normalize.
  * @returns Normalized array where all children properties are arrays (never null).

@@ -4,11 +4,13 @@
 	import PopUp from '../../PopUps/PopUp.svelte';
 	import edit_pencil from '$lib/assets/edit-pencil.svg';
 	import { slide } from 'svelte/transition';
+	import { toastStore } from '../../PopUps/Toast/toastStore.svelte';
+	import { enhance } from '$app/forms';
 
 	interface Props {
 		coding: Coding | undefined;
 		type: string;
-		isCreateForm : boolean; 
+		isCreateForm: boolean;
 		onCodingDeleted: Function;
 		onCreated?: () => void;
 	}
@@ -60,8 +62,13 @@
 			body: JSON.stringify(payload)
 		});
 
-		if (!response.ok) console.log('Update failed');
-		else console.log('Update successful');
+		if (!response.ok) {
+			console.log('Update failed');
+			toastStore.error('Failed to update coding');
+		} else {
+			console.log('Update successful');
+			toastStore.success('Coding updated successfully!');
+		}
 	}
 
 	async function deleteCoding() {
@@ -78,145 +85,152 @@
 			body: JSON.stringify({ type })
 		});
 
-		if (!response.ok) console.log('Delete failed');
-		else {
+		if (!response.ok) {
+			console.log('Delete failed');
+			toastStore.error('Failed to delete coding');
+		} else {
 			onCodingDeleted(coding);
 			console.log('Delete successful');
+			toastStore.success(`"${coding.name}" deleted successfully`);
 		}
 	}
 </script>
 
 <div class="mt-10 flex h-full w-1/2 flex-col items-center self-center">
 	{#if isCreateForm}
-	<form
-		transition:slide
-		action="?/codings"
-		method="POST"
-		class="flex h-full w-full flex-col items-center"
-	>
-		<input type="hidden" name="type" value={type.toLowerCase()} />
-		<input type="hidden" name="parent_id" value={form.parent_id ?? ''} />
-		<input type="hidden" name="number" value={form.number} />
+		<form
+			transition:slide
+			action="?/codings"
+			method="POST"
+			class="flex h-full w-full flex-col items-center"
+			use:enhance={() => {
+				return async ({ result }) => {
+					if (result.type === 'success') {
+						toastStore.success('Coding created successfully!');
+						if (onCreated) onCreated();
+					} else if (result.type === 'failure') {
+						toastStore.error('Failed to create coding');
+					}
+				};
+			}}
+		>
+			<input type="hidden" name="type" value={type.toLowerCase()} />
+			<input type="hidden" name="parent_id" value={form.parent_id ?? ''} />
+			<input type="hidden" name="number" value={form.number} />
 
-		<div class="flex flex-row items-center self-center">
-			<div class="flex flex-col items-center gap-2">
-				<label class="text-sm font-medium text-gray-700">
-					<input
-						type="text"
-						name="name"
-						class="w-full border-x-0 border-t-0 border-b-2 border-black bg-transparent px-3 py-2 text-center text-4xl font-bold
+			<div class="flex flex-row items-center self-center">
+				<div class="flex flex-col items-center gap-2">
+					<label class="text-sm font-medium text-gray-700">
+						<input
+							type="text"
+							name="name"
+							class="w-full border-x-0 border-t-0 border-b-2 border-black bg-transparent px-3 py-2 text-center text-4xl font-bold
 						opacity-55 duration-300 focus:opacity-95
 						disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50"
-						bind:value={form.name}
-					/>
-				</label>
-			</div>
-			<img alt="edit" class="h-10 w-10" src={edit_pencil} />
-		</div>
-
-		<div class="mt-10 flex w-full flex-col items-center">
-			<div class="flex w-full flex-row justify-between">
-				<label class="w-full text-xl font-medium text-gray-700">
-					Description:
-					<textarea
-						name="description"
-						class="h-full w-full rounded-md wrap-normal opacity-70 shadow-md duration-200 focus:opacity-95"
-						bind:value={form.description}
-					></textarea>
-				</label>
-			</div>
-
-			<div class="mt-10 w-full">
-				<div class="flex w-full flex-row justify-between">
-					<label class="w-full text-xl font-medium text-gray-700">
-						Number:
-						<input
-							class="w-full rounded-md wrap-normal opacity-70 duration-200 focus:opacity-95"
-							type="number"
-							name="number_display"
-							bind:value={form.number}
+							bind:value={form.name}
 						/>
 					</label>
 				</div>
+				<img alt="edit" class="h-10 w-10" src={edit_pencil} />
 			</div>
+
+			<div class="mt-10 flex w-full flex-col items-center">
+				<div class="flex w-full flex-row justify-between">
+					<label class="w-full text-xl font-medium text-gray-700">
+						Description:
+						<textarea
+							name="description"
+							class="h-full w-full rounded-md wrap-normal opacity-70 shadow-md duration-200 focus:opacity-95"
+							bind:value={form.description}
+						></textarea>
+					</label>
+				</div>
+
+				<div class="mt-10 w-full">
+					<div class="flex w-full flex-row justify-between">
+						<label class="w-full text-xl font-medium text-gray-700">
+							Number:
+							<input
+								class="w-full rounded-md wrap-normal opacity-70 duration-200 focus:opacity-95"
+								type="number"
+								name="number_display"
+								bind:value={form.number}
+							/>
+						</label>
+					</div>
+				</div>
+				<div class="align-center flex items-center gap-4">
+					<div class="mt-4">
+						<ButtonText text="Submit" />
+					</div>
+				</div>
+			</div>
+		</form>
+	{:else if popUpOpen}
+		<PopUp
+			heading="Are you sure you want to delete this coding"
+			question="This coding will be delted perenamently, do you want to delete it ? "
+			onClose={() => (popUpOpen = false)}
+			onYes={deleteCoding}
+		/>
+	{:else if coding != undefined}
+		<form transition:slide class="flex h-full w-full flex-col items-center" onsubmit={updateCoding}>
+			<input type="hidden" name="id" value={form.id} />
+
+			<div class="flex flex-row items-center self-center">
+				<div class="flex flex-col items-center gap-2">
+					<label class="text-sm font-medium text-gray-700">
+						<input
+							type="text"
+							name="name"
+							class="w-full border-x-0 border-t-0 border-b-2 border-black bg-transparent px-3 py-2 text-center text-4xl font-bold
+						opacity-55 duration-300 focus:opacity-95
+						disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50"
+							bind:value={form.name}
+						/>
+					</label>
+				</div>
+				<img alt="edit" class="h-10 w-10" src={edit_pencil} />
+			</div>
+
+			<div class="mt-10 flex w-full flex-col items-center">
+				<div class="flex w-full flex-row justify-between">
+					<label class="w-full text-xl font-medium text-gray-700">
+						Description:
+						<textarea
+							name="description"
+							class="h-full w-full rounded-md wrap-normal opacity-70 shadow-md duration-200 focus:opacity-95"
+							bind:value={form.description}
+						></textarea>
+					</label>
+				</div>
+
+				<div class="mt-10 w-full">
+					<div class="flex w-full flex-row justify-between">
+						<label class="w-full text-xl font-medium text-gray-700">
+							Number:
+							<input
+								class="w-full rounded-md wrap-normal opacity-70 duration-200 focus:opacity-95"
+								type="number"
+								name="number"
+								bind:value={form.number}
+							/>
+						</label>
+					</div>
+				</div>
+			</div>
+
 			<div class="align-center flex items-center gap-4">
-			<div class="mt-4">
-				<ButtonText text="Submit" />
-			</div>
-		</div>
-		</div>
-	</form>
-	{:else}
-	{#if popUpOpen}
-	<PopUp
-	heading="Are you sure you want to delete this coding"
-	question="This coding will be delted perenamently, do you want to delete it ? "
-	onClose={() => (popUpOpen = false)}
-	onYes={deleteCoding}
-	/>
-{:else if coding != undefined}
-	<form
-		transition:slide
-		class="flex h-full w-full flex-col items-center"
-		onsubmit={updateCoding}
-	>
-		<input type="hidden" name="id" value={form.id} />
-
-		<div class="flex flex-row items-center self-center">
-			<div class="flex flex-col items-center gap-2">
-				<label class="text-sm font-medium text-gray-700">
-					<input
-						type="text"
-						name="name"
-						class="w-full border-x-0 border-t-0 border-b-2 border-black bg-transparent px-3 py-2 text-center text-4xl font-bold
-						opacity-55 duration-300 focus:opacity-95
-						disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-50"
-						bind:value={form.name}
-					/>
-				</label>
-			</div>
-			<img alt="edit" class="h-10 w-10" src={edit_pencil} />
-		</div>
-
-		<div class="mt-10 flex w-full flex-col items-center">
-			<div class="flex w-full flex-row justify-between">
-				<label class="w-full text-xl font-medium text-gray-700">
-					Description:
-					<textarea
-						name="description"
-						class="h-full w-full rounded-md wrap-normal opacity-70 shadow-md duration-200 focus:opacity-95"
-						bind:value={form.description}
-					></textarea>
-				</label>
-			</div>
-
-			<div class="mt-10 w-full">
-				<div class="flex w-full flex-row justify-between">
-					<label class="w-full text-xl font-medium text-gray-700">
-						Number:
-						<input
-							class="w-full rounded-md wrap-normal opacity-70 duration-200 focus:opacity-95"
-							type="number"
-							name="number"
-							bind:value={form.number}
-						/>
-					</label>
+				<div class="mt-4">
+					<ButtonText text="Submit" />
 				</div>
 			</div>
-		</div>
-
-		<div class="align-center flex items-center gap-4">
-			<div class="mt-4">
-				<ButtonText text="Submit" />
-			</div>
-		</div>
-	</form>
-<!-- Temp delete button -->
-<button type="button" onclick={() => (popUpOpen = !popUpOpen)} class="absolute bottom-4">
-	<ButtonText text="Delete" customClass="bg-red-500" />
-</button>
-{:else}
-<h1>Select activity</h1>
-{/if}
-{/if}
+		</form>
+		<!-- Temp delete button -->
+		<button type="button" onclick={() => (popUpOpen = !popUpOpen)} class="absolute bottom-4">
+			<ButtonText text="Delete" customClass="bg-red-500" />
+		</button>
+	{:else}
+		<h1>Select activity</h1>
+	{/if}
 </div>

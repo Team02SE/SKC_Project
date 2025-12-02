@@ -4,6 +4,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import type { WorkflowDocument } from '$lib/types';
 	import PopUp from '../PopUps/PopUp.svelte';
+	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
 
 	interface Props {
 		roundedTop: boolean;
@@ -30,10 +31,11 @@
 
 			if (!response.ok) {
 				console.error('Delete failed:', response.statusText);
+				toastStore.error('Failed to delete document');
 				return;
 			}
 
-			console.log('Delete successful');
+			toastStore.success(`"${workflowDocument.Title}" deleted successfully`);
 
 			if (onDocumentDeleted) {
 				onDocumentDeleted(workflowDocument);
@@ -42,6 +44,7 @@
 			await invalidateAll();
 		} catch (error) {
 			console.error('Error deleting document:', error);
+			toastStore.error('An error occurred while deleting the document');
 		}
 	}
 

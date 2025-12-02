@@ -8,7 +8,7 @@ export const actions = {
 		const name = data.get('name');
 		const description = data.get('description');
 		const number = data.get('number');
-		const type = (data.get('type') as string || '').toLowerCase().trim();
+		const type = (data.get('type') as string || '').replace(/[\s_]+/g, '-').toLowerCase().trim();
 		const parent_id = data.get('parent_id');
 
 		if (!type) {

@@ -16,6 +16,7 @@
 	} from '$lib/utils/workflow/workflowState.svelte';
 	import { saveWorkflowChanges } from '$lib/utils/workflow/workflowApi';
 	import { useSectionNavigation } from '$lib/utils/navigation/sectionNavigation.svelte';
+	import { toastStore } from '$lib/components/PopUps/Toast/toastStore.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -97,9 +98,10 @@
 			await saveWorkflowChanges(document.id, workflow, workflowState.pendingCodings);
 			workflowState.resetPendingCodings();
 			await invalidateAll();
+			toastStore.success('Workflow saved successfully!');
 		} catch (error) {
 			console.error('Error saving changes:', error);
-			alert('Failed to save changes. Please try again.');
+			toastStore.error('Failed to save changes. Please try again.');
 		} finally {
 			isSaving = false;
 		}

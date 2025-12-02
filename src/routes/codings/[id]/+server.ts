@@ -8,7 +8,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
 	}
 
 	const data = await request.json();
-	const type = data.type.replace(/\s+/, '-').toLowerCase();
+	const type = data.type.replace(/[\s_]+/g, '-').toLowerCase();
 
 	const result = await apiFetch(`/${type}/${id}`, {
 		method: 'PUT',
@@ -29,7 +29,7 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
 	}
 
 	const data = await request.json();
-	const type = data.type.replace(/\s+/, '-').toLowerCase();
+	const type = data.type.replace(/[\s_]+/g, '-').toLowerCase();
 
 	const result = await apiFetch(`/${type}/${id}`, {
 		method: 'DELETE',

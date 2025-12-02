@@ -5,6 +5,8 @@
 	import Header from '$lib/components/Layout/Header.svelte';
 	import NavBar from '$lib/components/Layout/NavBar.svelte';
 	import UploadDocumentModal from '$lib/components/Documents/UploadDocumentModal.svelte';
+	import ToastContainer from '$lib/components/PopUps/Toast/ToastContainer.svelte';
+	import { toastStore } from '$lib/components/PopUps/Toast/toastStore.svelte';
 
 	let { children } = $props();
 	import { invalidateAll, onNavigate } from '$app/navigation';
@@ -60,6 +62,8 @@
 		on:uploaded={handleDocumentUploaded}
 	/>
 {/if}
+
+<ToastContainer toasts={toastStore.toasts} onRemove={(id) => toastStore.remove(id)} />
 
 {@render children?.()}
 
