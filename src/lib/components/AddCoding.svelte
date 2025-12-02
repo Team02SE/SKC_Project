@@ -10,17 +10,19 @@
 		documentId?: number;
 		excludeCodingIds?: Set<number>;
 		onCodingAdded?: (coding: Coding) => void;
+		parentId?: number | null;
+		autoOpenDropdown?: boolean;
 	}
 
-	let { customClass = '', type, availableCodings = [], documentId, excludeCodingIds, onCodingAdded }: Props = $props();
+	let { customClass = '', type, availableCodings = [], documentId, excludeCodingIds, onCodingAdded, parentId, autoOpenDropdown = false }: Props = $props();
 
-	let isDropdownOpen = $state(false);
+	let isDropdownOpen = $state(autoOpenDropdown);
 	let searchQuery = $state('');
 	let selectedCoding = $state<Coding | null>(null);
 
 	let filteredCodings = $derived(
 		(availableCodings || [])
-			.filter(coding => !coding.parent_id)
+			.filter(coding => parentId !== null && parentId !== undefined ? true : !coding.parent_id)
 			.filter(coding => !excludeCodingIds || !excludeCodingIds.has(coding.id))
 			.filter(coding => 
 				coding.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -33,7 +35,16 @@
 	}
 
 	function selectCoding(coding: Coding) {
-		selectedCoding = coding;
+		if (onCodingAdded) {
+			const codingWithoutChildren = {
+				...coding,
+				children: null
+			};
+			onCodingAdded(codingWithoutChildren);
+		}
+		
+		// Reset state
+		selectedCoding = null;
 		isDropdownOpen = false;
 		searchQuery = '';
 	}
@@ -41,23 +52,30 @@
 	function handleAdd() {
 		if (!selectedCoding || !onCodingAdded) return;
 		
-		onCodingAdded(selectedCoding);
+		const codingWithoutChildren = {
+			...selectedCoding,
+			children: null
+		};
+		
+		onCodingAdded(codingWithoutChildren);
 		selectedCoding = null;
 	}
 </script>
 
-<div class={`flex flex-col gap-2 ${customClass}`}>
+<div class={`flex flex-col flex-1 gap-2 ${customClass}`}>
 	<div class="relative">
-		<button
-			type="button"
-			onclick={toggleDropdown}
-			class="flex h-10 w-full items-center rounded-2xl shadow-md/25 hover:shadow-md transition-shadow"
-		>
-			<p class="flex-1 pl-4 font-medium text-left {selectedCoding ? 'text-light-text-primary' : 'text-light-text-primary/50'}">
-				{selectedCoding ? `${selectedCoding.number} - ${selectedCoding.name}` : 'Select coding...'}
-			</p>
-			<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" />
-		</button>
+		{#if !autoOpenDropdown}
+			<button
+				type="button"
+				onclick={toggleDropdown}
+				class="flex h-10 w-full items-center rounded-2xl shadow-md/25 hover:shadow-md transition-shadow"
+			>
+				<p class="flex-1 pl-4 font-medium text-left {selectedCoding ? 'text-light-text-primary' : 'text-light-text-primary/50'}">
+					{selectedCoding ? `${selectedCoding.number} - ${selectedCoding.name}` : 'Select coding...'}
+				</p>
+				<ButtonSvg type="dropdown" size={6} customClass="mr-2 ml-auto" />
+			</button>
+		{/if}
 
 		{#if isDropdownOpen}
 			<div class="absolute z-10 mt-2 w-full max-h-80 overflow-y-auto rounded-2xl bg-white shadow-lg border border-gray-200">
@@ -96,22 +114,5 @@
 		{/if}
 	</div>
 
-	{#if selectedCoding}
-		<div class="mt-2 p-4 rounded-xl bg-gray-50 border border-gray-200">
-			<h3 class="text-sm font-semibold text-light-text-primary mb-1">Selected:</h3>
-			<p class="text-lg font-medium text-light-text-primary">{selectedCoding.number} - {selectedCoding.name}</p>
-			{#if selectedCoding.description}
-				<p class="text-sm text-gray-600 mt-2">{selectedCoding.description}</p>
-			{/if}
-		</div>
-	{/if}
 
-	<!-- Add button -->
-	<div class="flex justify-end">
-		<ButtonText
-			text="Add"
-			customClass="text-sm bg-light-button-primary rounded-md w-20 {!selectedCoding ? 'opacity-50 cursor-not-allowed' : ''}"
-			onClick={handleAdd}
-		/>
-	</div>
 </div>

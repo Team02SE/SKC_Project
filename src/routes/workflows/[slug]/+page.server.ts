@@ -1,11 +1,14 @@
 import type { PageServerLoad } from './$types';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
-import type { Workflow } from '$lib/types';
+import type { Workflow, WorkflowDocument } from '$lib/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const apiBase = env.API_URL;
-	const workflowId = params.slug;
+
+	// the backend will fetch correct workflow based on the id of the document it belongs to
+	// document id is being passed as a slug here
+	const documentId = params.slug;
 
 	const header = {
 		headers: {
@@ -16,21 +19,34 @@ export const load: PageServerLoad = async ({ params }) => {
 	};
 
 	try {
-		const workflowRes = await fetch(`${apiBase}/workflows/${workflowId}`, header);
+		const workflowRes = await fetch(`${apiBase}/workflows/${documentId}`, header);
+		const documentRes = await fetch(`${apiBase}/documents/${documentId}`, header);
+		const pdf = await fetch(`${apiBase}/documents/file/${documentId}`, header);
 
-		if (!workflowRes.ok) {
+		if (!workflowRes.ok || !documentRes.ok) {
 			if (workflowRes.status === 404) {
-				throw error(404, `Workflow with ID ${workflowId} not found`);
+				throw error(
+					404,
+					`Workflow with ID ${documentId} not found or document with ID ${documentId} not found !`
+				);
 			}
-			throw error(workflowRes.status, `Failed to fetch document: ${workflowRes.statusText}`);
+			throw error(workflowRes.status, `Failed to fetch workfow: ${workflowRes.statusText}`);
 		}
 
 		const workflowData = await workflowRes.json();
+		const documentData = await documentRes.json();
+		const pdfData = await pdf.blob();
 
-		console.log(`Workflow ${workflowId} loaded correctly`);
+		const pdfUrl = URL.createObjectURL(pdfData);
+
+		console.log(`Workflow ${documentId} loaded correctly`);
+		console.log(`Document ${documentId} loaded correctly`);
+		console.log(`PDF With temp url ${pdfUrl} loaded correctly !`);
 
 		return {
-			workflowData: workflowData as Workflow
+			documentData: documentData as WorkflowDocument,
+			workflowData: workflowData as Workflow,
+			pdfUrl: pdfUrl as string
 		};
 	} catch (err) {
 		console.log('Error loading workflow:', err);

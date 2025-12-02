@@ -1,17 +1,19 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
 	import DocumentCard from '$lib/components/DocumentCard.svelte';
-	import ButtonSvg from '$lib/components/ButtonSvg.svelte';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import FilterBar from '$lib/components/FilterBar.svelte';
-	import UploadComplete from '$lib/components/UploadComplete.svelte';
 	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+	import type { WorkflowDocument } from '$lib/types';
+	import { invalidateAll } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 
 	let searchQuery = $state('');
 	let statusFilter = $state<number[]>([]);
 	let sortOption: 'lastModified-asc' | 'lastModified-desc' | null = $state('lastModified-desc');
+	let selectedDocument = $state<WorkflowDocument | null>(null);
 
 	function getFilteredDocuments() {
 		let filtered = data.documents;
@@ -44,6 +46,26 @@
 		return filtered;
 	}
 
+	const filteredDocuments = $derived(getFilteredDocuments());
+
+	$effect(() => {
+		if (filteredDocuments.length === 0) {
+			if (selectedDocument !== null) {
+				selectedDocument = null;
+			}
+			return;
+		}
+
+		if (!selectedDocument) {
+			selectedDocument = filteredDocuments[0];
+			return;
+		}
+
+		if (!filteredDocuments.some((doc) => doc.id === selectedDocument?.id)) {
+			selectedDocument = filteredDocuments[0];
+		}
+	});
+
 	function handleSearch(event: CustomEvent<string>) {
 		searchQuery = event.detail;
 	}
@@ -55,9 +77,14 @@
 	function handleSort(event: CustomEvent<'lastModified-asc' | 'lastModified-desc' | null>) {
 		sortOption = event.detail;
 	}
+
+	function handleDocumentDeleted(doc: WorkflowDocument) {
+		if (selectedDocument?.id === doc.id) {
+			selectedDocument = null;
+		}
+	}
 </script>
 
-<!-- <UploadComplete/> -->
 <div class="flex h-18 w-full items-center justify-between p-4">
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />

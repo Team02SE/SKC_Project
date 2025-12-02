@@ -11,6 +11,8 @@ export type Coding = {
 	updated_at?: string;
 	expanded?: boolean;
 	isNew?: boolean;
+	isDeleted?: boolean;
+	isOptionsOpen?: boolean;
 };
 
 export type Activity = Coding;
@@ -23,7 +25,7 @@ export type SystemVulnerability = Coding;
 
 export type DStep = Coding;
 
-export type Document = {
+export type WorkflowDocument = {
 	id: number;
 	Title: string;
 	Source: string;
@@ -31,6 +33,10 @@ export type Document = {
 	Conclusion: string;
 	Status: number;
 	UpdatedAt: string;
+	CreatedAt?: string;
+	FileName?: string;
+	FileMime?: string;
+	FileSize?: number;
 };
 
 export type EssenceData = {
@@ -41,7 +47,6 @@ export type EssenceData = {
 
 export type Workflow = {
 	id: number;
-	Document: Document;
 	Activities: Activity[];
 	Effects: Effect[];
 	Os: OpportunityStructure[];

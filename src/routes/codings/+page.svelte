@@ -35,12 +35,17 @@
 		});
 	}
 
-	// Maps tab IDs to their display titles and corresponding data keys in the codings object
 	const tabConfig = {
 		activities: { title: 'Activities', key: 'activities' as const },
 		effects: { title: 'Effects', key: 'effects' as const },
-		'opportunity-structures': { title: 'Opportunity structures', key: 'opportunityStructures' as const },
-		'system-vulnerabilities': { title: 'System vulnerabilities', key: 'systemVulnerabilities' as const },
+		'opportunity-structures': {
+			title: 'Opportunity structures',
+			key: 'opportunityStructures' as const
+		},
+		'system-vulnerabilities': {
+			title: 'System vulnerabilities',
+			key: 'systemVulnerabilities' as const
+		},
 		dsteps: { title: 'Dsteps', key: 'dsteps' as const }
 	};
 
@@ -49,7 +54,6 @@
 	let selectedTab = $state<TabKey>('activities');
 	let codingToEdit = $state<Coding | undefined>(undefined);
 
-	// Automatically derive the title based on the selected tab
 	let selectedCodingTitle = $derived(tabConfig[selectedTab].title);
 
 	function OnTabChange(tab: string) {
@@ -94,6 +98,7 @@
 	}
 
 	function OnCodingSelected(coding: Coding) {
+		isCreateForm = false;
 		codingToEdit = coding;
 	}
 
@@ -108,6 +113,24 @@
 			codingToEdit = undefined;
 		}
 	}
+
+	let isCreateForm = $state(false);
+
+	function handleAddOption(parent_id: number) {
+		isCreateForm = true;
+
+		codingToEdit = {
+			id: -1,
+			parent_id,
+			name: '',
+			description: '',
+			number: 0,
+			type: selectedCodingTitle.toLowerCase(),
+			children: [],
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+		};
+	}
 </script>
 
 <!-- <UploadComplete/> -->
@@ -116,7 +139,7 @@
 
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
-<!--		<FilterBar />-->
+		<!--		<FilterBar />-->
 	</div>
 </div>
 
@@ -127,6 +150,8 @@
 			onCodingSelected={OnCodingSelected}
 			label={selectedCodingTitle}
 			rootNodes={getFilteredCodings()}
+			onCodingNodeAdded={handleAddOption}
+			onCodingDeleted={OnCodingDeleted}
 		/>
 	</div>
 	<div
@@ -136,6 +161,11 @@
 			onCodingDeleted={OnCodingDeleted}
 			coding={codingToEdit}
 			type={selectedCodingTitle}
+			{isCreateForm}
+			onCreated={() => {
+				codingToEdit = undefined;
+				isCreateForm = false;
+			}}
 		/>
 	</div>
 </section>
