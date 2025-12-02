@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
 	export interface CodingData {
 		id: number;
 		title: string;
@@ -12,19 +12,32 @@
 
 <script lang="ts">
 	import CardCodings from '../../Cards/CardCodings.svelte';
+	import TreeCodings from './TreeCodings.svelte';
 
-	export let data: CodingData;
-	export let type:
-		| 'activities'
-		| 'effects'
-		| 'opportunity-structures'
-		| 'system-vulnerabilities'
-		| 'destep';
-	export let codingId: number | undefined = undefined;
-	export let hasDeletedAncestor: boolean = false;
-	export let onAddSubRequest: ((parentId: number) => void) | undefined = undefined;
-	export let onDeleteRequest: ((codingId: number) => void) | undefined = undefined;
-	export let onCancelRequest: ((codingId: number) => void) | undefined = undefined;
+	interface Props {
+		data: CodingData;
+		type:
+			| 'activities'
+			| 'effects'
+			| 'opportunity-structures'
+			| 'system-vulnerabilities'
+			| 'destep';
+		codingId?: number;
+		hasDeletedAncestor?: boolean;
+		onAddSubRequest?: (parentId: number) => void;
+		onDeleteRequest?: (codingId: number) => void;
+		onCancelRequest?: (codingId: number) => void;
+	}
+
+	let {
+		data,
+		type,
+		codingId = undefined,
+		hasDeletedAncestor = false,
+		onAddSubRequest = undefined,
+		onDeleteRequest = undefined,
+		onCancelRequest = undefined
+	}: Props = $props();
 </script>
 
 <div class="flex h-auto w-full flex-col gap-3">
@@ -45,9 +58,9 @@
 		{#if data.children && data.children.length > 0}
 			<div class="mt-2 flex flex-col gap-2">
 				{#each data.children ?? [] as child}
-					<svelte:self
+					<TreeCodings
 						data={child}
-						type={type}
+						{type}
 						codingId={child.id}
 						hasDeletedAncestor={hasDeletedAncestor || (data.isDeleted ?? false)}
 						{onAddSubRequest}

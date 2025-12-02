@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
+	import DropdownList from '../DropdownList/DropdownList.svelte';
 
 	interface Props {
 		label?: string;
@@ -43,7 +44,10 @@
 
 	let isButtonDisabled = $derived(hasDeletedAncestor && isDeleted);
 
-	let buttonOnClick = () => {
+	let buttonOnClick = (e?: MouseEvent) => {
+		if (e) {
+			e.stopPropagation();
+		}
 		if (isButtonDisabled) return;
 		if (isDeleted) {
 			handleCancel();
@@ -72,6 +76,19 @@
 		}
 		showDropdown = false;
 	}
+
+	// Build menu items based on state
+	let menuItems = $derived(
+		isNew
+			? [
+					{ label: `Add sub-${type}`, onClick: handleAddSub },
+					{ label: 'Cancel', onClick: handleCancel }
+				]
+			: [
+					{ label: `Add sub-${type}`, onClick: handleAddSub },
+					{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
+				]
+	);
 </script>
 
 <div
@@ -90,28 +107,12 @@
 			customClass="mr-2 ml-auto {isButtonDisabled ? 'opacity-30 cursor-not-allowed' : ''}"
 			onClick={buttonOnClick}
 		/>
-		{#if showDropdown && isNew}
-			<div class="absolute left-1/2 z-10 w-40 -translate-x-1/2 rounded-2xl bg-white p-2 shadow-lg">
-				<button
-					class="w-full cursor-pointer rounded-lg p-2 hover:bg-gray-100"
-					onclick={handleAddSub}>Add sub-{type}</button
-				>
-				<button
-					class="w-full cursor-pointer rounded-lg p-2 hover:bg-gray-100"
-					onclick={handleCancel}>Cancel</button
-				>
-			</div>
-		{:else if showDropdown && !isPending}
-			<div class="absolute left-1/2 z-10 w-40 -translate-x-1/2 rounded-2xl bg-white p-2 shadow-lg">
-				<button
-					class="w-full cursor-pointer rounded-lg p-2 hover:bg-gray-100"
-					onclick={handleAddSub}>Add sub-{type}</button
-				>
-				<button
-					class="w-full cursor-pointer rounded-lg p-2 hover:bg-gray-100"
-					onclick={handleDelete}>Delete</button
-				>
-			</div>
+		{#if showDropdown}
+			<DropdownList
+				menuItems={menuItems}
+				position="center"
+				onClose={() => (showDropdown = false)}
+			/>
 		{/if}
 	</div>
 </div>

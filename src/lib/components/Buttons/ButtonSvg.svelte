@@ -17,7 +17,7 @@
 		type?: string;
 		size?: number;
 		customClass?: string;
-		onClick?: () => void;
+		onClick?: (e?: MouseEvent) => void;
 		asChild?: boolean;
 	}
 
@@ -25,7 +25,7 @@
 		type = 'default',
 		size = 8,
 		customClass = '',
-		onClick = () => {},
+		onClick = (e?: MouseEvent) => {},
 		asChild = false
 	}: Props = $props();
 
@@ -65,7 +65,7 @@
 	<button
 		type="button"
 		class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
-		onclick={onClick}
+		onclick={(e) => onClick(e)}
 		aria-label={type}
 	>
 		<img src={iconSrc} alt={type} class={sizeClass} />
