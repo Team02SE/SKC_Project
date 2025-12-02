@@ -8,14 +8,14 @@
 	import PDFView from '$lib/components/PDFView.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import {
+		useWorkflowState,
 		getTotalPendingCount,
 		hasPendingChanges,
 		mergeCodingsWithPending,
 		type CodingType
-	} from '$lib/utils/codingHelpers';
-	import { useWorkflowState } from '$lib/utils/workflowState.svelte';
-	import { saveWorkflowChanges } from '$lib/utils/workflowApi';
-	import { useSectionNavigation } from '$lib/utils/sectionNavigation.svelte';
+	} from '$lib/utils/workflow/workflowState.svelte';
+	import { saveWorkflowChanges } from '$lib/utils/workflow/workflowApi';
+	import { useSectionNavigation } from '$lib/utils/navigation/sectionNavigation.svelte';
 
 	let { data }: PageProps = $props();
 

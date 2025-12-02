@@ -4,7 +4,7 @@
 	import AddSubCoding from './AddSubCoding.svelte';
 	import type { Coding } from '$lib/types';
 	import { codingToCodingData, getAllCodingIds } from '$lib';
-	import { findCodingById } from '$lib/utils/codingHelpers';
+	import { findCodingById } from '$lib/utils/coding/codingHelpers';
 	import AddNewCoding from './AddNewCoding.svelte';
 
 	interface Props {
@@ -98,7 +98,6 @@
 				<AddCoding
 					{type}
 					{availableCodings}
-					{documentId}
 					excludeCodingIds={existingCodingIds}
 					{onCodingAdded}
 				/>

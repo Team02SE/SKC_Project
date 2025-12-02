@@ -1,15 +1,20 @@
 import type { Coding } from '$lib/types';
+import { getAllCodingIds, findCodingById } from '../coding/codingHelpers';
+import type { PendingCodingsState, CodingType } from './pendingState/types';
 import {
 	createEmptyPendingState,
 	addCodingToPending,
 	addCodingToPendingDeletions,
 	removeCodingFromPendingDeletions,
-	removeCodingFromPending,
-	getAllCodingIds,
-	findCodingById,
-	type PendingCodingsState,
-	type CodingType
-} from './codingHelpers';
+	removeCodingFromPending
+} from './pendingState/operations';
+
+export type { PendingCodingsState, CodingType } from './pendingState/types';
+export { createEmptyPendingState, addCodingToPending, getTotalPendingCount,
+	    hasPendingChanges, addCodingToPendingDeletions, removeCodingFromPendingDeletions,
+	    removeCodingFromPending
+} from './pendingState/operations';
+export { mergeCodingsWithPending } from './pendingState/merger';
 
 /**
  * Composable for managing workflow editing state

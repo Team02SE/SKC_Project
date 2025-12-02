@@ -1,10 +1,33 @@
 import type { Coding } from '$lib/types';
-import {
-	addPendingCodingsToWorkflow,
-	removePendingDeletions,
-	type PendingCodingsState,
-	type CodingType
-} from './codingHelpers';
+import { addPendingCodingsToWorkflow } from '../coding/codingHelpers';
+import type { PendingCodingsState, CodingType } from './workflowState.svelte';
+
+/**
+ * Helper: Creates a deletion key for tracking pending deletions
+ */
+function createDeletionKey(type: string, codingId: number): string {
+	return `${type}:${codingId}`;
+}
+
+/**
+ * Removes codings marked for deletion from the tree
+ */
+function removePendingDeletions<T extends Coding>(
+	codings: T[],
+	pendingDeletions: Set<string>,
+	currentType: string
+): T[] {
+	if (pendingDeletions.size === 0) return codings;
+
+	return codings
+		.filter((coding) => !pendingDeletions.has(createDeletionKey(currentType, coding.id)))
+		.map((coding) => ({
+			...coding,
+			children: coding.children
+				? removePendingDeletions(coding.children as T[], pendingDeletions, currentType)
+				: []
+		}));
+}
 
 /**
  * Create a new coding via API
