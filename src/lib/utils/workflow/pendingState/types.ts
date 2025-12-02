@@ -14,5 +14,5 @@ export interface PendingCodingsState {
 	dsteps: Coding[];
 	os: Coding[];
 	sv: Coding[];
-	pendingDeletions: Set<string>;
+	pendingDeletions: Map<CodingType, Set<number>>;
 }

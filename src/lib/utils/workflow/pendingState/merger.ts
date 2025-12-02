@@ -1,16 +1,20 @@
 import type { Coding } from '$lib/types';
 import type { CodingType } from './types';
 import { normalizeCodingsData, buildPendingByParentMap } from '../../coding/codingHelpers';
-import { createDeletionKey } from './operations';
 
 /**
- * Merges existing codings with pending codings
- * Also marks codings in pendingDeletions with isDeleted flag
+ * Merges existing codings with pending codings.
+ * Also marks codings in pendingDeletions with isDeleted flag.
+ * @param existingCodings - Array of existing codings.
+ * @param pendingCodings - Array of pending codings to merge.
+ * @param pendingDeletions - Optional map of coding types to sets of deleted IDs.
+ * @param currentType - Optional current coding type.
+ * @returns Merged array with pending codings integrated and deleted items marked.
  */
 export function mergeCodingsWithPending<T extends Coding>(
 	existingCodings: T[],
 	pendingCodings: T[],
-	pendingDeletions?: Set<string>,
+	pendingDeletions?: Map<CodingType, Set<number>>,
 	currentType?: CodingType
 ): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
@@ -21,7 +25,7 @@ export function mergeCodingsWithPending<T extends Coding>(
 		...coding,
 		isDeleted:
 			pendingDeletions && currentType
-				? pendingDeletions.has(createDeletionKey(currentType, coding.id))
+				? pendingDeletions.get(currentType)?.has(coding.id) || false
 				: false,
 		children: (coding.children || []).map((child) => markDeleted(child as T))
 	});

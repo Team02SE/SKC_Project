@@ -1,7 +1,26 @@
 import type { Coding } from '$lib/types';
+import type { CodingData } from '$lib/components/TreeCodings.svelte';
 
 /**
- * Helper: Builds a map of parent IDs to their pending children
+ * Converts a Coding object to CodingData format for TreeCodings component.
+ * @param coding - The Coding object to convert.
+ * @returns The corresponding CodingData object.
+ */
+export function codingToCodingData(coding: Coding): CodingData {
+	return {
+		id: coding.id,
+		title: coding.name,
+		label: coding.number.toString(),
+		children: coding.children?.map(child => codingToCodingData(child)),
+		isNew: coding.isNew,
+		isDeleted: coding.isDeleted
+	};
+}
+
+/**
+ * Builds a map of parent IDs to their pending children.
+ * @param pendingCodings - Array of pending codings to organize by parent.
+ * @returns A Map where keys are parent IDs and values are arrays of child codings.
  */
 export function buildPendingByParentMap<T extends Coding>(
 	pendingCodings: T[]
@@ -18,9 +37,11 @@ export function buildPendingByParentMap<T extends Coding>(
 	return map;
 }
 
-
 /**
- * Recursively finds a coding by ID in a tree
+ * Recursively finds a coding by ID in a tree structure.
+ * @param codings - Array of codings to search through.
+ * @param id - The ID of the coding to find.
+ * @returns The found coding or null if not found.
  */
 export function findCodingById<T extends Coding>(codings: T[], id: number): T | null {
 	for (const coding of codings) {
@@ -33,7 +54,11 @@ export function findCodingById<T extends Coding>(codings: T[], id: number): T | 
 	return null;
 }
 
-// Normalizes coding data by ensuring children arrays are never null (recursive)
+/**
+ * Normalizes coding data by ensuring children arrays are never null (recursive).
+ * @param items - Array of codings to normalize.
+ * @returns Normalized array where all children properties are arrays (never null).
+ */
 export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 	return items.map((item) => ({
 		...item,
@@ -42,7 +67,11 @@ export function normalizeCodingsData<T extends Coding>(items: T[]): T[] {
 }
 
 /**
- * Adds pending codings to workflow codings for saving to the backend
+ * Adds pending codings to workflow codings for saving to the backend.
+ * Merges pending codings into the existing workflow coding tree structure.
+ * @param workflowCodings - Existing workflow codings.
+ * @param pendingCodings - Pending codings to add.
+ * @returns Combined array with pending codings merged into the tree.
  */
 export function addPendingCodingsToWorkflow<T extends Coding>(
 	workflowCodings: T[],
@@ -72,24 +101,19 @@ export function addPendingCodingsToWorkflow<T extends Coding>(
 	return [...updatedCodings, ...topLevelPending];
 }
 
-export function removeCodingById<T extends Coding>(codings: T[], codingId: number): T[] {
-	return codings
-		.filter(coding => coding.id !== codingId)
-		.map(coding => ({
-			...coding,
-			children: coding.children ? removeCodingById(coding.children as T[], codingId) : []
-		}));
-}
-
 /**
- * Recursively collects all coding IDs including children
+ * Recursively collects all coding IDs from an array of codings, including nested children.
+ * @param codings - Array of codings to extract IDs from.
+ * @returns A Set containing all unique coding IDs.
  */
-export function getAllCodingIds<T extends Coding>(coding: T): number[] {
-	const ids = [coding.id];
-	if (coding.children && coding.children.length > 0) {
-		for (const child of coding.children) {
-			ids.push(...getAllCodingIds(child as T));
+export function getAllCodingIds<T extends Coding>(codings: T[]): Set<number> {
+	const ids = new Set<number>();
+	function traverse(coding: T) {
+		ids.add(coding.id);
+		if (coding.children) {
+			coding.children.forEach(child => traverse(child as T));
 		}
 	}
+	codings.forEach(traverse);
 	return ids;
 }

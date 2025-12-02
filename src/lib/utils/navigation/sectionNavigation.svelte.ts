@@ -36,14 +36,27 @@ export function useSectionNavigation() {
 		vulnerabilities: null
 	});
 
+	/**
+	 * Sets the container element reference for scroll tracking.
+	 * @param node - The container div element or null.
+	 */
 	function setContainerRef(node: HTMLDivElement | null) {
 		containerRef = node;
 	}
 
+	/**
+	 * Sets a section element reference.
+	 * @param section - The section ID.
+	 * @param node - The section div element or null.
+	 */
 	function setSectionRef(section: SectionId, node: HTMLDivElement | null) {
 		sectionRefs[section] = node;
 	}
 
+	/**
+	 * Handles container scroll events to update the selected section.
+	 * Finds the section closest to the container top.
+	 */
 	function onContainerScroll() {
 		if (!containerRef) return;
 		const containerTop = containerRef.getBoundingClientRect().top;
@@ -72,6 +85,10 @@ export function useSectionNavigation() {
 		selectedId = nearest;
 	}
 
+	/**
+	 * Smoothly scrolls to a specific section.
+	 * @param id - The section ID to scroll to.
+	 */
 	function scrollToSection(id: SectionId) {
 		const target = sectionRefs[id];
 		if (!target || !containerRef) return;

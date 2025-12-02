@@ -2,14 +2,8 @@ import type { Coding } from '$lib/types';
 import type { PendingCodingsState, CodingType } from './types';
 
 /**
- * Helper: Creates a deletion key for tracking pending deletions
- */
-export function createDeletionKey(type: CodingType | string, codingId: number): string {
-	return `${type}:${codingId}`;
-}
-
-/**
- * Creates an empty pending state
+ * Creates an empty pending state.
+ * @returns A new PendingCodingsState with empty arrays and maps.
  */
 export function createEmptyPendingState(): PendingCodingsState {
 	return {
@@ -18,12 +12,16 @@ export function createEmptyPendingState(): PendingCodingsState {
 		dsteps: [],
 		os: [],
 		sv: [],
-		pendingDeletions: new Set<string>()
+		pendingDeletions: new Map<CodingType, Set<number>>()
 	};
 }
 
 /**
- * Adds a coding to the pending state for a specific type
+ * Adds a coding to the pending state for a specific type.
+ * @param state - The current pending state.
+ * @param type - The coding type.
+ * @param coding - The coding to add.
+ * @returns A new pending state with the coding added.
  */
 export function addCodingToPending<T extends Coding>(
 	state: PendingCodingsState,
@@ -37,32 +35,44 @@ export function addCodingToPending<T extends Coding>(
 }
 
 /**
- * Gets the total count of pending changes (additions + deletions)
+ * Gets the total count of pending changes (additions + deletions).
+ * @param state - The pending state to count.
+ * @returns Total number of pending additions and deletions.
  */
 export function getTotalPendingCount(state: PendingCodingsState): number {
 	const additionsCount = Object.entries(state)
 		.filter(([key]) => key !== 'pendingDeletions')
 		.reduce((sum, [, arr]) => sum + (arr as any[]).length, 0);
-	return additionsCount + state.pendingDeletions.size;
+	const deletionsCount = Array.from(state.pendingDeletions.values())
+		.reduce((sum, set) => sum + set.size, 0);
+	return additionsCount + deletionsCount;
 }
 
 /**
- * Checks if there are any pending changes
+ * Checks if there are any pending changes.
+ * @param state - The pending state to check.
+ * @returns True if there are any pending changes, false otherwise.
  */
 export function hasPendingChanges(state: PendingCodingsState): boolean {
 	return getTotalPendingCount(state) > 0;
 }
 
 /**
- * Adds a coding to pending deletions
+ * Adds a coding to pending deletions.
+ * @param state - The current pending state.
+ * @param codingId - The ID of the coding to mark for deletion.
+ * @param type - The coding type.
+ * @returns A new pending state with the coding marked for deletion.
  */
 export function addCodingToPendingDeletions(
 	state: PendingCodingsState,
 	codingId: number,
 	type: CodingType
 ): PendingCodingsState {
-	const newDeletions = new Set(state.pendingDeletions);
-	newDeletions.add(createDeletionKey(type, codingId));
+	const newDeletions = new Map(state.pendingDeletions);
+	const typeSet = newDeletions.get(type) || new Set<number>();
+	typeSet.add(codingId);
+	newDeletions.set(type, new Set(typeSet));
 	return {
 		...state,
 		pendingDeletions: newDeletions
@@ -70,15 +80,28 @@ export function addCodingToPendingDeletions(
 }
 
 /**
- * Removes a coding from pending deletions
+ * Removes a coding from pending deletions.
+ * @param state - The current pending state.
+ * @param codingId - The ID of the coding to unmark.
+ * @param type - The coding type.
+ * @returns A new pending state with the coding unmarked from deletion.
  */
 export function removeCodingFromPendingDeletions(
 	state: PendingCodingsState,
 	codingId: number,
 	type: CodingType
 ): PendingCodingsState {
-	const newDeletions = new Set(state.pendingDeletions);
-	newDeletions.delete(createDeletionKey(type, codingId));
+	const newDeletions = new Map(state.pendingDeletions);
+	const typeSet = newDeletions.get(type);
+	if (typeSet) {
+		const newTypeSet = new Set(typeSet);
+		newTypeSet.delete(codingId);
+		if (newTypeSet.size === 0) {
+			newDeletions.delete(type);
+		} else {
+			newDeletions.set(type, newTypeSet);
+		}
+	}
 	return {
 		...state,
 		pendingDeletions: newDeletions
@@ -86,7 +109,11 @@ export function removeCodingFromPendingDeletions(
 }
 
 /**
- * Removes a coding from the pending additions list
+ * Removes a coding from the pending additions list.
+ * @param state - The current pending state.
+ * @param type - The coding type.
+ * @param codingId - The ID of the coding to remove.
+ * @returns A new pending state with the coding removed from additions.
  */
 export function removeCodingFromPending(
 	state: PendingCodingsState,

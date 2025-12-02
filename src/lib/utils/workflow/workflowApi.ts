@@ -3,24 +3,22 @@ import { addPendingCodingsToWorkflow } from '../coding/codingHelpers';
 import type { PendingCodingsState, CodingType } from './workflowState.svelte';
 
 /**
- * Helper: Creates a deletion key for tracking pending deletions
- */
-function createDeletionKey(type: string, codingId: number): string {
-	return `${type}:${codingId}`;
-}
-
-/**
- * Removes codings marked for deletion from the tree
+ * Removes codings marked for deletion from the tree.
+ * @param codings - Array of codings to filter.
+ * @param pendingDeletions - Map of coding types to sets of deleted IDs.
+ * @param currentType - The current coding type.
+ * @returns Filtered array with deleted codings removed.
  */
 function removePendingDeletions<T extends Coding>(
 	codings: T[],
-	pendingDeletions: Set<string>,
-	currentType: string
+	pendingDeletions: Map<CodingType, Set<number>>,
+	currentType: CodingType
 ): T[] {
-	if (pendingDeletions.size === 0) return codings;
+	const deletedIds = pendingDeletions.get(currentType);
+	if (!deletedIds || deletedIds.size === 0) return codings;
 
 	return codings
-		.filter((coding) => !pendingDeletions.has(createDeletionKey(currentType, coding.id)))
+		.filter((coding) => !deletedIds.has(coding.id))
 		.map((coding) => ({
 			...coding,
 			children: coding.children
@@ -30,7 +28,10 @@ function removePendingDeletions<T extends Coding>(
 }
 
 /**
- * Create a new coding via API
+ * Create a new coding via API.
+ * @param coding - The coding to create.
+ * @param typeString - The type string for the API endpoint.
+ * @returns The created coding with real ID, or null if creation failed.
  */
 export async function createCoding(coding: Coding, typeString: string): Promise<Coding | null> {
 	const formData = new FormData();
@@ -43,7 +44,6 @@ export async function createCoding(coding: Coding, typeString: string): Promise<
 	}
 
 	try {
-		console.log('Creating coding:', coding.name, 'type:', typeString);
 		const response = await fetch('/codings?/codings', {
 			method: 'POST',
 			body: formData
@@ -55,7 +55,6 @@ export async function createCoding(coding: Coding, typeString: string): Promise<
 		}
 
 		const result = await response.json();
-		console.log('Raw result from server:', result);
 
 		let parsedData = result.data;
 		if (typeof parsedData === 'string') {
@@ -63,7 +62,6 @@ export async function createCoding(coding: Coding, typeString: string): Promise<
 		}
 
 		const codingId = parsedData?.[0]?.data;
-		console.log('Created coding ID:', codingId);
 
 		if (codingId) {
 			return {
@@ -80,7 +78,10 @@ export async function createCoding(coding: Coding, typeString: string): Promise<
 }
 
 /**
- * Recursively create new codings and build a map of temporary IDs to real IDs
+ * Recursively create new codings and build a map of temporary IDs to real IDs.
+ * @param codings - Array of codings to create.
+ * @param typeString - The type string for the API endpoint.
+ * @param idMap - Map to populate with temporary ID to real ID mappings.
  */
 export async function createNewCodingsAndBuildIdMap(
 	codings: Coding[],
@@ -90,14 +91,11 @@ export async function createNewCodingsAndBuildIdMap(
 	for (const coding of codings) {
 		if (coding.id < 0) {
 			const tempId = coding.id;
-			console.log(`Processing new coding with temp ID ${tempId}:`, coding.name);
 
 			const realParentId =
 				coding.parent_id && coding.parent_id < 0
 					? idMap.get(coding.parent_id)
 					: coding.parent_id;
-
-			console.log(`Parent ID: ${coding.parent_id} -> Real parent ID: ${realParentId}`);
 
 			const codingToCreate = {
 				...coding,
@@ -106,9 +104,6 @@ export async function createNewCodingsAndBuildIdMap(
 
 			const createdCoding = await createCoding(codingToCreate, typeString);
 			if (createdCoding && createdCoding.id) {
-				console.log(
-					`Created coding ${coding.name} with ID ${createdCoding.id}, mapped from temp ID ${tempId}`
-				);
 				idMap.set(tempId, createdCoding.id);
 			} else {
 				console.error(`Failed to create coding: ${coding.name}`);
@@ -122,7 +117,10 @@ export async function createNewCodingsAndBuildIdMap(
 }
 
 /**
- * Replace temporary (negative) IDs with real IDs from the map
+ * Replace temporary (negative) IDs with real IDs from the map.
+ * @param codings - Array of codings with temporary IDs.
+ * @param idMap - Map of temporary IDs to real IDs.
+ * @returns Array of codings with real IDs.
  */
 export function replaceTemporaryIds(codings: Coding[], idMap: Map<number, number>): Coding[] {
 	return codings
@@ -144,12 +142,17 @@ export function replaceTemporaryIds(codings: Coding[], idMap: Map<number, number
 }
 
 /**
- * Apply pending changes to workflow codings
+ * Apply pending changes to workflow codings.
+ * @param workflowCodings - Existing workflow codings.
+ * @param pendingCodingsForType - Pending codings to add.
+ * @param pendingDeletions - Map of coding types to sets of deleted IDs.
+ * @param type - The coding type.
+ * @returns Updated codings array with pending changes applied.
  */
 export function applyPendingChanges(
 	workflowCodings: Coding[],
 	pendingCodingsForType: Coding[],
-	pendingDeletions: Set<string>,
+	pendingDeletions: Map<CodingType, Set<number>>,
 	type: CodingType
 ): Coding[] {
 	return removePendingDeletions(
@@ -160,7 +163,11 @@ export function applyPendingChanges(
 }
 
 /**
- * Save all workflow changes to the server
+ * Save all workflow changes to the server.
+ * @param documentId - The document ID.
+ * @param workflow - The workflow object.
+ * @param pendingCodings - State containing all pending changes.
+ * @throws Error if save fails.
  */
 export async function saveWorkflowChanges(
 	documentId: number,
