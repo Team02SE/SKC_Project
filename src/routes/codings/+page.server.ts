@@ -1,52 +1,50 @@
-import { env } from '$env/dynamic/private';
-import type { PageServerLoad } from './$types';
 import type { Actions } from './$types';
-
-export const load: PageServerLoad = async () => {
-	//Codings are now loaded in the root layout (+layout.server.ts)
-	//Leaving this here instead of deleting for clarity for potential merge conflicts
-	return {};
-};
+import { apiFetch } from '$lib/utils/server/api';
 
 export const actions = {
 	codings: async ({ request }) => {
 		const data = await request.formData();
 
-		const name = data.get(`name`);
-		const description = data.get(`description`);
-		const number = data.get(`number`);
-		const type = (data.get(`type`) as string || '').toLowerCase().trim();
-		const parent_id = data.get(`parent_id`);
+		const name = data.get('name');
+		const description = data.get('description');
+		const number = data.get('number');
+		let type = (data.get('type') as string || '').replace(/[\s_]+/g, '-').toLowerCase().trim();
+		const parent_id = data.get('parent_id');
 
 		if (!type) {
 			throw new Error('Missing type parameter');
 		}
 
-		const url = `${env.API_URL}/${type}`;
+		// Map destep to dsteps backend endpoint
+		if (type === 'destep') { type = 'dsteps'; }
 
-		console.log("sending request");
+		const processedParentId = parent_id && parent_id !== '' ? Number(parent_id) : null;
 
-		const res = await fetch(url, {
+		const payload: {
+			name: FormDataEntryValue | null;
+			description: FormDataEntryValue | null;
+			number: number;
+			parent_id?: number;
+		} = {
+			name,
+			description,
+			number: number ? Number(number) : 0
+		};
+
+		if (processedParentId !== null) {
+			payload.parent_id = processedParentId;
+		}
+
+		const result = await apiFetch(`/${type}`, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: env.API_KEY
-			},
-			body: JSON.stringify({
-				name,
-				description,
-				number: number ? Number(number) : 0,
-				parent_id: parent_id !== null ? Number(parent_id) : null
-			})
+			body: JSON.stringify(payload)
 		});
 
-		console.log("sending");
-
-		if (!res.ok) {
-			const errorBody = await res.text();
-			console.error(`API Error [${res.status}]:`, errorBody);
-			throw new Error(`Failed to create coding: ${res.status} ${res.statusText}`);
+		if (result.error) {
+			console.error(`API Error [${result.status}]:`, result.error);
+			throw new Error(`Failed to create coding: ${result.status} ${result.error}`);
 		}
-		return { success: true };
+
+		return { success: true, data: result.data };
 	}
 } satisfies Actions;

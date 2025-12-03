@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { Forbidden, GenericError, NetworkError, NotFound, ServerError, Unauthorized } from '$lib/components/ErrorPages';
 
 	type EnhancedError = App.Error & { status?: number | string; cause?: unknown; name?: string };
 
-	export let error: EnhancedError | undefined;
-	export let status: number | string | undefined;
+	let error = $derived($page.error as EnhancedError | null | undefined);
+	let status = $derived($page.status);
 
 	const coerceStatus = (value: unknown) => {
 		const numberValue =
@@ -17,46 +18,35 @@
 		return Number.isFinite(numberValue) ? numberValue : undefined;
 	};
 
-	let normalizedStatus = 500;
-	let message: string | undefined;
-	let lowerMessage: string | undefined;
-	let causeCode: string | undefined;
-	let isNetworkError = false;
-	let genericProps = {
-		title: 'Unexpected error',
-		message: 'An unexpected error occurred. Please try again.'
-	};
-
-	$: normalizedStatus =
+	let normalizedStatus = $derived(
 		coerceStatus(status) ??
 		coerceStatus(error?.status) ??
-		(error ? 500 : 404);
+		(error ? 500 : 404)
+	);
 
-	$: {
+	let message = $derived.by(() => {
 		const rawMessage = error?.message;
 		if (typeof rawMessage === 'string') {
 			const trimmed = rawMessage.trim();
-			message = trimmed.length > 0 ? trimmed : undefined;
-		} else {
-			message = undefined;
+			return trimmed.length > 0 ? trimmed : undefined;
 		}
-	}
+		return undefined;
+	});
 
-	$: lowerMessage = message?.toLowerCase();
+	let lowerMessage = $derived(message?.toLowerCase());
 
-	$: {
+	let causeCode = $derived.by(() => {
 		const cause = error?.cause as { code?: unknown } | undefined;
-		causeCode = typeof cause?.code === 'string' ? cause.code : undefined;
-	}
+		return typeof cause?.code === 'string' ? cause.code : undefined;
+	});
 
-	$: {
-		isNetworkError =
-			normalizedStatus === 0 ||
-			(error?.name === 'TypeError' && !!lowerMessage?.includes('fetch')) ||
-			!!causeCode?.startsWith('ECONN');
-	}
+	let isNetworkError = $derived(
+		normalizedStatus === 0 ||
+		(error?.name === 'TypeError' && !!lowerMessage?.includes('fetch')) ||
+		!!causeCode?.startsWith('ECONN')
+	);
 
-	$: genericProps = {
+	let genericProps = $derived({
 		title:
 			normalizedStatus >= 500
 				? 'Unexpected server error'
@@ -68,15 +58,17 @@
 			(normalizedStatus >= 500
 				? 'We are experiencing difficulties. Please try again later.'
 				: 'An unexpected error occurred. Please try again.')
-	};
+	});
 
-	$: if (import.meta.env.DEV) {
-		console.error('Route error handled by +error.svelte', {
-			status: normalizedStatus,
-			receivedStatus: status,
-			error
-		});
-	}
+	$effect(() => {
+		if (import.meta.env.DEV) {
+			console.error('Route error handled by +error.svelte', {
+				status: normalizedStatus,
+				receivedStatus: status,
+				error
+			});
+		}
+	});
 </script>
 
 {#if isNetworkError}

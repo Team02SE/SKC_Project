@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import Header from '$lib/components/Header.svelte';
+	import Header from '$lib/components/Layout/Header.svelte';
 
 	let currentTheme = $state('light');
 	let currentAccentColor = $state('#F8851C'); // Default orange

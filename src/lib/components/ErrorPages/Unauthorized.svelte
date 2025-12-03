@@ -43,8 +43,8 @@
 			</button>
 		</div>
 		
-		<div class="mt-8 text-sm" style="color: var(--color-light-text-primary); opacity: 0.6;">
-			<p>Don't have an account? <a href="" class="underline" style="color: var(--color-light-active-primary);">Sign up here</a></p>
-		</div>
+	<div class="mt-8 text-sm" style="color: var(--color-light-text-primary); opacity: 0.6;">
+		<p>Don't have an account? <button type="button" class="underline" style="color: var(--color-light-active-primary); background: none; border: none; padding: 0; cursor: pointer;">Sign up here</button></p>
+	</div>
 	</div>
 </div>

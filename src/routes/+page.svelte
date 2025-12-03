@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Header from '$lib/components/Header.svelte';
-	import DocumentCard from '$lib/components/DocumentCard.svelte';
-	import SearchBar from '$lib/components/SearchBar.svelte';
-	import FilterBar from '$lib/components/FilterBar.svelte';
-	import DocumentInfo from '$lib/components/DocumentInfo.svelte';
+	import Header from '$lib/components/Layout/Header.svelte';
+	import DocumentCard from '$lib/components/Cards/DocumentCard.svelte';
+	import SearchBar from '$lib/components/Search/SearchBar.svelte';
+	import FilterBar from '$lib/components/Search/FilterBar.svelte';
+	import DocumentInfo from '$lib/components/Documents/DocumentInfo.svelte';
 	import type { WorkflowDocument } from '$lib/types';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
@@ -85,21 +85,21 @@
 	}
 </script>
 
-<div class="flex h-18 w-full items-center justify-between p-4">
+<div class="flex h-18 w-full items-center justify-between px-4 py-2 sm:p-4">
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
 		<FilterBar on:filter={handleFilter} on:sort={handleSort} />
 	</div>
 </div>
 
-<div class="flex w-full gap-5 px-4 py-2">
-	<div class="h-full w-5/12 overflow-y-visible rounded-2xl bg-light-primary inset-shadow-sm/25">
+<div class="flex w-full flex-col gap-5 px-2 py-2 sm:px-4 lg:flex-row">
+	<div class="h-[50vh] w-full overflow-y-auto rounded-2xl bg-light-primary inset-shadow-sm/25 lg:h-[calc(100vh-200px)] lg:w-5/12">
 		{#each getFilteredDocuments() as workflowDocument, index}
 			<DocumentCard {workflowDocument} roundedTop={index == 0} />
 		{/each}
 	</div>
 	<div
-		class="flex flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25"
+		class="flex min-h-[50vh] flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25 lg:min-h-[calc(100vh-200px)]"
 	>
 		<DocumentInfo />
 	</div>

@@ -6,6 +6,7 @@
 	import DropdownList from '../DropdownList/DropdownList.svelte';
 	import LeafNode from './LeafNode.svelte';
 	import TreeViewEntry from './TreeViewEntires.svelte';
+	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
 
 	interface Props {
 		rootNodes: Coding[];
@@ -17,6 +18,30 @@
 
 	let options = { duration: 200 };
 
+	function createMenuItems(node: Coding) {
+		async function handleDelete() {
+			const response = await fetch(`/codings/${node.id}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ type: node.type })
+			});
+
+			if (response.ok) {
+				toastStore.success(`"${node.name}" deleted successfully`);
+				onCodingDeleted(node);
+			} else {
+				console.error('Delete failed:', response.statusText);
+				toastStore.error('Failed to delete coding');
+			}
+			node.isOptionsOpen = false;
+		}
+
+		return [
+			{ label: 'Add', onClick: () => { onCodingNodeAdded(node.id ?? null); node.isOptionsOpen = false; } },
+			{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
+		];
+	}
+
 </script>
 
 <div class="w-full flex-col items-start py-2">
@@ -26,7 +51,7 @@
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<div
-					class="flex w-full items-center gap-1 rounded-2xl bg-white text-start font-bold shadow-md"
+					class="flex w-full items-center gap-1 rounded-2xl bg-white text-start shadow-md"
 				>
 					<button
 						type="button"
@@ -48,17 +73,17 @@
 							<p class="m-0 leading-tight">Description:</p>
 						</div>
 					</div>
-					<div class="relative inline-block">
-						<button class="mr-10 duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
-							<img src={more} alt="more" class="h-10 w-10" />
-						</button>
-						{#if node.isOptionsOpen}
-							<DropdownList 
-								rootNode={node}
-								onCodingNodeAdded={onCodingNodeAdded}
-								onCodingDeleted={onCodingDeleted}
-							/>
-						{/if}
+					<div class="relative mr-10">
+					<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
+						<img src={more} alt="more" class="h-10 w-10" />
+					</button>
+					{#if node.isOptionsOpen}
+						<DropdownList 
+							menuItems={createMenuItems(node)}
+							position="center"
+							onClose={() => node.isOptionsOpen = false}
+						/>
+					{/if}
 					</div>
 				</div>
 				{#if node.expanded}

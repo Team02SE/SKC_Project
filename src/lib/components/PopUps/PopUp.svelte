@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ButtonText from '../ButtonText.svelte';
+	import ButtonText from '../Buttons/ButtonText.svelte';
 
 	let { heading, question, onYes, onClose } = $props();
 </script>
