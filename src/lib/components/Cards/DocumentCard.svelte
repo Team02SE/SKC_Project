@@ -52,24 +52,29 @@
 		goto(`/workflows/` + workflowDocument.id);
 	}
 
-	function IntToStatusColour(doc_status: number): string {
-		if (doc_status === 0) return 'bg-red-500'; // Not started
-		if (doc_status === 1) return 'bg-orange-500'; // In progress
-		if (doc_status === 2) return 'bg-green-500'; // Finished
-		return 'bg-black'; // Fallback
+	const statusConfig = {
+		0: { color: 'bg-red-500', label: 'Not started' },
+		1: { color: 'bg-orange-500', label: 'In progress' },
+		2: { color: 'bg-green-500', label: 'Finished' }
+	} as const;
+
+	function getStatusConfig(status: number) {
+		return statusConfig[status as keyof typeof statusConfig] || { color: 'bg-black', label: 'Unknown' };
 	}
 
-	function IntToStatusString(doc_status: number): string {
-		if (doc_status === 0) {
-			return 'Not started';
-		} // Not started - red
-		if (doc_status === 1) {
-			return 'In progress';
-		} // In progress - orange
-		if (doc_status === 2) {
-			return 'Finished ';
-		} // Finished - green
-		return 'Unknown'; // Fallback - black
+	function formatDate(dateString: string): string {
+		try {
+			const date = new Date(dateString);
+			return date.toLocaleDateString('en-US', {
+				year: 'numeric',
+				month: 'long',
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit'
+			});
+		} catch {
+			return dateString;
+		}
 	}
 </script>
 
@@ -90,12 +95,12 @@
 	<div class="flex flex-col items-start">
 		<div class="flex items-center">
 			<h2 class="text-xl font-semibold sm:text-2xl md:text-3xl">{workflowDocument.Title}</h2>
-			<div class="{IntToStatusColour(workflowDocument.Status)} ml-4 rounded-full p-1"></div>
+			<div class="{getStatusConfig(workflowDocument.Status).color} ml-4 rounded-full p-1"></div>
 		</div>
 		<div class="flex flex-row items-center">
-			<p class="text-sm sm:text-base">Status: {IntToStatusString(workflowDocument.Status)}</p>
+			<p class="text-sm sm:text-base">Status: {getStatusConfig(workflowDocument.Status).label}</p>
 		</div>
-		<p class="text-sm sm:text-base">Last modified: {workflowDocument.UpdatedAt}</p>
+		<p class="text-sm sm:text-base">Last modified: {formatDate(workflowDocument.UpdatedAt)}</p>
 	</div>
 
 	<div class="flex shrink-0 flex-row gap-4 [@media(min-width:1100px)]:flex-col [@media(min-width:1500px)]:flex-row">

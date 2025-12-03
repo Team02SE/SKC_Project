@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
 	import DropdownList from '../DropdownList/DropdownList.svelte';
+	import { dropdownState } from '$lib/utils/dropdownState.svelte';
 
 	interface Props {
 		label?: string;
@@ -37,7 +38,8 @@
 		onCancelRequest = undefined
 	}: Props = $props();
 
-	let showDropdown: boolean = $state(false);
+	let dropdownId = $derived(`card-${type}-${codingId ?? Math.random()}`);
+	let showDropdown = $derived(dropdownState.isOpen(dropdownId));
 
 	let isPending = $derived(isNew || isDeleted);
 	let currentIcon = $derived(isDeleted ? 'close' : isNew ? 'moreOptions' : buttonIcon);
@@ -52,7 +54,7 @@
 		if (isDeleted) {
 			handleCancel();
 		} else {
-			showDropdown = !showDropdown;
+			dropdownState.toggle(dropdownId);
 		}
 	};
 
@@ -60,21 +62,21 @@
 		if (codingId !== undefined && onAddSubRequest) {
 			onAddSubRequest(codingId);
 		}
-		showDropdown = false;
+		dropdownState.close(dropdownId);
 	}
 
 	function handleDelete() {
 		if (codingId !== undefined && onDeleteRequest) {
 			onDeleteRequest(codingId);
 		}
-		showDropdown = false;
+		dropdownState.close(dropdownId);
 	}
 
 	function handleCancel() {
 		if (codingId !== undefined && onCancelRequest) {
 			onCancelRequest(codingId);
 		}
-		showDropdown = false;
+		dropdownState.close(dropdownId);
 	}
 
 	// Build menu items based on state
@@ -111,7 +113,7 @@
 			<DropdownList
 				menuItems={menuItems}
 				position="center"
-				onClose={() => (showDropdown = false)}
+				onClose={() => dropdownState.close(dropdownId)}
 				customClass="w-45"
 			/>
 		{/if}
