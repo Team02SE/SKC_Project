@@ -114,8 +114,7 @@
 
 	function handleReasoningChange(sectionId: CodingType, value: string) {
 		reasoningNotes = {
-			...reasoningNotes,
-			[sectionId]: value
+
 		};
 	}
 </script>
