@@ -68,6 +68,8 @@
 		}, {} as Record<CodingType, Coding[]>)
 	);
 
+	let reasoningNotes = $state<Partial<Record<CodingType, string>>>({});
+
 	// Section refs for navigation
 	let containerRef: HTMLDivElement;
 	let essenceRef: HTMLDivElement;
@@ -109,6 +111,12 @@
 
 	let hasChanges = $derived(hasPendingChanges(workflowState.pendingCodings));
 	let pendingCount = $derived(getTotalPendingCount(workflowState.pendingCodings));
+
+	function handleReasoningChange(sectionId: CodingType, value: string) {
+		reasoningNotes = {
+
+		};
+	}
 </script>
 
 <!-- Top bar -->
@@ -166,6 +174,22 @@
 					onDeleteRequest={(codingId) => workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
 					onCancelRequest={(codingId) => workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
 				/>
+				<div class="rounded-xl bg-white/80 p-4 inset-shadow-sm/25">
+					<label
+						for={`reasoning-${section.id}`}
+						class="mb-2 block text-xs font-semibold uppercase tracking-wide text-light-text-secondary"
+					>
+						Reasoning
+					</label>
+					<textarea
+						id={`reasoning-${section.id}`}
+						class="min-h-[5rem] w-full resize-none border-0 bg-transparent p-0 text-sm text-light-text-primary outline-none focus:ring-0"
+						placeholder="Add brief explanation of why certain codings were chosen or left blank..."
+						value={reasoningNotes[section.id] ?? ''}
+						oninput={(event) =>
+							handleReasoningChange(section.id, (event.target as HTMLTextAreaElement).value)}
+					></textarea>
+				</div>
 			</div>
 		{/each}
 	</div>

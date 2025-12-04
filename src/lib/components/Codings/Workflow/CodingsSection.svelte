@@ -77,7 +77,7 @@
 	}
 </script>
 
-<div class="relative mb-50">
+<div class="relative mb-10">
 	<h1 class="text-4xl font-bold text-light-text-primary">{title}</h1>
 	<div class="flex h-full w-full gap-30">
 		<div class="flex w-full gap-5">
