@@ -1,38 +1,24 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
+import { getApiBaseUrl, createApiHeaders, createErrorResponse } from '$lib/utils/server/api';
 
 export const POST: RequestHandler = async ({ request }) => {
-	const apiBase = env.API_URL;
-	const apiKey = env.API_KEY;
-
-	console.log('Attempting to submit the document....');
-	if (!apiBase || !apiKey) {
-		return new Response('API configuration missing', { status: 500 });
+	const apiBase = getApiBaseUrl();
+	if (!apiBase) {
+		return createErrorResponse('API configuration missing', 500);
 	}
 
-	const incomingFormData = await request.formData();
-
-	const forwardFormData = new FormData();
-	for (const [key, value] of incomingFormData.entries()) {
-		forwardFormData.append(key, value);
-	}
-
-	console.log(forwardFormData);
+	const formData = await request.formData();
 
 	try {
 		const response = await fetch(`${apiBase}/workflows`, {
 			method: 'POST',
-			headers: {
-				Authorization: apiKey
-			},
-			body: forwardFormData
+			headers: createApiHeaders(false),
+			body: formData
 		});
 
 		if (!response.ok) {
 			const errorBody = await response.text();
-			return new Response(errorBody || response.statusText, {
-				status: response.status
-			});
+			return createErrorResponse(errorBody || response.statusText, response.status);
 		}
 
 		const body = await response.arrayBuffer();
@@ -45,6 +31,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 	} catch (error) {
 		console.error('Error forwarding document upload:', error);
-		return new Response('Failed to upload document', { status: 502 });
+		return createErrorResponse('Failed to upload document', 502);
 	}
 };

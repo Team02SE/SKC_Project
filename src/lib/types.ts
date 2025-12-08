@@ -47,10 +47,10 @@ export type EssenceData = {
 
 export type Workflow = {
 	id: number;
-	Activities: Activity[];
-	Effects: Effect[];
-	Os: OpportunityStructure[];
-	Sv: SystemVulnerability[];
-	Dsteps: DStep[];
+	activities: Activity[];
+	effects: Effect[];
+	'opportunity-structures': OpportunityStructure[];
+	'system-vulnerabilities': SystemVulnerability[];
+	destep: DStep[];
 	updated_at: string;
 };
