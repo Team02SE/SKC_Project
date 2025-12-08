@@ -86,6 +86,7 @@
 </script>
 
 <div class="flex h-18 w-full items-center justify-between px-4 py-2 sm:p-4">
+	<h1 class="text-3xl font-bold text-gray-800">Workflow Documents</h1>
 	<div class="flex h-full flex-1 justify-end gap-2">
 		<SearchBar on:search={handleSearch} />
 		<FilterBar on:filter={handleFilter} on:sort={handleSort} />

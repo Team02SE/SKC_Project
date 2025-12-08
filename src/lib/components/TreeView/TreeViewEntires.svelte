@@ -7,6 +7,7 @@
 	import LeafNode from './LeafNode.svelte';
 	import TreeViewEntry from './TreeViewEntires.svelte';
 	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
+	import { dropdownState } from '$lib/utils/dropdownState.svelte';
 
 	interface Props {
 		rootNodes: Coding[];
@@ -18,7 +19,7 @@
 
 	let options = { duration: 200 };
 
-	function createMenuItems(node: Coding) {
+	function createMenuItems(node: Coding, dropdownId: string) {
 		async function handleDelete() {
 			const response = await fetch(`/codings/${node.id}`, {
 				method: 'DELETE',
@@ -33,11 +34,11 @@
 				console.error('Delete failed:', response.statusText);
 				toastStore.error('Failed to delete coding');
 			}
-			node.isOptionsOpen = false;
+			dropdownState.close(dropdownId);
 		}
 
 		return [
-			{ label: 'Add', onClick: () => { onCodingNodeAdded(node.id ?? null); node.isOptionsOpen = false; } },
+			{ label: 'Add', onClick: () => { onCodingNodeAdded(node.id ?? null); dropdownState.close(dropdownId); } },
 			{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
 		];
 	}
@@ -46,6 +47,7 @@
 
 <div class="w-full flex-col items-start py-2">
 	{#each rootNodes as node (node.id)}
+		{@const dropdownId = `tree-${node.type}-${node.id}`}
 		<div class="mt-2 ml-4">
 			{#if node.children && node.children.length > 0}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -74,14 +76,14 @@
 						</div>
 					</div>
 					<div class="relative mr-10">
-					<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); node.isOptionsOpen = !node.isOptionsOpen; }}>
+					<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); dropdownState.toggle(dropdownId); }}>
 						<img src={more} alt="more" class="h-10 w-10" />
 					</button>
-					{#if node.isOptionsOpen}
+					{#if dropdownState.isOpen(dropdownId)}
 						<DropdownList 
-							menuItems={createMenuItems(node)}
+							menuItems={createMenuItems(node, dropdownId)}
 							position="center"
-							onClose={() => node.isOptionsOpen = false}
+							onClose={() => dropdownState.close(dropdownId)}
 						/>
 					{/if}
 					</div>

@@ -3,6 +3,7 @@
 	import more from '$lib/assets/three-dots-circle.svg';
 	import DropdownList from './../DropdownList/DropdownList.svelte';
 	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
+	import { dropdownState } from '$lib/utils/dropdownState.svelte';
 
 	interface Props {
 		coding: Coding;
@@ -12,9 +13,12 @@
 	}
 	let { coding, onCodingSelected, onCodingNodeAdded, onCodingDeleted }: Props = $props();
 
+	let dropdownId = $derived(`leaf-${coding.type}-${coding.id}`);
+	let isOpen = $derived(dropdownState.isOpen(dropdownId));
+
 	function handleAdd() {
 		onCodingNodeAdded(coding.id ?? null);
-		coding.isOptionsOpen = false;
+		dropdownState.close(dropdownId);
 	}
 
 	async function handleDelete() {
@@ -31,7 +35,7 @@
 			console.error('Delete failed:', response.statusText);
 			toastStore.error('Failed to delete coding');
 		}
-		coding.isOptionsOpen = false;
+		dropdownState.close(dropdownId);
 	}
 
 	let menuItems = $derived([
@@ -58,14 +62,14 @@
 		</button>
 	</div>
 	<div class="relative inline-block mr-10">
-		<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); coding.isOptionsOpen = !coding.isOptionsOpen; }}>
+		<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); dropdownState.toggle(dropdownId); }}>
 			<img src={more} alt="more" class="h-10 w-10" />
 		</button>
 
-		{#if coding.isOptionsOpen}
+		{#if isOpen}
 			<DropdownList 
 				{menuItems}
-				onClose={() => coding.isOptionsOpen = false} 
+				onClose={() => dropdownState.close(dropdownId)} 
 			/>
 		{/if}
 	</div>
