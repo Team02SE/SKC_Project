@@ -21,11 +21,7 @@
 		<DocumentEditField {allowEdit} label="Language" value={workflowDocument.Language} />
 	</div>
 
-	<div class="rounded-2xl border border-gray-200 bg-white/70 p-6 shadow-inner shadow-gray-200">
-		<DocumentEditField {allowEdit} label="Summary" value={workflowDocument.Conclusion} />
-	</div>
+	<DocumentEditField {allowEdit} label="Summary" value={workflowDocument.Conclusion} />
 
-	<div class="rounded-2xl border border-gray-200 bg-white/70 p-6 shadow-inner shadow-gray-200">
-		<DocumentEditField {allowEdit} label="Essence" value={workflowDocument.Essence} />
-	</div>
+	<DocumentEditField {allowEdit} label="Essence" value={workflowDocument.Essence} />
 </section>
