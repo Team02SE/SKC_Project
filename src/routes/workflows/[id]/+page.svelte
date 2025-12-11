@@ -48,7 +48,7 @@
 
 	// Generate merged codings for each section
 	const sections = $derived(
-		sectionConfigs.map(config => ({
+		sectionConfigs.map((config) => ({
 			...config,
 			data: mergeCodingsWithPending(
 				workflow[config.id],
@@ -62,10 +62,13 @@
 
 	// Create a map of codings by type for state management
 	let codingsMap = $derived<Record<CodingType, Coding[]>>(
-		sections.reduce((acc, section) => {
-			acc[section.id] = section.data;
-			return acc;
-		}, {} as Record<CodingType, Coding[]>)
+		sections.reduce(
+			(acc, section) => {
+				acc[section.id] = section.data;
+				return acc;
+			},
+			{} as Record<CodingType, Coding[]>
+		)
 	);
 
 	let reasoningNotes = $state<Partial<Record<CodingType, string>>>({});
@@ -81,7 +84,7 @@
 
 	$effect(() => {
 		navigation.setSectionRef('essence', essenceRef);
-		sections.forEach(section => {
+		sections.forEach((section) => {
 			navigation.setSectionRef(section.id, sectionRefs[section.id] || null);
 		});
 	});
@@ -113,9 +116,7 @@
 	let pendingCount = $derived(getTotalPendingCount(workflowState.pendingCodings));
 
 	function handleReasoningChange(sectionId: CodingType, value: string) {
-		reasoningNotes = {
-
-		};
+		reasoningNotes = {};
 	}
 </script>
 
@@ -171,13 +172,15 @@
 					availableCodings={section.availableCodings}
 					documentId={document.id}
 					onCodingAdded={(coding) => handleCodingAdded(coding, section.id)}
-					onDeleteRequest={(codingId) => workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
-					onCancelRequest={(codingId) => workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
+					onDeleteRequest={(codingId) =>
+						workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
+					onCancelRequest={(codingId) =>
+						workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
 				/>
 				<div class="rounded-xl bg-white/80 p-4 inset-shadow-sm/25">
 					<label
 						for={`reasoning-${section.id}`}
-						class="mb-2 block text-xs font-semibold uppercase tracking-wide text-light-text-secondary"
+						class="text-light-text-secondary mb-2 block text-xs font-semibold tracking-wide uppercase"
 					>
 						Reasoning
 					</label>
@@ -199,10 +202,10 @@
 		class="flex h-[calc(100vh-240px)] flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 inset-shadow-sm/25"
 	>
 		{#if data.pdfUrl}
-			<PDFView pdfUrl={data.pdfUrl} />
+			<PDFView allowEdit={true} pdfMetadata={document} pdfUrl={data.pdfUrl} />
 		{:else}
 			<div class="text-center text-gray-500">
-				<p class="text-xl mb-2">PDF not available</p>
+				<p class="mb-2 text-xl">PDF not available</p>
 				<p class="text-sm">The document file could not be loaded</p>
 			</div>
 		{/if}

@@ -37,6 +37,7 @@ export type WorkflowDocument = {
 	FileName?: string;
 	FileMime?: string;
 	FileSize?: number;
+	Language: string;
 };
 
 export type EssenceData = {

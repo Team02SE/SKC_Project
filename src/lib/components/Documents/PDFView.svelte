@@ -1,8 +1,18 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
+	import Toggle from '../Forms/Toggle.svelte';
+	import MetaView from './MetaView.svelte';
+	import MetadataCard from '../Cards/MetadataCard.svelte';
+	import type { WorkflowDocument } from '$lib/types';
+	import { fade } from 'svelte/transition';
 
-	const props = $props<{ pdfUrl?: string; scale?: number; useProxy?: boolean }>();
+	const props = $props<{
+		pdfUrl?: string;
+		scale?: number;
+		useProxy?: boolean;
+		pdfMetadata: WorkflowDocument;
+	}>();
 
 	const originalPdfUrl = $derived(
 		props.pdfUrl ??
@@ -21,6 +31,7 @@
 	let isLoading = $state(true);
 	let error: string | null = $state(null);
 	let pdfjsLib: any = null;
+	let showPdf: Boolean = $state(true);
 
 	onMount(async () => {
 		if (browser) {
@@ -146,9 +157,13 @@
 			input.value = currentPage.toString();
 		}
 	}
+
+	function onToggle(val: Boolean) {
+		showPdf = val;
+	}
 </script>
 
-<div class="flex h-full w-full flex-col">
+<div class="flex h-full w-full flex-col items-center">
 	{#if isLoading}
 		<div class="flex h-full items-center justify-center">
 			<div class="text-light-text-primary">Loading PDF...</div>
@@ -158,58 +173,65 @@
 			<div class="text-red-600">Error: {error}</div>
 		</div>
 	{:else}
-		<div
-			class="mb-4 flex items-center justify-between rounded-lg bg-light-primary px-4 py-2 shadow"
-		>
-			<div class="flex items-center gap-2">
-				<button
-					onclick={previousPage}
-					disabled={currentPage <= 1}
-					class="rounded bg-light-secondary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary disabled:cursor-not-allowed disabled:bg-gray-300 disabled:opacity-50"
-				>
-					Previous
-				</button>
-				<div class="flex items-center gap-1">
-					<span class="text-sm text-light-text-primary">Page</span>
-					<input
-						type="number"
-						min="1"
-						max={totalPages}
-						value={currentPage}
-						oninput={handlePageInput}
-						onblur={handlePageInputBlur}
-						class="w-16 rounded border border-light-secondary bg-light-primary px-2 py-1 text-center text-sm text-light-text-primary focus:border-light-active-primary focus:outline-none"
-					/>
-					<span class="text-sm text-light-text-primary">of {totalPages}</span>
+		<div class="mb-10 self-start">
+			<Toggle {onToggle} labelOn="Document" lebelOff="Metadata" />
+		</div>
+		{#if showPdf}
+			<div
+				class="mb-4 flex w-full items-center justify-between rounded-lg bg-light-primary px-4 py-2 shadow"
+			>
+				<div class="flex items-center gap-2">
+					<button
+						onclick={previousPage}
+						disabled={currentPage <= 1}
+						class="rounded bg-light-button-primary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary disabled:cursor-not-allowed disabled:bg-gray-300 disabled:opacity-50"
+					>
+						Previous
+					</button>
+					<div class="flex items-center gap-1">
+						<span class="text-sm text-light-text-primary">Page</span>
+						<input
+							type="number"
+							min="1"
+							max={totalPages}
+							value={currentPage}
+							oninput={handlePageInput}
+							onblur={handlePageInputBlur}
+							class="w-16 rounded border border-light-secondary bg-light-primary px-2 py-1 text-center text-sm text-light-text-primary focus:border-light-active-primary focus:outline-none"
+						/>
+						<span class="text-sm text-light-text-primary">of {totalPages}</span>
+					</div>
+					<button
+						onclick={nextPage}
+						disabled={currentPage >= totalPages}
+						class="rounded bg-light-button-primary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary disabled:cursor-not-allowed disabled:bg-gray-300 disabled:opacity-50"
+					>
+						Next
+					</button>
 				</div>
-				<button
-					onclick={nextPage}
-					disabled={currentPage >= totalPages}
-					class="rounded bg-light-secondary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary disabled:cursor-not-allowed disabled:bg-gray-300 disabled:opacity-50"
-				>
-					Next
-				</button>
+
+				<div class="flex items-center gap-2">
+					<button
+						onclick={zoomOut}
+						class="rounded bg-light-button-primary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary"
+					>
+						Zoom Out
+					</button>
+					<span class="text-sm text-light-text-primary">{Math.round(scale * 100)}%</span>
+					<button
+						onclick={zoomIn}
+						class="rounded bg-light-button-primary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary"
+					>
+						Zoom In
+					</button>
+				</div>
 			</div>
 
-			<div class="flex items-center gap-2">
-				<button
-					onclick={zoomOut}
-					class="rounded bg-light-secondary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary"
-				>
-					Zoom Out
-				</button>
-				<span class="text-sm text-light-text-primary">{Math.round(scale * 100)}%</span>
-				<button
-					onclick={zoomIn}
-					class="rounded bg-light-secondary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary"
-				>
-					Zoom In
-				</button>
+			<div class="flex-1 overflow-auto rounded bg-light-primary">
+				<div bind:this={canvasContainer} class="min-h-full p-4"></div>
 			</div>
-		</div>
-
-		<div class="flex-1 overflow-auto rounded bg-light-primary">
-			<div bind:this={canvasContainer} class="min-h-full p-4"></div>
-		</div>
+		{:else}
+			<MetaView allowEdit={true} workflowDocument={props.pdfMetadata} />
+		{/if}
 	{/if}
 </div>
