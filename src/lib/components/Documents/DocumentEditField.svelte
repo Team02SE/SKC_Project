@@ -5,22 +5,24 @@
 
 	interface Props {
 		label: string;
-		value: string;
+		val: string;
 		allowEdit: Boolean;
+		onSave: Function;
 	}
 
-	let { label, value, allowEdit: allowEddit = false }: Props = $props();
+	let { label, val, onSave, allowEdit: allowEdit = false }: Props = $props();
 
-	const unchangedValue = value;
+	const unchangedValue = val;
 
-	function onSave() {
+	function handleSave() {
 		isEditing = false;
+		onSave();
 	}
 
-	function onCancle() {
+	function onCancel() {
 		console.log('canceling');
 		isEditing = false;
-		value = unchangedValue;
+		val = unchangedValue;
 	}
 </script>
 
@@ -28,19 +30,19 @@
 	<p class="text-xs tracking-wide text-gray-500 uppercase">{label}</p>
 	{#if isEditing}
 		<div class="flex w-full flex-col items-start">
-			<input class="h-full w-full rounded-xl bg-slate-100 shadow-lg" bind:value />
+			<input class="h-full w-full rounded-xl bg-slate-100 shadow-lg" bind:value={val} />
 			<div class="mt-2 flex flex-row items-center">
-				<ButtonText text="Save" onClick={onSave} />
+				<ButtonText text="Save" onClick={handleSave} />
 				<button
 					class="z-99 cursor-pointer p-2 text-sm text-red-500 duration-150 hover:underline"
-					onclick={onCancle}>Cancel</button
+					onclick={onCancel}>Cancel</button
 				>
 			</div>
 		</div>
 	{:else}
-		<p class="text-lg font-medium text-gray-900">{value}</p>
+		<p class="text-lg font-medium text-gray-900">{val}</p>
 	{/if}
-	{#if allowEddit && !isEditing}
+	{#if allowEdit && !isEditing}
 		<button
 			onclick={() => {
 				isEditing = true;

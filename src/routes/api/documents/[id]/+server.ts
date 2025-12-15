@@ -1,9 +1,10 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { apiFetch, createErrorResponse, createJsonResponse } from '$lib/utils/server/api';
 
 export const DELETE: RequestHandler = async ({ params }) => {
 	const { id } = params;
-	
+
 	if (!id) {
 		return new Response('Missing document ID', { status: 400 });
 	}
@@ -31,4 +32,26 @@ export const DELETE: RequestHandler = async ({ params }) => {
 		console.error('Error deleting document:', error);
 		return new Response('Internal server error', { status: 500 });
 	}
+};
+
+export const PUT: RequestHandler = async ({ request, params }) => {
+	const { id } = params;
+	if (!id) {
+		return createErrorResponse('Missing coding ID parameter', 400);
+	}
+
+	const data = await request.json();
+
+	console.log(data);
+
+	const result = await apiFetch(`/documents/${id}`, {
+		method: 'PUT',
+		body: JSON.stringify(data)
+	});
+
+	if (result.error) {
+		return createErrorResponse(result.error, result.status);
+	}
+
+	return createJsonResponse(result.data || { success: true });
 };

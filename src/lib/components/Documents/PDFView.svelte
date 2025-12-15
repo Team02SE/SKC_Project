@@ -7,23 +7,25 @@
 	import type { WorkflowDocument } from '$lib/types';
 	import { fade } from 'svelte/transition';
 
-	const props = $props<{
+	interface Props {
 		pdfUrl?: string;
 		scale?: number;
 		useProxy?: boolean;
 		pdfMetadata: WorkflowDocument;
-	}>();
+	}
+
+	let { pdfUrl, scale, useProxy, pdfMetadata }: Props = $props();
 
 	const originalPdfUrl = $derived(
-		props.pdfUrl ??
+		pdfUrl ??
 			'https://hz.nl/uploads/documents/1.4-Over-de-HZ/1.4.3.-Regelingen-en-documenten/OERS/2023-2024/Juli/TWE/IR-B-HBO-ICT-full-time-2023-2024-DEF.pdf'
 	);
-	const useProxy = $derived(props.useProxy ?? true);
-	const pdfUrl = $derived(
-		useProxy ? `/api/pdf?url=${encodeURIComponent(originalPdfUrl)}` : originalPdfUrl
+	const useproxy = $derived(useProxy ?? true);
+	const pdfurl = $derived(
+		useproxy ? `/api/pdf?url=${encodeURIComponent(originalPdfUrl)}` : originalPdfUrl
 	);
 
-	let scale: number = $state(props.scale ?? 1.25);
+	let Scale: number = $state(scale ?? 1.25);
 	let canvasContainer: HTMLDivElement | undefined = $state();
 	let currentPage = $state(1);
 	let totalPages = $state(0);
@@ -71,7 +73,7 @@
 				pdfDoc.destroy();
 			}
 
-			const loadingTask = pdfjsLib.getDocument(pdfUrl);
+			const loadingTask = pdfjsLib.getDocument(pdfurl);
 			pdfDoc = await loadingTask.promise;
 			totalPages = pdfDoc.numPages;
 			currentPage = 1;
@@ -130,15 +132,15 @@
 	}
 
 	function zoomIn() {
-		scale += 0.25;
-		if (scale > 1.5) {
-			scale = 1.5;
+		Scale += 0.25;
+		if (Scale > 1.5) {
+			Scale = 1.5;
 		}
 	}
 
 	function zoomOut() {
-		if (scale > 0.5) {
-			scale -= 0.25;
+		if (Scale > 0.5) {
+			Scale -= 0.25;
 		}
 	}
 
@@ -217,7 +219,7 @@
 					>
 						Zoom Out
 					</button>
-					<span class="text-sm text-light-text-primary">{Math.round(scale * 100)}%</span>
+					<span class="text-sm text-light-text-primary">{Math.round(Scale * 100)}%</span>
 					<button
 						onclick={zoomIn}
 						class="rounded bg-light-button-primary px-3 py-1 text-light-button-content-primary transition-colors hover:bg-light-active-primary"
@@ -231,7 +233,7 @@
 				<div bind:this={canvasContainer} class="min-h-full p-4"></div>
 			</div>
 		{:else}
-			<MetaView allowEdit={true} workflowDocument={props.pdfMetadata} />
+			<MetaView allowEdit={true} workflowDocument={pdfMetadata} />
 		{/if}
 	{/if}
 </div>

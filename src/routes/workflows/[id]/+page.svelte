@@ -202,7 +202,7 @@
 		class="flex h-[calc(100vh-240px)] flex-1 items-center justify-center rounded-2xl bg-light-primary p-5 inset-shadow-sm/25"
 	>
 		{#if data.pdfUrl}
-			<PDFView allowEdit={true} pdfMetadata={document} pdfUrl={data.pdfUrl} />
+			<PDFView pdfMetadata={document} pdfUrl={data.pdfUrl} />
 		{:else}
 			<div class="text-center text-gray-500">
 				<p class="mb-2 text-xl">PDF not available</p>
