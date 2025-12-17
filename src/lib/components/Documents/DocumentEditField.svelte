@@ -10,13 +10,13 @@
 		onSave: Function;
 	}
 
-	let { label, val, onSave, allowEdit: allowEdit = false }: Props = $props();
+	let { label, val = $bindable(), onSave, allowEdit: allowEdit = false }: Props = $props();
 
 	const unchangedValue = val;
 
-	function handleSave() {
+	async function handleSave() {
 		isEditing = false;
-		onSave();
+		await onSave();
 	}
 
 	function onCancel() {
@@ -32,7 +32,7 @@
 		<div class="flex w-full flex-col items-start">
 			<input class="h-full w-full rounded-xl bg-slate-100 shadow-lg" bind:value={val} />
 			<div class="mt-2 flex flex-row items-center">
-				<ButtonText text="Save" onClick={handleSave} />
+				<ButtonText text="Ok" onClick={handleSave} />
 				<button
 					class="z-99 cursor-pointer p-2 text-sm text-red-500 duration-150 hover:underline"
 					onclick={onCancel}>Cancel</button

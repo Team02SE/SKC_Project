@@ -2,17 +2,38 @@
 	import { fade } from 'svelte/transition';
 	import DocumentEditField from './DocumentEditField.svelte';
 	import type { WorkflowDocument } from '$lib/types';
+	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	interface Props {
 		allowEdit: Boolean;
 		workflowDocument: WorkflowDocument;
 	}
 
-	function OnDocumentSave() {
-		console.log(workflowDocument);
+	async function OnDocumentSave() {
+		try {
+			const response = await fetch(`/api/documents/${workflowDocument.id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ...workflowDocument })
+			});
+
+			if (!response.ok) {
+				console.error('Update failed:', response.statusText);
+				toastStore.error('Failed to update document');
+				return;
+			}
+
+			toastStore.success(`"${workflowDocument.Title}" updated successfully`);
+
+			await invalidateAll();
+		} catch (error) {
+			console.error('Error deleting document:', error);
+			toastStore.error('An error occurred while deleting the document');
+		}
 	}
 
-	const { allowEdit, workflowDocument }: Props = $props();
+	let { allowEdit, workflowDocument }: Props = $props();
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 text-light-text-primary">
@@ -21,13 +42,13 @@
 			onSave={OnDocumentSave}
 			{allowEdit}
 			label="Title"
-			val={workflowDocument.Title}
+			bind:val={workflowDocument.Title}
 		/>
 		<DocumentEditField
 			onSave={OnDocumentSave}
 			{allowEdit}
 			label="File name"
-			val={workflowDocument.FileName}
+			bind:val={workflowDocument.FileName}
 		/>
 	</div>
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -35,13 +56,13 @@
 			onSave={OnDocumentSave}
 			{allowEdit}
 			label="Organisation"
-			val={workflowDocument.Source}
+			bind:val={workflowDocument.Source}
 		/>
 		<DocumentEditField
 			onSave={OnDocumentSave}
 			{allowEdit}
 			label="Language"
-			val={workflowDocument.Language}
+			bind:val={workflowDocument.Language}
 		/>
 	</div>
 
@@ -49,13 +70,13 @@
 		onSave={OnDocumentSave}
 		{allowEdit}
 		label="Summary"
-		val={workflowDocument.Conclusion}
+		bind:val={workflowDocument.Conclusion}
 	/>
 
 	<DocumentEditField
 		onSave={OnDocumentSave}
 		{allowEdit}
 		label="Essence"
-		val={workflowDocument.Essence}
+		bind:val={workflowDocument.Essence}
 	/>
 </section>

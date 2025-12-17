@@ -29,7 +29,7 @@
 	});
 	let isSaving = $state(false);
 
-	let document = $derived(data.documentData);
+	let document = $state(data.documentData);
 
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',

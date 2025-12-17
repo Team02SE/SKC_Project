@@ -34,6 +34,7 @@
 	let error: string | null = $state(null);
 	let pdfjsLib: any = null;
 	let showPdf: Boolean = $state(true);
+	let documentToEdit = $derived(pdfMetadata);
 
 	onMount(async () => {
 		if (browser) {
@@ -235,7 +236,7 @@
 				<div bind:this={canvasContainer} class="min-h-full p-4"></div>
 			</div>
 		{:else}
-			<MetaView allowEdit={true} workflowDocument={pdfMetadata} />
+			<MetaView allowEdit={true} workflowDocument={documentToEdit} />
 		{/if}
 	{/if}
 </div>
