@@ -57,7 +57,7 @@
 
 	// Re-render when scale changes
 	$effect(() => {
-		if (canvasContainer && pdfDoc && scale) {
+		if (canvasContainer && pdfDoc) {
 			renderPage(currentPage);
 		}
 	});
@@ -78,6 +78,8 @@
 			totalPages = pdfDoc.numPages;
 			currentPage = 1;
 
+			await renderPage(1);
+
 			isLoading = false;
 		} catch (err: any) {
 			error = err.message || 'Failed to load PDF';
@@ -90,7 +92,7 @@
 
 		try {
 			const page = await pdfDoc.getPage(pageNumber);
-			const viewport = page.getViewport({ scale });
+			const viewport = page.getViewport({ scale: Scale });
 
 			canvasContainer.innerHTML = '';
 
