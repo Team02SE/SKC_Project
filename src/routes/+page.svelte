@@ -18,6 +18,7 @@
 
 	function getFilteredDocuments() {
 		let filtered = data.documents;
+		console.log(data.documents);
 
 		if (searchQuery.length > 0) {
 			const normalizedQuery = searchQuery.toLowerCase();

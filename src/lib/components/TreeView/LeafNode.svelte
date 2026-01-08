@@ -28,12 +28,13 @@
 			body: JSON.stringify({ type: coding.type })
 		});
 
+		let responseBody = await response.text();
+
 		if (response.ok) {
 			toastStore.success(`"${coding.name}" deleted successfully`);
 			onCodingDeleted(coding);
 		} else {
-			console.error('Delete failed:', response.statusText);
-			toastStore.error('Failed to delete coding');
+			toastStore.error(responseBody);
 		}
 		dropdownState.close(dropdownId);
 	}
@@ -44,9 +45,7 @@
 	]);
 </script>
 
-<div
-	class="flex w-full flex-row items-center gap-1 rounded-2xl bg-white text-start shadow-md"
->
+<div class="flex w-full flex-row items-center gap-1 rounded-2xl bg-white text-start shadow-md">
 	<div class="ml-4 w-full flex-col items-start p-1">
 		<button
 			class="flex w-full flex-col items-start"
@@ -61,16 +60,19 @@
 			</div>
 		</button>
 	</div>
-	<div class="relative inline-block mr-10">
-		<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); dropdownState.toggle(dropdownId); }}>
+	<div class="relative mr-10 inline-block">
+		<button
+			class="duration-100 hover:scale-110"
+			onclick={(e) => {
+				e.stopPropagation();
+				dropdownState.toggle(dropdownId);
+			}}
+		>
 			<img src={more} alt="more" class="h-10 w-10" />
 		</button>
 
 		{#if isOpen}
-			<DropdownList 
-				{menuItems}
-				onClose={() => dropdownState.close(dropdownId)} 
-			/>
+			<DropdownList {menuItems} onClose={() => dropdownState.close(dropdownId)} />
 		{/if}
 	</div>
 </div>

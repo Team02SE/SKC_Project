@@ -27,22 +27,29 @@
 				body: JSON.stringify({ type: node.type })
 			});
 
+			let responseBody = await response.text();
+
 			if (response.ok) {
 				toastStore.success(`"${node.name}" deleted successfully`);
 				onCodingDeleted(node);
 			} else {
 				console.error('Delete failed:', response.statusText);
-				toastStore.error('Failed to delete coding');
+				toastStore.error(responseBody);
 			}
 			dropdownState.close(dropdownId);
 		}
 
 		return [
-			{ label: 'Add', onClick: () => { onCodingNodeAdded(node.id ?? null); dropdownState.close(dropdownId); } },
+			{
+				label: 'Add',
+				onClick: () => {
+					onCodingNodeAdded(node.id ?? null);
+					dropdownState.close(dropdownId);
+				}
+			},
 			{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
 		];
 	}
-
 </script>
 
 <div class="w-full flex-col items-start py-2">
@@ -52,9 +59,7 @@
 			{#if node.children && node.children.length > 0}
 				<!-- svelte-ignore a11y_no_static_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
-				<div
-					class="flex w-full items-center gap-1 rounded-2xl bg-white text-start shadow-md"
-				>
+				<div class="flex w-full items-center gap-1 rounded-2xl bg-white text-start shadow-md">
 					<button
 						type="button"
 						onclick={() => (node.expanded = !node.expanded)}
@@ -76,22 +81,33 @@
 						</div>
 					</div>
 					<div class="relative mr-10">
-					<button class="duration-100 hover:scale-110" onclick={(e) => { e.stopPropagation(); dropdownState.toggle(dropdownId); }}>
-						<img src={more} alt="more" class="h-10 w-10" />
-					</button>
-					{#if dropdownState.isOpen(dropdownId)}
-						<DropdownList 
-							menuItems={createMenuItems(node, dropdownId)}
-							position="center"
-							onClose={() => dropdownState.close(dropdownId)}
-						/>
-					{/if}
+						<button
+							class="duration-100 hover:scale-110"
+							onclick={(e) => {
+								e.stopPropagation();
+								dropdownState.toggle(dropdownId);
+							}}
+						>
+							<img src={more} alt="more" class="h-10 w-10" />
+						</button>
+						{#if dropdownState.isOpen(dropdownId)}
+							<DropdownList
+								menuItems={createMenuItems(node, dropdownId)}
+								position="center"
+								onClose={() => dropdownState.close(dropdownId)}
+							/>
+						{/if}
 					</div>
 				</div>
 				{#if node.expanded}
 					<div transition:slide={options}>
 						{#each node.children as child (child.id)}
-							<TreeViewEntry {onCodingSelected} rootNodes={[child]} onCodingNodeAdded={onCodingNodeAdded} {onCodingDeleted} />
+							<TreeViewEntry
+								{onCodingSelected}
+								rootNodes={[child]}
+								{onCodingNodeAdded}
+								{onCodingDeleted}
+							/>
 						{/each}
 					</div>
 				{/if}

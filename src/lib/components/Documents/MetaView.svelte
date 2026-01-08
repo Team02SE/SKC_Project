@@ -70,7 +70,7 @@
 		onSave={OnDocumentSave}
 		{allowEdit}
 		label="Summary"
-		bind:val={workflowDocument.Conclusion}
+		bind:val={workflowDocument.Summary}
 	/>
 
 	<DocumentEditField
