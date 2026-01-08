@@ -34,7 +34,7 @@
 	let essenceContent = $derived<EssenceData>({
 		essence: document?.Essence || '',
 		summary: '',
-		conclusion: document?.Conclusion || ''
+		conclusion: document?.Summary || ''
 	});
 
 	// Section configuration with all metadata
