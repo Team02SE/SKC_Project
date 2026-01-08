@@ -68,11 +68,14 @@
 			body: JSON.stringify({ type })
 		});
 
+		const responseBody = await response.text();
+
 		if (response.ok) {
 			toastStore.success(`"${coding.name}" deleted successfully`);
 			onCodingDeleted(coding);
 		} else {
-			toastStore.error('Failed to delete coding');
+			console.log('response body');
+			toastStore.error(responseBody);
 		}
 	}
 </script>
@@ -80,7 +83,7 @@
 <div class="mt-10 flex h-full w-1/2 flex-col items-center self-center">
 	{#if isCreateForm}
 		<div class="w-full p-6">
-			<h2 class="text-2xl font-semibold text-gray-800 mb-6">Create New Coding</h2>
+			<h2 class="mb-6 text-2xl font-semibold text-gray-800">Create New Coding</h2>
 		</div>
 		<form
 			action="?/codings"
@@ -105,9 +108,9 @@
 				number={form.number}
 				name={form.name}
 				description={form.description}
-				onNumberChange={(value) => form.number = value}
-				onNameChange={(value) => form.name = value}
-				onDescriptionChange={(value) => form.description = value}
+				onNumberChange={(value) => (form.number = value)}
+				onNameChange={(value) => (form.name = value)}
+				onDescriptionChange={(value) => (form.description = value)}
 			/>
 
 			<div class="flex items-center justify-center gap-4">
@@ -123,7 +126,7 @@
 		/>
 	{:else if coding != undefined}
 		<div class="w-full p-6">
-			<h2 class="text-2xl font-semibold text-gray-800 mb-6">Edit Coding</h2>
+			<h2 class="mb-6 text-2xl font-semibold text-gray-800">Edit Coding</h2>
 		</div>
 		<form class="flex w-full flex-col px-6" onsubmit={updateCoding}>
 			<input type="hidden" name="id" value={form.id} />
@@ -132,9 +135,9 @@
 				number={form.number}
 				name={form.name}
 				description={form.description}
-				onNumberChange={(value) => form.number = value}
-				onNameChange={(value) => form.name = value}
-				onDescriptionChange={(value) => form.description = value}
+				onNumberChange={(value) => (form.number = value)}
+				onNameChange={(value) => (form.name = value)}
+				onDescriptionChange={(value) => (form.description = value)}
 			/>
 
 			<div class="flex items-center justify-center gap-4">
@@ -148,7 +151,7 @@
 		<div class="flex h-full w-full items-center justify-center">
 			<div class="text-center text-gray-400">
 				<p class="text-xl">Select a coding to view or edit</p>
-				<p class="text-sm mt-2">or click "Add" to create a new one</p>
+				<p class="mt-2 text-sm">or click "Add" to create a new one</p>
 			</div>
 		</div>
 	{/if}
