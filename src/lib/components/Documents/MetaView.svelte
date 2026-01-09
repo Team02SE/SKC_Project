@@ -1,41 +1,82 @@
 <script lang="ts">
-	type Metadata = {
-		language: string;
-		organization: string;
-		summary: string;
-	};
+	import { fade } from 'svelte/transition';
+	import DocumentEditField from './DocumentEditField.svelte';
+	import type { WorkflowDocument } from '$lib/types';
+	import { toastStore } from '../PopUps/Toast/toastStore.svelte';
+	import { invalidateAll } from '$app/navigation';
 
-	const props = $props<{ metadata?: Partial<Metadata> }>();
+	interface Props {
+		allowEdit: Boolean;
+		workflowDocument: WorkflowDocument;
+	}
 
-	const fallbackMetadata: Metadata = {
-		language: 'English',
-		organization: 'SKC Research Lab',
-		summary:
-			'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada ex at purus tincidunt, eu consequat augue ultricies. Interdum et malesuada fames ac ante ipsum primis in faucibus.'
-	};
+	async function OnDocumentSave() {
+		try {
+			const response = await fetch(`/api/documents/${workflowDocument.id}`, {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ...workflowDocument })
+			});
 
-	const metadata = $derived({
-		...fallbackMetadata,
-		...props.metadata
-	});
+			if (!response.ok) {
+				console.error('Update failed:', response.statusText);
+				toastStore.error('Failed to update document');
+				return;
+			}
+
+			toastStore.success(`"${workflowDocument.Title}" updated successfully`);
+
+			await invalidateAll();
+		} catch (error) {
+			console.error('Error deleting document:', error);
+			toastStore.error('An error occurred while deleting the document');
+		}
+	}
+
+	let { allowEdit, workflowDocument }: Props = $props();
 </script>
 
 <section class="flex h-full w-full flex-col gap-6 text-light-text-primary">
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		<div class="rounded-2xl border border-gray-200 bg-white/70 p-4 shadow-sm">
-			<p class="text-xs uppercase tracking-wide text-gray-500">Organization</p>
-			<p class="text-lg font-medium text-gray-900">{metadata.organization}</p>
-		</div>
-		<div class="rounded-2xl border border-gray-200 bg-white/70 p-4 shadow-sm">
-			<p class="text-xs uppercase tracking-wide text-gray-500">Language</p>
-			<p class="text-lg font-medium text-gray-900">{metadata.language}</p>
-		</div>
+		<DocumentEditField
+			onSave={OnDocumentSave}
+			{allowEdit}
+			label="Title"
+			bind:val={workflowDocument.Title}
+		/>
+		<DocumentEditField
+			onSave={OnDocumentSave}
+			{allowEdit}
+			label="File name"
+			bind:val={workflowDocument.FileName}
+		/>
+	</div>
+	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+		<DocumentEditField
+			onSave={OnDocumentSave}
+			{allowEdit}
+			label="Organisation"
+			bind:val={workflowDocument.Source}
+		/>
+		<DocumentEditField
+			onSave={OnDocumentSave}
+			{allowEdit}
+			label="Language"
+			bind:val={workflowDocument.Language}
+		/>
 	</div>
 
-	<div class="rounded-2xl border border-gray-200 bg-white/70 p-6 shadow-inner shadow-gray-200">
-		<p class="mb-2 text-base font-semibold text-gray-900">Summary</p>
-		<p class="text-sm leading-relaxed text-gray-700">
-			{metadata.summary}
-		</p>
-	</div>
+	<DocumentEditField
+		onSave={OnDocumentSave}
+		{allowEdit}
+		label="Summary"
+		bind:val={workflowDocument.Summary}
+	/>
+
+	<DocumentEditField
+		onSave={OnDocumentSave}
+		{allowEdit}
+		label="Essence"
+		bind:val={workflowDocument.Essence}
+	/>
 </section>

@@ -209,10 +209,13 @@
 				</div>
 			{/if}
 
-		<div class="sticky bottom-0 mt-auto flex justify-end gap-4 pt-4">
-			<ButtonText text="Cancel" onClick={handleCancelClick} />
-			<ButtonText
-				onClick={(e) => { e?.preventDefault(); handleSubmit(e as Event); }}
+			<div class="sticky bottom-0 mt-auto flex justify-end gap-4 pt-4">
+				<ButtonText text="Cancel" onClick={handleCancelClick} />
+				<ButtonText
+					onClick={(e) => {
+						e?.preventDefault();
+						handleSubmit(e as Event);
+					}}
 					text={isSubmitting ? 'Uploading...' : 'Upload document'}
 					disabled={isSubmitting}
 					customClass={`px-6 ${isSubmitting ? 'opacity-70' : ''}`}

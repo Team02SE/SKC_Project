@@ -26,17 +26,22 @@ export type SystemVulnerability = Coding;
 export type DStep = Coding;
 
 export type WorkflowDocument = {
+	// backend (see document.go Document struct)
 	id: number;
 	Title: string;
 	Source: string;
 	Essence: string;
-	Conclusion: string;
+	Summary: string;
 	Status: number;
-	UpdatedAt: string;
-	CreatedAt?: string;
+	Url?: string;
 	FileName?: string;
+	Organisation?: string;
+	Language: string;
+	UpdatedAt: string;
+	// js only
 	FileMime?: string;
 	FileSize?: number;
+	CreatedAt?: string;
 };
 
 export type EssenceData = {

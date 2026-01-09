@@ -7,6 +7,7 @@
 	import type { WorkflowDocument } from '$lib/types';
 	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	let { data } = $props();
 
@@ -17,6 +18,7 @@
 
 	function getFilteredDocuments() {
 		let filtered = data.documents;
+		console.log(data.documents);
 
 		if (searchQuery.length > 0) {
 			const normalizedQuery = searchQuery.toLowerCase();
@@ -83,6 +85,10 @@
 			selectedDocument = null;
 		}
 	}
+
+	function handleDocuemntClick(workflowDocument: WorkflowDocument) {
+		selectedDocument = workflowDocument;
+	}
 </script>
 
 <div class="flex h-18 w-full items-center justify-between px-4 py-2 sm:p-4">
@@ -94,14 +100,23 @@
 </div>
 
 <div class="flex w-full flex-col gap-5 px-2 py-2 sm:px-4 lg:flex-row">
-	<div class="h-[50vh] w-full overflow-y-auto rounded-2xl bg-light-primary inset-shadow-sm/25 lg:h-[calc(100vh-200px)] lg:w-5/12">
+	<div
+		class="h-[50vh] overflow-y-auto rounded-2xl bg-light-primary inset-shadow-sm/25 lg:h-[calc(100vh-200px)] lg:w-5/12"
+	>
 		{#each getFilteredDocuments() as workflowDocument, index}
-			<DocumentCard {workflowDocument} roundedTop={index == 0} />
+			<DocumentCard
+				onDocumentClick={handleDocuemntClick}
+				{workflowDocument}
+				roundedTop={index == 0}
+			/>
 		{/each}
 	</div>
 	<div
-		class="flex min-h-[50vh] flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25 lg:min-h-[calc(100vh-200px)]"
+		transition:fade|global
+		class="flex min-h-[50vh] w-full flex-1 items-stretch justify-center rounded-2xl bg-light-primary inset-shadow-sm/25 lg:min-h-[calc(100vh-200px)]"
 	>
-		<DocumentInfo />
+		{#if selectedDocument != null}
+			<DocumentInfo workflowDocument={selectedDocument} />
+		{/if}
 	</div>
 </div>

@@ -37,6 +37,9 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
 	});
 
 	if (result.error) {
+		if (result.status == 455) {
+			return createErrorResponse('Coding in use by the workflow ! ', result.status);
+		}
 		return createErrorResponse(result.error, result.status);
 	}
 
