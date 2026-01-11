@@ -2,6 +2,7 @@
 	import ButtonSvg from '../Buttons/ButtonSvg.svelte';
 	import DropdownList from '../DropdownList/DropdownList.svelte';
 	import { dropdownState } from '$lib/utils/dropdownState.svelte';
+	import type { CodingData } from '../Codings/Management/TreeCodings.svelte';
 
 	interface Props {
 		label?: string;
@@ -10,6 +11,7 @@
 		isNew?: boolean;
 		isDeleted?: boolean;
 		buttonIcon?: string;
+		reasoning?: string;
 		type?:
 			| 'activities'
 			| 'effects'
@@ -21,6 +23,7 @@
 		onAddSubRequest?: (parentId: number) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
+		onAddReasonRequest?: (reason: string) => void;
 	}
 
 	let {
@@ -33,9 +36,11 @@
 		type = 'activities',
 		codingId = undefined,
 		hasDeletedAncestor = false,
+		reasoning = 'no reson',
 		onAddSubRequest = undefined,
 		onDeleteRequest = undefined,
-		onCancelRequest = undefined
+		onCancelRequest = undefined,
+		onAddReasonRequest = undefined
 	}: Props = $props();
 
 	let dropdownId = $derived(`card-${type}-${codingId ?? Math.random()}`);
@@ -79,15 +84,24 @@
 		dropdownState.close(dropdownId);
 	}
 
+	function handleAddReason() {
+		if (reasoning !== undefined && onAddReasonRequest) {
+			onAddReasonRequest(reasoning);
+		}
+		dropdownState.close(dropdownId);
+	}
+
 	// Build menu items based on state
 	let menuItems = $derived(
 		isNew
 			? [
 					{ label: `Add sub-${type}`, onClick: handleAddSub },
+					{ label: 'Add reason', onClick: handleAddReason },
 					{ label: 'Cancel', onClick: handleCancel }
 				]
 			: [
 					{ label: `Add sub-${type}`, onClick: handleAddSub },
+					{ label: 'Add reason', onClick: handleAddReason },
 					{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
 				]
 	);
@@ -101,7 +115,11 @@
 			: ''} {customClass}"
 >
 	<p class="ml-2">{label}</p>
-	<p class="flex-1 pl-2 font-medium text-light-text-primary">{title}</p>
+	<div class="flex-1 flex-col pl-2">
+		<p class=" font-medium text-light-text-primary">{title}</p>
+		<p class="mt-[-5px] ml-1 text-xs text-light-text-primary opacity-45">{reasoning}</p>
+	</div>
+
 	<div class="relative">
 		<ButtonSvg
 			type={currentIcon}
@@ -111,7 +129,7 @@
 		/>
 		{#if showDropdown}
 			<DropdownList
-				menuItems={menuItems}
+				{menuItems}
 				position="center"
 				onClose={() => dropdownState.close(dropdownId)}
 				customClass="w-45"

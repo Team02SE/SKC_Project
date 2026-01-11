@@ -7,6 +7,7 @@
 		children?: CodingData[];
 		isNew?: boolean;
 		isDeleted?: boolean;
+		reasoning?: string;
 	}
 </script>
 
@@ -16,17 +17,13 @@
 
 	interface Props {
 		data: CodingData;
-		type:
-			| 'activities'
-			| 'effects'
-			| 'opportunity-structures'
-			| 'system-vulnerabilities'
-			| 'destep';
+		type: 'activities' | 'effects' | 'opportunity-structures' | 'system-vulnerabilities' | 'destep';
 		codingId?: number;
 		hasDeletedAncestor?: boolean;
 		onAddSubRequest?: (parentId: number) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
+		onAddReasonRequest?: (reason: string) => void;
 	}
 
 	let {
@@ -36,7 +33,8 @@
 		hasDeletedAncestor = false,
 		onAddSubRequest = undefined,
 		onDeleteRequest = undefined,
-		onCancelRequest = undefined
+		onCancelRequest = undefined,
+		onAddReasonRequest = undefined
 	}: Props = $props();
 </script>
 
@@ -47,12 +45,14 @@
 		buttonIcon={data.buttonIcon}
 		isNew={data.isNew}
 		isDeleted={data.isDeleted}
-		type={type}
+		reasoning={data.reasoning}
+		{type}
 		{codingId}
 		{hasDeletedAncestor}
 		{onAddSubRequest}
 		{onDeleteRequest}
 		{onCancelRequest}
+		{onAddReasonRequest}
 	/>
 	<div class="ml-5">
 		{#if data.children && data.children.length > 0}
@@ -66,6 +66,7 @@
 						{onAddSubRequest}
 						{onDeleteRequest}
 						{onCancelRequest}
+						{onAddReasonRequest}
 					/>
 				{/each}
 			</div>

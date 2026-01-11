@@ -6,6 +6,7 @@ export type Coding = {
 	type: string;
 	description: string;
 	parent_id?: number;
+	reasoning?: string;
 	children: Coding[] | null;
 	created_at?: string;
 	updated_at?: string;

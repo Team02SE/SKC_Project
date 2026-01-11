@@ -1,6 +1,6 @@
 import type { Coding } from '$lib/types';
 import { getAllCodingIds, findCodingById } from '../coding/codingHelpers';
-import type { PendingCodingsState, CodingType } from './pendingState/types';
+import { type PendingCodingsState, type CodingType, GetByType } from './pendingState/types';
 import {
 	createEmptyPendingState,
 	addCodingToPending,
@@ -10,9 +10,14 @@ import {
 } from './pendingState/operations';
 
 export type { PendingCodingsState, CodingType } from './pendingState/types';
-export { createEmptyPendingState, addCodingToPending, getTotalPendingCount,
-	    hasPendingChanges, addCodingToPendingDeletions, removeCodingFromPendingDeletions,
-	    removeCodingFromPending
+export {
+	createEmptyPendingState,
+	addCodingToPending,
+	getTotalPendingCount,
+	hasPendingChanges,
+	addCodingToPendingDeletions,
+	removeCodingFromPendingDeletions,
+	removeCodingFromPending
 } from './pendingState/operations';
 export { mergeCodingsWithPending } from './pendingState/merger';
 
@@ -28,10 +33,7 @@ export function useWorkflowState() {
 	 * @param codingsMap - Map of coding types to coding arrays.
 	 * @returns Array of codings for the specified type.
 	 */
-	function getCodingsByType(
-		type: CodingType,
-		codingsMap: Record<CodingType, Coding[]>
-	): Coding[] {
+	function getCodingsByType(type: CodingType, codingsMap: Record<CodingType, Coding[]>): Coding[] {
 		return codingsMap[type];
 	}
 
@@ -93,6 +95,13 @@ export function useWorkflowState() {
 	}
 
 	/**
+	 * Handles when a new reson to the coding is added.
+	 * @param coding - The coding that was added (with the reason).
+	 * @param type - The coding type.
+	 */
+	function handleReasonAdded<T extends Coding>(codingId: Number, reson: string, type: CodingType) {}
+
+	/**
 	 * Handles when a coding is deleted.
 	 * @param codingId - The ID of the coding to delete.
 	 * @param type - The coding type.
@@ -139,6 +148,7 @@ export function useWorkflowState() {
 		handleCodingAdded,
 		handleCodingDeleted,
 		handleCodingCanceled,
-		resetPendingCodings
+		resetPendingCodings,
+		handleReasonAdded
 	};
 }

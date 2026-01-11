@@ -20,6 +20,7 @@
 
 	let { data }: PageProps = $props();
 
+	console.log(data.workflowData);
 	let workflow = $state(data.workflowData);
 	const workflowState = useWorkflowState();
 	const navigation = useSectionNavigation();
@@ -95,6 +96,10 @@
 		if ((coding as any).isNewlyCreated) {
 			await invalidateAll();
 		}
+	}
+
+	async function hancleReasonAdded<T extends Coding>(coding: T, type: CodingType) {
+		workflowState.handleReasonAdded(coding, type);
 	}
 
 	async function saveAllChanges() {
@@ -177,22 +182,6 @@
 					onCancelRequest={(codingId) =>
 						workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
 				/>
-				<div class="rounded-xl bg-white/80 p-4 inset-shadow-sm/25">
-					<label
-						for={`reasoning-${section.id}`}
-						class="text-light-text-secondary mb-2 block text-xs font-semibold tracking-wide uppercase"
-					>
-						Reasoning
-					</label>
-					<textarea
-						id={`reasoning-${section.id}`}
-						class="min-h-[5rem] w-full resize-none border-0 bg-transparent p-0 text-sm text-light-text-primary outline-none focus:ring-0"
-						placeholder="Add brief explanation of why certain codings were chosen or left blank..."
-						value={reasoningNotes[section.id] ?? ''}
-						oninput={(event) =>
-							handleReasoningChange(section.id, (event.target as HTMLTextAreaElement).value)}
-					></textarea>
-				</div>
 			</div>
 		{/each}
 	</div>
