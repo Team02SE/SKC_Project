@@ -1,6 +1,6 @@
 import type { Coding } from '$lib/types';
 import type { CodingType } from './types';
-import { normalizeCodingsData, buildPendingByParentMap } from '../../coding/codingHelpers';
+import { normalizeCodingsData, buildPendingByParentMap, getAllCodingIds } from '../../coding/codingHelpers';
 
 /**
  * Merges existing codings with pending codings.
@@ -19,40 +19,40 @@ export function mergeCodingsWithPending<T extends Coding>(
 ): T[] {
 	const normalized = normalizeCodingsData(existingCodings || []);
 	const pendingByParent = buildPendingByParentMap(pendingCodings);
+	const pendingUpdatesById = new Map(pendingCodings.map((p) => [p.id, p]));
+	const existingIds = getAllCodingIds(normalized);
 
 	// Marks deleted codings recursively
 	const markDeleted = (coding: T): T => ({
 		...coding,
-		isDeleted:
-			pendingDeletions && currentType
-				? pendingDeletions.get(currentType)?.has(coding.id) || false
-				: false,
+		isDeleted: pendingDeletions?.get(currentType!)?.has(coding.id) ?? false,
 		children: (coding.children || []).map((child) => markDeleted(child as T))
 	});
 
-	// Recursively adds pending sub-codings to their parents
+	// Recursively adds pending sub-codings to their parents and merges updates
 	const addSubCodingsRecursive = (coding: T, markAsNew = false): T => {
+		const pendingUpdate = pendingUpdatesById.get(coding.id);
 		const childrenForThis = pendingByParent.get(coding.id) || [];
-		const existingChildren = (coding.children || []).map((child) =>
-			addSubCodingsRecursive(child as T, false)
-		);
-		const newChildren = childrenForThis.map((c) => addSubCodingsRecursive(c, true));
 
 		return {
 			...coding,
+			...(pendingUpdate?.reason !== undefined && { reason: pendingUpdate.reason }),
 			isNew: markAsNew || coding.isNew,
-			children: [...existingChildren, ...newChildren]
+			children: [
+				...(coding.children || []).map((child) => addSubCodingsRecursive(child as T, false)),
+				...childrenForThis.map((c) => addSubCodingsRecursive(c, true))
+			]
 		};
 	};
 
-	// add sub-codings and mark deleted
+	// Add sub-codings and mark deleted
 	const withSubCodings = normalized.map((item: T) =>
 		markDeleted(addSubCodingsRecursive(item))
 	);
 
-	// Process top-level pending codings
+	// Process top-level pending codings (only truly new ones, not updates to existing codings)
 	const topLevelPending = pendingCodings
-		.filter((c) => !c.parent_id)
+		.filter((c) => !c.parent_id && !existingIds.has(c.id))
 		.map((coding) => addSubCodingsRecursive(coding, true));
 
 	return [...withSubCodings, ...topLevelPending];

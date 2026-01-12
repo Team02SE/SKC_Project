@@ -20,6 +20,7 @@
 
 	let { data }: PageProps = $props();
 
+	console.log(data.workflowData);
 	let workflow = $state(data.workflowData);
 	const workflowState = useWorkflowState();
 	const navigation = useSectionNavigation();
@@ -71,8 +72,6 @@
 		)
 	);
 
-	let reasoningNotes = $state<Partial<Record<CodingType, string>>>({});
-
 	// Section refs for navigation
 	let containerRef: HTMLDivElement;
 	let essenceRef: HTMLDivElement;
@@ -97,6 +96,10 @@
 		}
 	}
 
+	function handleReasonAdded(codingId: number, reason: string, type: CodingType) {
+		workflowState.handleReasonAdded(codingId, reason, type);
+	}
+
 	async function saveAllChanges() {
 		isSaving = true;
 		try {
@@ -114,10 +117,6 @@
 
 	let hasChanges = $derived(hasPendingChanges(workflowState.pendingCodings));
 	let pendingCount = $derived(getTotalPendingCount(workflowState.pendingCodings));
-
-	function handleReasoningChange(sectionId: CodingType, value: string) {
-		reasoningNotes = {};
-	}
 </script>
 
 <!-- Top bar -->
@@ -178,23 +177,8 @@
 						workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
 					onCancelRequest={(codingId) =>
 						workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
+					onResonAddedRequest={(codingId, reason) => handleReasonAdded(codingId, reason, section.id)}
 				/>
-				<div class="rounded-xl bg-white/80 p-4 inset-shadow-sm/25">
-					<label
-						for={`reasoning-${section.id}`}
-						class="text-light-text-secondary mb-2 block text-xs font-semibold tracking-wide uppercase"
-					>
-						Reasoning
-					</label>
-					<textarea
-						id={`reasoning-${section.id}`}
-						class="min-h-[5rem] w-full resize-none border-0 bg-transparent p-0 text-sm text-light-text-primary outline-none focus:ring-0"
-						placeholder="Add brief explanation of why certain codings were chosen or left blank..."
-						value={reasoningNotes[section.id] ?? ''}
-						oninput={(event) =>
-							handleReasoningChange(section.id, (event.target as HTMLTextAreaElement).value)}
-					></textarea>
-				</div>
 			</div>
 		{/each}
 	</div>
