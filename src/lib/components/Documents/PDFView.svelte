@@ -56,9 +56,8 @@
 		}
 	});
 
-	// Re-render when scale changes
 	$effect(() => {
-		if (canvasContainer && pdfDoc) {
+		if (canvasContainer && pdfDoc && Scale) {
 			renderPage(currentPage);
 		}
 	});
@@ -178,7 +177,7 @@
 			<div class="text-red-600">Error: {error}</div>
 		</div>
 	{:else}
-		<div class="mb-10 self-start">
+		<div class=" my-3 self-start">
 			<Toggle {onToggle} labelOn="Document" lebelOff="Metadata" />
 		</div>
 		{#if showPdf}

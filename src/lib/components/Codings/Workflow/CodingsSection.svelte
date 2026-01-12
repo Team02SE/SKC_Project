@@ -3,8 +3,13 @@
 	import AddCoding from './AddCoding.svelte';
 	import AddSubCoding from './AddSubCoding.svelte';
 	import type { Coding } from '$lib/types';
-	import { codingToCodingData, getAllCodingIds, findCodingById } from '$lib/utils/coding/codingHelpers';
+	import {
+		codingToCodingData,
+		getAllCodingIds,
+		findCodingById
+	} from '$lib/utils/coding/codingHelpers';
 	import AddNewCoding from './AddNewCoding.svelte';
+	import AddReason from './AddReason.svelte';
 
 	interface Props {
 		title: string;
@@ -15,6 +20,7 @@
 		onCodingAdded?: (coding: Coding) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
+		onResonAddedRequest?: (codingId: number, reason: string) => void;
 	}
 
 	let {
@@ -25,7 +31,8 @@
 		documentId,
 		onCodingAdded,
 		onDeleteRequest,
-		onCancelRequest
+		onCancelRequest,
+		onResonAddedRequest
 	}: Props = $props();
 
 	let topLevelCodings = $derived(data.filter((coding) => !coding.parent_id));
@@ -34,6 +41,9 @@
 	let showAddSubCoding = $state(false);
 	let addSubCodingParentId = $state<number | null>(null);
 	let showAddNewCoding = $state(false);
+	let showAddReason = $state(false);
+	let selectedReason = $state('');
+	let selectedCodingId = $state<number | null>(null);
 
 	let availableChildCodings = $derived.by(() => {
 		if (!addSubCodingParentId || !availableCodings) return [];
@@ -69,6 +79,23 @@
 		showAddNewCoding = false;
 	}
 
+	function handleAddReson(codingId: number, reason: string) {
+		showAddReason = true;
+		selectedCodingId = codingId;
+		selectedReason = reason;
+	}
+
+	function handleReasonChanged(newReason: string) {
+		if (onResonAddedRequest && selectedCodingId) {
+			onResonAddedRequest(selectedCodingId, newReason);
+		}
+	}
+
+	function handleReasonClosed() {
+		showAddReason = false;
+		selectedCodingId = null;
+	}
+
 	function handleNewCodingCreated(coding: Coding) {
 		if (onCodingAdded) {
 			onCodingAdded(coding);
@@ -85,35 +112,33 @@
 				{#each topLevelCodings as coding (coding.id)}
 					<TreeCodings
 						data={codingToCodingData(coding)}
-						type={type}
+						{type}
 						codingId={coding.id}
 						onAddSubRequest={handleAddSubRequest}
 						{onDeleteRequest}
 						{onCancelRequest}
+						onAddReasonRequest={handleAddReson}
 					/>
 				{/each}
 			</div>
-			<div class="flex flex-1 flex-col gap-2 items-end">
-				<AddCoding
-					type={type}
-					{availableCodings}
-					excludeCodingIds={existingCodingIds}
-					{onCodingAdded}
-				/>
+			<div class="flex flex-1 flex-col items-end gap-2">
+				<AddCoding {type} {availableCodings} excludeCodingIds={existingCodingIds} {onCodingAdded} />
 				<button
 					type="button"
-					onclick={() => { showAddNewCoding = true;}}
-					class="flex items-center gap-2 px-4 py-2 bg-light-button-primary text-white rounded-xl hover:brightness-110 transition shadow-md hover:shadow-lg w-auto"
+					onclick={() => {
+						showAddNewCoding = true;
+					}}
+					class="flex w-auto items-center gap-2 rounded-xl bg-light-button-primary px-4 py-2 text-white shadow-md transition hover:shadow-lg hover:brightness-110"
 				>
-					<span class="font-semibold text-sm">+ New Coding</span>
+					<span class="text-sm font-semibold">+ New Coding</span>
 				</button>
 			</div>
 		</div>
-	</div>	
+	</div>
 
 	{#if showAddSubCoding}
 		<AddSubCoding
-			type={type}
+			{type}
 			parentId={addSubCodingParentId}
 			availableCodings={availableChildCodings}
 			excludeCodingIds={existingCodingIds}
@@ -124,10 +149,19 @@
 
 	{#if showAddNewCoding}
 		<AddNewCoding
-			type={type}
+			{type}
 			isOpen={showAddNewCoding}
 			onClose={handleCloseAddNew}
 			onCodingCreated={handleNewCodingCreated}
+		/>
+	{/if}
+
+	{#if showAddReason}
+		<AddReason
+			sectionId={0}
+			reason={selectedReason}
+			onClose={handleReasonClosed}
+			onReasonChange={handleReasonChanged}
 		/>
 	{/if}
 </div>
