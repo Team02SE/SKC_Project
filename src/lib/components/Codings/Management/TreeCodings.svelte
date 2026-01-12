@@ -23,7 +23,7 @@
 		onAddSubRequest?: (parentId: number) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
-		onAddReasonRequest?: (reason: string) => void;
+		onAddReasonRequest?: (codingId: number, reason: string) => void;
 	}
 
 	let {

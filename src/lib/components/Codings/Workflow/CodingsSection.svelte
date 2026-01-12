@@ -78,7 +78,7 @@
 		showAddNewCoding = false;
 	}
 
-	function handleAddReson(reason: string) {
+	function handleAddReson(codingId: number, reason: string) {
 		showAddReason = true;
 		if (onResonAddedRequest) {
 			onResonAddedRequest(reason);

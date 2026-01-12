@@ -23,7 +23,7 @@
 		onAddSubRequest?: (parentId: number) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
-		onAddReasonRequest?: (reason: string) => void;
+		onAddReasonRequest?: (codingId: number, reason: string) => void;
 	}
 
 	let {
@@ -85,8 +85,8 @@
 	}
 
 	function handleAddReason() {
-		if (reasoning !== undefined && onAddReasonRequest) {
-			onAddReasonRequest(reasoning);
+		if (reasoning !== undefined && onAddReasonRequest && codingId) {
+			onAddReasonRequest(codingId, reasoning);
 		}
 		dropdownState.close(dropdownId);
 	}

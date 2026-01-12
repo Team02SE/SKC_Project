@@ -12,7 +12,7 @@
 </script>
 
 <div class="absolute inset-0 z-30 flex w-full items-center justify-center">
-	<div class="rounded-xl bg-white p-4 inset-shadow-sm/25">
+	<div class="w-full rounded-xl bg-white p-4 inset-shadow-sm/25">
 		<label
 			for={`reasoning-${sectionId}`}
 			class="text-light-text-secondary mb-2 block text-xs font-semibold tracking-wide uppercase"
