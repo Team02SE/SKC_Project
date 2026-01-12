@@ -8,7 +8,7 @@
 	import MagnifyingGlassIcon from '$lib/assets/magnifying-glass.svg';
 	import FilterIcon from '$lib/assets/filter.svg';
 	import DropdownIcon from '$lib/assets/dropdown.svg';
-    import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
+	import CloudUploadIcon from '$lib/assets/cloud-upload.svg';
 	import MoreOptions from '$lib/assets/three-dots-circle.svg';
 	import CloseIcon from '$lib/assets/x.svg';
 	import PlusIcon from '$lib/assets/plus.svg';
@@ -64,7 +64,7 @@
 {:else}
 	<button
 		type="button"
-		class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-200 transition duration-150`}
+		class={`p-0 border-none cursor-pointer ${customClass} hover:filter hover:brightness-50 transition duration-150`}
 		onclick={(e) => onClick(e)}
 		aria-label={type}
 	>

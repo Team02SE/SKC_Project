@@ -122,10 +122,12 @@
 
 <!-- Top bar -->
 <div class="sticky top-20 flex h-18 w-full items-center p-4">
-	<ButtonSvg type="home" size={12} />
+	<a href="/">
+		<ButtonSvg type="home" size={12}/>
+	</a>
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
 	<div
-		class="flex h-full w-64 items-center justify-center rounded-t-2xl bg-light-navbar-primary text-light-button-content-primary"
+		class="flex h-full w-auto items-center justify-center rounded-t-2xl bg-light-navbar-primary text-light-button-content-primary"
 	>
 		<h3>Editing - {document.Title}</h3>
 	</div>
