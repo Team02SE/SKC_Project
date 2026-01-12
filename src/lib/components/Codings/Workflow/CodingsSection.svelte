@@ -20,7 +20,7 @@
 		onCodingAdded?: (coding: Coding) => void;
 		onDeleteRequest?: (codingId: number) => void;
 		onCancelRequest?: (codingId: number) => void;
-		onResonAddedRequest?: (reason: string) => void;
+		onResonAddedRequest?: (codingId: number, reason: string) => void;
 	}
 
 	let {
@@ -43,6 +43,7 @@
 	let showAddNewCoding = $state(false);
 	let showAddReason = $state(false);
 	let selectedReason = $state('');
+	let selectedCodingId = $state<number | null>(null);
 
 	let availableChildCodings = $derived.by(() => {
 		if (!addSubCodingParentId || !availableCodings) return [];
@@ -80,20 +81,19 @@
 
 	function handleAddReson(codingId: number, reason: string) {
 		showAddReason = true;
-		if (onResonAddedRequest) {
-			onResonAddedRequest(reason);
-		}
-
-		console.log(reason);
+		selectedCodingId = codingId;
 		selectedReason = reason;
 	}
 
 	function handleReasonChanged(newReason: string) {
-		console.log(newReason);
+		if (onResonAddedRequest && selectedCodingId) {
+			onResonAddedRequest(selectedCodingId, newReason);
+		}
 	}
 
 	function handleReasonClosed() {
 		showAddReason = false;
+		selectedCodingId = null;
 	}
 
 	function handleNewCodingCreated(coding: Coding) {

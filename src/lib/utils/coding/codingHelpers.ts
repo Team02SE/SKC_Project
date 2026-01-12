@@ -14,7 +14,7 @@ export function codingToCodingData(coding: Coding): CodingData {
 		children: coding.children?.map((child) => codingToCodingData(child)),
 		isNew: coding.isNew,
 		isDeleted: coding.isDeleted,
-		reasoning: coding.reasoning
+		reason: coding.reason
 	} as CodingData;
 }
 
@@ -24,16 +24,14 @@ export function codingToCodingData(coding: Coding): CodingData {
  * @returns A Map where keys are parent IDs and values are arrays of child codings.
  */
 export function buildPendingByParentMap<T extends Coding>(pendingCodings: T[]): Map<number, T[]> {
-	const map = new Map<number, T[]>();
-	pendingCodings.forEach((coding) => {
+	return pendingCodings.reduce((map, coding) => {
 		if (coding.parent_id) {
-			if (!map.has(coding.parent_id)) {
-				map.set(coding.parent_id, []);
-			}
-			map.get(coding.parent_id)!.push(coding);
+			const children = map.get(coding.parent_id) || [];
+			children.push(coding);
+			map.set(coding.parent_id, children);
 		}
-	});
-	return map;
+		return map;
+	}, new Map<number, T[]>());
 }
 
 /**
@@ -73,7 +71,7 @@ export function normalizeCodingTypes<T extends Coding>(codings: T[]): T[] {
 	return codings.map((coding) => ({
 		...coding,
 		type: normalizeType(coding.type),
-		children: coding.children ? normalizeCodingTypes(coding.children as T[]) : null
+		children: coding.children ? normalizeCodingTypes(coding.children as T[]) : []
 	}));
 }
 
@@ -101,23 +99,28 @@ export function addPendingCodingsToWorkflow<T extends Coding>(
 	pendingCodings: T[]
 ): T[] {
 	const pendingByParent = buildPendingByParentMap(pendingCodings);
+	const pendingUpdatesById = new Map(pendingCodings.map((p) => [p.id, p]));
+	const existingIds = getAllCodingIds(workflowCodings);
 
-	// Recursively merges pending children into the tree
+	// Recursively merges pending children into the tree and applies updates
 	const addSubCodingsRecursive = (coding: T): T => {
+		const pendingUpdate = pendingUpdatesById.get(coding.id);
 		const childrenForThis = pendingByParent.get(coding.id) || [];
-		const existingChildren = (coding.children || []).map((child) =>
-			addSubCodingsRecursive(child as T)
-		);
-		const newChildren = childrenForThis.map((c) => addSubCodingsRecursive(c));
 
 		return {
 			...coding,
-			children: [...existingChildren, ...newChildren]
+			...(pendingUpdate?.reason !== undefined && { reason: pendingUpdate.reason }),
+			children: [
+				...(coding.children || []).map((child) => addSubCodingsRecursive(child as T)),
+				...childrenForThis.map((c) => addSubCodingsRecursive(c))
+			]
 		};
 	};
 
 	const updatedCodings = workflowCodings.map(addSubCodingsRecursive);
-	const topLevelPending = pendingCodings.filter((c) => !c.parent_id).map(addSubCodingsRecursive);
+	const topLevelPending = pendingCodings
+		.filter((c) => !c.parent_id && !existingIds.has(c.id))
+		.map(addSubCodingsRecursive);
 
 	return [...updatedCodings, ...topLevelPending];
 }
@@ -129,12 +132,10 @@ export function addPendingCodingsToWorkflow<T extends Coding>(
  */
 export function getAllCodingIds<T extends Coding>(codings: T[]): Set<number> {
 	const ids = new Set<number>();
-	function traverse(coding: T) {
+	const traverse = (coding: T) => {
 		ids.add(coding.id);
-		if (coding.children) {
-			coding.children.forEach((child) => traverse(child as T));
-		}
-	}
+		coding.children?.forEach((child) => traverse(child as T));
+	};
 	codings.forEach(traverse);
 	return ids;
 }

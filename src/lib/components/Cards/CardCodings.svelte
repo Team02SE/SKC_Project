@@ -11,7 +11,7 @@
 		isNew?: boolean;
 		isDeleted?: boolean;
 		buttonIcon?: string;
-		reasoning?: string;
+		reason?: string;
 		type?:
 			| 'activities'
 			| 'effects'
@@ -36,7 +36,7 @@
 		type = 'activities',
 		codingId = undefined,
 		hasDeletedAncestor = false,
-		reasoning = 'no reson',
+		reason = 'No reason provided.',
 		onAddSubRequest = undefined,
 		onDeleteRequest = undefined,
 		onCancelRequest = undefined,
@@ -85,8 +85,8 @@
 	}
 
 	function handleAddReason() {
-		if (reasoning !== undefined && onAddReasonRequest && codingId) {
-			onAddReasonRequest(codingId, reasoning);
+		if (reason !== undefined && onAddReasonRequest && codingId) {
+			onAddReasonRequest(codingId, reason);
 		}
 		dropdownState.close(dropdownId);
 	}
@@ -96,12 +96,12 @@
 		isNew
 			? [
 					{ label: `Add sub-${type}`, onClick: handleAddSub },
-					{ label: 'Add reason', onClick: handleAddReason },
+					{ label: 'Edit reason', onClick: handleAddReason },
 					{ label: 'Cancel', onClick: handleCancel }
 				]
 			: [
 					{ label: `Add sub-${type}`, onClick: handleAddSub },
-					{ label: 'Add reason', onClick: handleAddReason },
+					{ label: 'Edit reason', onClick: handleAddReason },
 					{ label: 'Delete', onClick: handleDelete, className: 'text-red-600' }
 				]
 	);
@@ -115,9 +115,9 @@
 			: ''} {customClass}"
 >
 	<p class="ml-2">{label}</p>
-	<div class="flex-1 flex-col pl-2">
+	<div class="flex-1 flex-col pl-2 overflow-hidden">
 		<p class=" font-medium text-light-text-primary">{title}</p>
-		<p class="mt-[-5px] ml-1 text-xs text-light-text-primary opacity-45">{reasoning}</p>
+		<p class="mt-[-5px] ml-1 text-xs text-light-text-primary opacity-45 truncate">{reason}</p>
 	</div>
 
 	<div class="relative">

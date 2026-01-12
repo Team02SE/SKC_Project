@@ -96,10 +96,27 @@ export function useWorkflowState() {
 
 	/**
 	 * Handles when a new reson to the coding is added.
-	 * @param coding - The coding that was added (with the reason).
+	 * @param codingId - The ID of the coding to update.
+	 * @param reason - The reasoning text.
 	 * @param type - The coding type.
 	 */
-	function handleReasonAdded<T extends Coding>(codingId: Number, reson: string, type: CodingType) {}
+	function handleReasonAdded(codingId: number, reason: string, type: CodingType) {
+		// Update the coding in pending state with the new reasoning
+		const pendingArray = pendingCodings[type];
+		const codingIndex = pendingArray.findIndex(c => c.id === codingId);
+		
+		if (codingIndex !== -1) {
+			// Update existing pending coding
+			pendingArray[codingIndex] = {
+				...pendingArray[codingIndex],
+				reason: reason
+			};
+		} else {
+			// Add to pending as an update
+			const updatedCoding: Partial<Coding> = { id: codingId, reason: reason };
+			pendingCodings = addCodingToPending(pendingCodings, type, updatedCoding as Coding);
+		}
+	}
 
 	/**
 	 * Handles when a coding is deleted.

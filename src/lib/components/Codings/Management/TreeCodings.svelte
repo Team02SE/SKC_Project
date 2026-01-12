@@ -7,7 +7,7 @@
 		children?: CodingData[];
 		isNew?: boolean;
 		isDeleted?: boolean;
-		reasoning?: string;
+		reason?: string;
 	}
 </script>
 
@@ -45,7 +45,7 @@
 		buttonIcon={data.buttonIcon}
 		isNew={data.isNew}
 		isDeleted={data.isDeleted}
-		reasoning={data.reasoning}
+		reason={data.reason}
 		{type}
 		{codingId}
 		{hasDeletedAncestor}

@@ -72,8 +72,6 @@
 		)
 	);
 
-	let reasoningNotes = $state<Partial<Record<CodingType, string>>>({});
-
 	// Section refs for navigation
 	let containerRef: HTMLDivElement;
 	let essenceRef: HTMLDivElement;
@@ -98,8 +96,8 @@
 		}
 	}
 
-	async function hancleReasonAdded<T extends Coding>(coding: T, type: CodingType) {
-		workflowState.handleReasonAdded(coding, type);
+	function handleReasonAdded(codingId: number, reason: string, type: CodingType) {
+		workflowState.handleReasonAdded(codingId, reason, type);
 	}
 
 	async function saveAllChanges() {
@@ -119,10 +117,6 @@
 
 	let hasChanges = $derived(hasPendingChanges(workflowState.pendingCodings));
 	let pendingCount = $derived(getTotalPendingCount(workflowState.pendingCodings));
-
-	function handleReasoningChange(sectionId: CodingType, value: string) {
-		reasoningNotes = {};
-	}
 </script>
 
 <!-- Top bar -->
@@ -181,6 +175,7 @@
 						workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
 					onCancelRequest={(codingId) =>
 						workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
+					onResonAddedRequest={(codingId, reason) => handleReasonAdded(codingId, reason, section.id)}
 				/>
 			</div>
 		{/each}
