@@ -56,9 +56,8 @@
 		}
 	});
 
-	// Re-render when scale changes
 	$effect(() => {
-		if (canvasContainer && pdfDoc) {
+		if (canvasContainer && pdfDoc && Scale) {
 			renderPage(currentPage);
 		}
 	});
