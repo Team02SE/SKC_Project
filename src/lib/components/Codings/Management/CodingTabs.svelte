@@ -15,7 +15,7 @@
 		{ id: 'effects', label: 'Effects' },
 		{ id: 'opportunity-structures', label: 'Opportunity Structures' },
 		{ id: 'system-vulnerabilities', label: 'System Vulnerabilities' },
-		{ id: 'destep', label: 'Dsteps' }
+		{ id: 'destep', label: 'DESTEPS' }
 	];
 
 	function selectTab(tabId: string) {
