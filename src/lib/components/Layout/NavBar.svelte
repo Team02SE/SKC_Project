@@ -16,7 +16,7 @@
 	<ul class="ml-24 flex gap-6">
 		<NavBarEntry displayName="Workflow" targetUrl="/" />
 		<NavBarEntry displayName="Codings" targetUrl="/codings" />
-		<NavBarEntry displayName="Dashboard" targetUrl="/dashboard" />
+		<!--  <NavBarEntry displayName="Dashboard" targetUrl="/dashboard" /> -->
 	</ul>
 
 	<!-- Middle spacer -->
