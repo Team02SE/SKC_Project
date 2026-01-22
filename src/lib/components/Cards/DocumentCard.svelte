@@ -120,7 +120,7 @@
 	<div
 		class="flex shrink-0 flex-row gap-4 [@media(min-width:1100px)]:flex-col [@media(min-width:1500px)]:flex-row"
 	>
-		<ButtonSvg type="eye" size={8} />
+		<!-- <ButtonSvg type="eye" size={8} /> -->
 		<ButtonSvg type="edit" size={8} onClick={handleEdit} />
 		<ButtonSvg type="trash" size={8} onClick={handleDeleteClick} />
 	</div>

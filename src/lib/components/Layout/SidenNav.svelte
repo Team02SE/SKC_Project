@@ -6,9 +6,15 @@
 	const dispatch = createEventDispatcher();
 
 	// selectedId comes from parent so scroll position can control the active item
-	export let selectedId: 'essence' | 'activities' | 'effects' | 'destep' | 'opportunity-structures' | 'system-vulnerabilities' | null = null;
+	export let selectedId:
+		| 'essence'
+		| 'activities'
+		| 'effects'
+		| 'destep'
+		| 'opportunity-structures'
+		| 'system-vulnerabilities'
+		| null = null;
 	let hoveredId: string | null = null;
-
 
 	const navItems = [
 		{ id: 'essence', initial: 'E', label: 'Essence' },
@@ -21,7 +27,7 @@
 </script>
 
 <div
-	class="m-5 flex h-150 w-20 flex-col items-center gap-4 text-2xl font-semibold text-light-primary text-center"
+	class="m-5 flex h-150 w-20 flex-col items-center gap-4 text-center text-2xl font-semibold text-light-primary"
 >
 	{#each navItems as item (item.id)}
 		<div class="relative flex flex-col items-center" animate:flip>
@@ -46,17 +52,19 @@
 		</div>
 	{/each}
 
-	<div class="flex flex-col space-y-4 mt-12 mb-8">
+	<div class="mt-12 mb-8 flex flex-col space-y-4">
 		<div class="flex flex-col items-center space-y-2">
+			<!--
 			<button
-				class="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-105 focus:outline-none cursor-pointer"
+				class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-all duration-200 hover:scale-105 focus:outline-none"
 				style="background-color: var(--color-light-secondary);"
 				aria-label="ERD View"
 			>
-				<svg class="w-6 h-6" style="color: var(--color-light-button-content-primary);" fill="currentColor" viewBox="0 0 20 20">
+				 <svg class="w-6 h-6" style="color: var(--color-light-button-content-primary);" fill="currentColor" viewBox="0 0 20 20">
 					<path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-				</svg>
+				</svg> 
 			</button>
+			-->
 		</div>
 	</div>
 </div>

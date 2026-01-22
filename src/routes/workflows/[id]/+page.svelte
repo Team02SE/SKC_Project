@@ -122,7 +122,7 @@
 <!-- Top bar -->
 <div class="sticky top-20 flex h-18 w-full items-center p-4">
 	<a href="/">
-		<ButtonSvg type="home" size={12}/>
+		<ButtonSvg type="home" size={12} />
 	</a>
 	<div class="mx-4 h-10 w-px bg-light-text-primary"></div>
 	<div
@@ -162,7 +162,7 @@
 		class="flex h-[calc(100vh-240px)] w-5/12 flex-col gap-5 overflow-y-auto rounded-2xl bg-light-primary p-5 inset-shadow-sm/25"
 	>
 		<div bind:this={essenceRef}>
-			<CodingsEssence data={essenceContent} />
+			<!-- <CodingsEssence data={essenceContent} /> -->
 		</div>
 		{#each sections as section (section.id)}
 			<div bind:this={sectionRefs[section.id]}>
@@ -177,7 +177,8 @@
 						workflowState.handleCodingDeleted(codingId, section.id, codingsMap)}
 					onCancelRequest={(codingId) =>
 						workflowState.handleCodingCanceled(codingId, section.id, codingsMap)}
-					onResonAddedRequest={(codingId, reason) => handleReasonAdded(codingId, reason, section.id)}
+					onResonAddedRequest={(codingId, reason) =>
+						handleReasonAdded(codingId, reason, section.id)}
 				/>
 			</div>
 		{/each}
