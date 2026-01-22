@@ -20,7 +20,6 @@
 	const sortOptions: { value: SortOption; label: string }[] = [
 		{ value: 'lastModified-desc', label: 'Newest' },
 		{ value: 'lastModified-asc', label: 'Oldest' },
-		{ value: null, label: 'No Sorting' }
 	];
 
 	let isOpen = $state(false);
